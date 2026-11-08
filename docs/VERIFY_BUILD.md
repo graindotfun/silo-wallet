@@ -3,8 +3,27 @@
 The live Solana escrow program for the XMR to SOL atomic swap is:
 
 - Program id: `7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS`
+- ProgramData account: `9jSbazFuWTXiC3RvnwE6Qw5ew9aBZ8wsxyTzhvY6BiwS`
 - Size: 215,944 bytes
-- SBF binary sha256: `76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d`
+- SBF binary sha256: `4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`
+- solana-verify hash (trailing zero bytes removed): `6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39`
+- Last deploy: slot 467051728, 2026-11-08 20:37:25 UTC, transaction
+  `5gBdxnNNfjbicy4V7ZGegCXBPP8BPXRvNHbYqcMuCvmTo8vZMXXN6kq6BBt6EFsaiVd44AsurSz8F1pZ96JXzcBx`
+- Previous live bytes (before that slot): sha256 `76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d`, last
+  deploy slot 465229265, kept in `docs/verify-build/bins/old_live.so`
+
+status: live program third party verifiable since 2026-11-08 (upgrade tx
+`5gBdxnNNfjbicy4V7ZGegCXBPP8BPXRvNHbYqcMuCvmTo8vZMXXN6kq6BBt6EFsaiVd44AsurSz8F1pZ96JXzcBx`, slot 467051728). dump of program
+`7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS`, leading 215,944 bytes, sha256
+`4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`, equals the docker build of this tree. the earlier state
+and how we got here is kept below unchanged.
+
+The supported check is the Docker build (section 1 and `.github/workflows/docker-verified-build.yml`). Its run after the
+upgrade, 42521490252, printed `FULL MATCH` (the live dump inside the run equals both Docker builds); the secondary workflow
+without Docker, run 42521481281, printed `FULL MATCH` too. Both are recorded in `docs/verify-build/hashes.json`.
+How the upgrade was executed is in section 13, "Executed", of `docs/UPGRADE_TO_VERIFIED_BUILD.md`.
+
+## Earlier state (before 2026-11-08, kept unchanged)
 
 status: live program not third party verifiable. docker build is deterministic
 (`4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`, canonical solana-verify hash
@@ -47,43 +66,62 @@ How we got here:
 Until the live program equals a build anyone can repeat, this repository does not claim equivalence between this source and the
 live program.
 
-## 0. Differences from the deployed source
+## 0. Differences from the private source of the previous live bytes
 
-Compared with the private source of the deployed commit, `program/src/lib.rs` differs only in three comment lines (line 1 and
+This section is about the previous live bytes (`76424c24...`), built on macOS from a private commit. The current live bytes
+are the Docker build of this tree itself. Compared with the private source of that commit, `program/src/lib.rs` differs only in three comment lines (line 1 and
 lines 13 and 14, same line count so no code moves) and `program/Cargo.toml` only in its `description` text. No code changed. These comment and metadata edits do not establish binary equivalence; reproduction is still pending.
 Because the binary can embed source line numbers, a build of this tree is expected to give the same bytes. The local build described at the top produced the same hash from this tree.
 
 ## 1. Build the program
 
-The live binary was built with `cargo-build-sbf 4.3.0` and `platform-tools v1.57` (Anchor 0.31.1, see `program/Cargo.lock`).
-With those tools installed:
+The supported way is the Docker build with `solana-verify` 0.5.2 in the digest-pinned image. It needs Docker on a Linux
+x86_64 machine (or amd64 emulation):
 
 ```bash
+cargo install solana-verify --version =0.5.2 --locked
+solana-verify build program --library-name xmr_sol_swap \
+  --base-image solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
+shasum -a 256 program/target/deploy/xmr_sol_swap.so           # 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515
+solana-verify get-executable-hash program/target/deploy/xmr_sol_swap.so   # 6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39
+```
+
+Or build and compare with the chain in one step:
+
+```bash
+solana-verify verify-from-repo -u https://api.mainnet-beta.solana.com --program-id 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS \
+  https://github.com/graindotfun/silo-wallet --mount-path program --library-name xmr_sol_swap \
+  --base-image solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
+```
+
+Answer no if it offers to write a verification record on chain; that write needs the upgrade authority.
+
+Without Docker, on Linux x86_64, the toolchain recipe below gave the same bytes on GitHub's linux runner (run 42490579014):
+
+```bash
+cargo install cargo-build-sbf --version =4.3.0 --locked
+cargo-build-sbf --tools-version v1.57 --install-only
 cd program
 PATH="$HOME/.cache/solana/v1.57/platform-tools/rust/bin:$PATH" cargo-build-sbf --tools-version v1.57 --no-rustup-override --skip-tools-install -- --locked
 shasum -a 256 target/deploy/xmr_sol_swap.so
 ```
 
-Use `cargo-build-sbf 4.3.0` (`cargo install cargo-build-sbf --version =4.3.0 --locked`), with `cargo-build-sbf --tools-version v1.57 --install-only`
-once to fetch platform-tools. Newer wrapper versions gave different bytes in our CI (smaller with the default target, and 1,672
-bytes different with `--arch v0`). On a machine without `rustup`, also set `RUSTC=$HOME/.cache/solana/v1.57/platform-tools/rust/bin/rustc`.
+On a machine without `rustup`, also set `RUSTC=$HOME/.cache/solana/v1.57/platform-tools/rust/bin/rustc`. The same recipe on
+macOS gave the previous live bytes (`76424c24...`), not the current ones: the host platform changes the output. Newer wrapper
+versions gave different bytes in our CI (smaller with the default target, and 1,672 bytes different with `--arch v0`).
 
-The printed hash should equal the sha256 above. A different tool version can give a different hash; if so, install the
-versions listed above before drawing any conclusion.
+### Automated checks
 
-### Automated check
+`.github/workflows/docker-verified-build.yml` is the supported check. It builds `program/` twice in the pinned image on two
+runners, fails unless both builds are byte-identical and equal `4033eb70...`, dumps the live program read-only and prints
+`FULL MATCH` when the leading 215,944 bytes of the live program equal the build and nothing but zeros follows. If a dump was
+read and differs, the run fails.
 
-`.github/workflows/verify-build.yml` builds `program/` with the pinned toolchain, prints the sha256 of the built `.so` in the
-public log, dumps the live program and compares the three hashes (expected, built, live). It fails loudly on any mismatch.
-It can be started by hand (workflow_dispatch) and runs on pushes that touch `program/`. A green run is the evidence to look for.
-This repository does not claim equivalence with the live program until a green run is linked here.
-
-What the workflow does and does not pin: the third-party action is pinned to a full commit SHA, the toolchain installer script
-is checked against a pinned sha256, and `platform-tools` and `rustc` versions must equal the pins or the run
-fails. The `cargo-build-sbf` wrapper version is printed but not pinned: the pinned Agave release ships a newer wrapper (4.4.0)
-than the one used for the live binary (4.3.0). If that ever changes the bytes, the comparison fails and shows it. The toolchain binaries that the installer downloads are not independently hashed by this workflow. The result lines are
-exact: "prefix equal" (the leading bytes of the dump equal the build), "padding only" (extra bytes are all zero), and "FULL MATCH"
-(exact-length sha256 equal for build, dump and expected value, extra bytes zero). Nothing else is claimed.
+`.github/workflows/verify-build.yml` is a secondary check without Docker (the toolchain recipe above on a GitHub linux runner).
+It expects the same `4033eb70...` and prints `FULL MATCH` on success. The third-party actions are pinned to full commit SHAs,
+the toolchain installer script is checked against a pinned sha256, and the `cargo-build-sbf`, `platform-tools` and `rustc`
+versions must equal the pins or the run fails. The toolchain binaries that the installer and `cargo install` download are not
+independently hashed by this workflow.
 
 ### What a mismatch would mean
 
@@ -95,8 +133,9 @@ exact: "prefix equal" (the leading bytes of the dump equal the build), "padding 
 ## 2. Read the hash from the chain
 
 ```bash
-solana program dump -u mainnet-beta 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS /tmp/live.so && shasum -a 256 /tmp/live.so # or with solana-verify:
-solana-verify get-program-hash -u mainnet-beta 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS
+solana program dump -u mainnet-beta 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS live.so
+head -c 215944 live.so | shasum -a 256    # 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515
+solana-verify get-program-hash -u mainnet-beta 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS   # 6d331f75...ae39
 ```
 
 This dumps the deployed bytes and hashes them.
@@ -115,4 +154,5 @@ If the two hashes differ after those checks, tell us (see `SECURITY.md`).
   `SBF_OUT_DIR=$PWD/target/deploy cargo test --test swap -- --test-threads=1`
 - The program upgrade authority is held by the Silo team, so the program can be upgraded. A new upgrade changes the
   on-chain hash, and this file and the repository will be updated with it.
-- Build tool versions used for the live binary: platform-tools v1.57, cargo-build-sbf 4.3.0.
+- Build of the live binary since 2026-11-08: `solana-verify` 0.5.2 in the pinned image above (cargo-build-sbf 4.3.0,
+  platform-tools v1.57 inside it). The previous live binary was built on macOS with the same tool versions.

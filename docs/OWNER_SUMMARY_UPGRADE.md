@@ -2,8 +2,8 @@
 
 internal procedure, published for transparency. tracker is our release operator role. astra is an internal model review lane, not an audit.
 
-One page, plain language. The full procedure is `docs/UPGRADE_TO_VERIFIED_BUILD.md`. The upgrade itself has not happened and
-has no date.
+One page, plain language. The full procedure is `docs/UPGRADE_TO_VERIFIED_BUILD.md`. The upgrade was executed on 2026-11-08;
+what changed against the plan below is in "Status after the upgrade" at the end.
 
 ## What the upgrade is
 
@@ -40,14 +40,21 @@ affected, because we finish all our swaps before it. Someone outside Silo who us
 second before a deadline could lose that swap during that moment. We cannot prevent this, because the program is open to
 everyone and has no pause button. Adding one would change the program's logic, which this upgrade does not do.
 
-## Gates that are still open
+## Status after the upgrade (2026-11-08)
 
-| Gate | State |
+The upgrade was made on 2026-11-08 in transaction
+`5gBdxnNNfjbicy4V7ZGegCXBPP8BPXRvNHbYqcMuCvmTo8vZMXXN6kq6BBt6EFsaiVd44AsurSz8F1pZ96JXzcBx` (slot 467051728). The live program
+now equals the Docker build, so anyone can rebuild it and compare. It was done in a simpler variant than the plan above: the
+maker was stopped instead of using the "stop new swaps" switch, which was not ready, and the upgrade was signed in a wallet
+from a checked signing page instead of a typed command. The full record is section 13 of `docs/UPGRADE_TO_VERIFIED_BUILD.md`.
+
+| Item | State |
 |---|---|
-| Maker "stop new swaps" switch: built, reviewed, deployed and tested | Written; failed internal review once (2 high, 1 medium); being fixed, not re-reviewed, not deployed |
-| Independent rebuild outside GitHub | Done on a linux x86_64 vm and a Mac under amd64 emulation; closure to be confirmed in review |
-| Tests: both versions, old and new swaps both ways, the moment of the switch | Differential test done (`docs/verify-build/c5/`); the moment inside the upgrade slot is not measured by it |
-| Practice run of the commands on devnet | Open (tracker) |
-| Fingerprint of the old bytes (A13) recorded before approval | Open (tracker) |
-| Closure review of the procedure | Open (Astra) |
-| Approval of the upgrade, the SOL amounts and the risk above | Open (upgrade authority holder) |
+| Live program equals the Docker build | Done, checked on chain after the upgrade |
+| Open swaps at signing | None, of anyone, in finalized scans before the hand-over and twice just before signing |
+| Residual risk above | Accepted by the upgrade authority holder before signing; the gap between the last scan and the upgrade was minutes |
+| Maker "stop new swaps" switch | Not deployed and not used |
+| Old bytes, for switching back | In a rollback buffer held by the upgrade authority holder, and in `docs/verify-build/bins/old_live.so` |
+| Maker | Stopped, until the refund path is reviewed and a decision is documented; no new XMR to SOL swaps until then |
+| Team test swap after the upgrade | Not made yet, waits for the maker |
+| Closing the rollback buffer | Later |

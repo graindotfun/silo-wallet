@@ -1,14 +1,12 @@
 # Silo wallet core
 
-status: the escrow program live on solana (`76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d`) cannot yet be
-rebuilt by a third party. the same source builds deterministically to
-`4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515` in a pinned docker image (canonical solana-verify hash
-`6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39`), reproduced in three independent environments (github's
-linux runner, a separate linux x86_64 vm with two builds, and a mac under amd64 emulation with two builds), and differs from the
-live bytes in 1,672 of 215,944 bytes: 1,668 in the code section and 4 in two relocation entries that point into it. a
-differential test (248 runs, 1,426 steps, old and new bytes switching at every point incl. deadlines) found identical behaviour
-on every path it covered; it does not cover all paths. we will upgrade the live program to the docker bytes
-(`docs/UPGRADE_TO_VERIFIED_BUILD.md`); until then treat the live program as unverified by you. evidence: `docs/verify-build/`.
+status: the escrow program live on solana now runs the bytes anyone can rebuild: sha256
+`4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515` (canonical solana-verify hash
+`6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39`), built from `program/` in a pinned docker image and
+reproduced in three independent environments. upgraded on 2026-11-08 in transaction
+`5gBdxnNNfjbicy4V7ZGegCXBPP8BPXRvNHbYqcMuCvmTo8vZMXXN6kq6BBt6EFsaiVd44AsurSz8F1pZ96JXzcBx`, slot 467051728; the previous
+bytes (`76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d`) differed by 1,672 bytes of compiler output and are
+kept in `docs/verify-build/bins/` with a differential test. verify it yourself: `docs/VERIFY_IN_10_MINUTES.md`.
 
 swap caps and maker quotas are maker policy, not program code, so do not rely on them (see `docs/WHAT_THE_MAKER_CAN_DO.md`).
 
@@ -91,12 +89,12 @@ statement that the software is safe.
 
 ## More documents
 
-- `docs/VERIFY_IN_10_MINUTES.md`: five commands to check the live program and this repository.
+- `docs/VERIFY_IN_10_MINUTES.md`: a few commands to check the live program, rebuild it, and check this repository.
 - `docs/PROTOCOL.md`: the XMR to SOL swap protocol (beta version).
 - `docs/WHAT_THE_MAKER_CAN_DO.md`: what the swap maker can and cannot do.
 - `docs/VERIFY_BUILD.md`: reproducing the escrow program build, and its current status.
 - `docs/verify-build/`: the build evidence (hashes of each environment, both binaries, the differing regions, the differential test).
-- `docs/UPGRADE_TO_VERIFIED_BUILD.md`: the procedure for upgrading the live program to the Docker build (not executed).
+- `docs/UPGRADE_TO_VERIFIED_BUILD.md`: the procedure for upgrading the live program to the Docker build, and how it was executed on 2026-11-08.
 - `docs/MAKER_ADMISSION_GATE_SPEC.md`: the maker change that procedure depends on (design).
 - `docs/OWNER_SUMMARY_UPGRADE.md`: a plain summary of that upgrade.
 - `docs/REVIEW_HISTORY.md`: what internal review found in those documents and what is still open.
@@ -113,8 +111,8 @@ npm run typecheck
 
 ## Verify the escrow program
 
-See `docs/VERIFY_BUILD.md`. In short: the Docker build of `program/` repeats, but it does not equal the live program yet,
-so a build of this source cannot confirm the live bytes today (see the status at the top).
+See `docs/VERIFY_BUILD.md`. In short: since 2026-11-08 the live program equals the Docker build of `program/`, so you can
+rebuild this source and compare it with the bytes on chain (see the status at the top).
 
 ## Licence
 

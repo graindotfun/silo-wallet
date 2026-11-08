@@ -3,8 +3,8 @@
 internal procedure, published for transparency. tracker is our release operator role. astra is an internal model review lane, not an audit.
 
 This page covers `docs/UPGRADE_TO_VERIFIED_BUILD.md`, `docs/MAKER_ADMISSION_GATE_SPEC.md` and the maker change that spec
-describes. The procedure failed internal review twice. The maker change failed its review once. Nothing in them has been
-executed on chain.
+describes. The procedure failed internal review twice. The maker change failed its review once. The upgrade was executed on
+2026-11-08 in a variant that did not use the maker change (see "Executed" below).
 
 ## Round 1: failed
 
@@ -33,7 +33,28 @@ re-reviewed and it is not deployed. The upgrade procedure does not start without
 | Item | State |
 |---|---|
 | Procedure revision 3 and spec revision 2 | Closure review of round 2 findings not yet done |
-| Maker admission gate | Being fixed after a failed review |
+| Maker admission gate | Being fixed after a failed review; not used for the upgrade |
 | Rebuilds outside GitHub | Done, `docs/verify-build/` |
 | Differential test of the two binaries | Done for the paths it covers, `docs/verify-build/c5/` |
-| The upgrade | Not executed, no date |
+| The upgrade | Executed 2026-11-08, slot 467051728, variant "maker stopped" (see "Executed") |
+| The maker | Stopped since the window, not restarted, until the refund path is reviewed and a decision is documented |
+
+## Executed
+
+Executed on 2026-11-08: upgrade transaction
+`5gBdxnNNfjbicy4V7ZGegCXBPP8BPXRvNHbYqcMuCvmTo8vZMXXN6kq6BBt6EFsaiVd44AsurSz8F1pZ96JXzcBx`, slot 467051728, block time
+2026-11-08 20:37:25 UTC. The full record is section 13 of `docs/UPGRADE_TO_VERIFIED_BUILD.md`.
+
+- Variant: the maker was stopped instead of closing admission with the admission gate, because the gate was not deployed.
+  Finalized escrow scans found zero open escrows, of anyone, before the buffer hand-over, and twice more in the
+  signing page before signing. The maker's 5 swap files were all final and its journal unchanged.
+- Buffers: the upgrade buffer `2HUNn1Q3QXuLnR6Ndh6nCxnLbfZY7uy8JQxgBKSvhDSU` (Docker build, consumed by the upgrade) and the
+  rollback buffer `9BFEveajgqYcBqqK8zEFisJxy8YKytTqLc8ad7Wfv1TN` (previous bytes, still held by the upgrade authority), both
+  written and verified on mainnet beforehand.
+- Signing: built and checked in a local signing page (23 fields, a simulation, the escrow scans) and signed by the upgrade
+  authority holder in a wallet, instead of a CLI command typed by the authority holder (step 3.3 of the procedure).
+- Residual risk accepted by the upgrade authority holder: an escrow created by someone outside Silo in the minutes between the
+  last scan and the upgrade taking effect could have been caught by it (R-1). None existed in the scans.
+- Result: the live program equals the Docker build (`4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`);
+  Docker workflow run 42521490252 after the upgrade: `FULL MATCH`.
+- The maker stays stopped until the refund path has been reviewed and a decision is documented.

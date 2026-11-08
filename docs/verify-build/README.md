@@ -1,16 +1,17 @@
 # Build evidence for the escrow program
 
 Raw evidence behind the status in `docs/VERIFY_BUILD.md`. Everything here can be checked with the files in this folder and
-public tools. Nothing here was signed or sent to a chain.
+public tools. Nothing here was signed or sent to a chain. The upgrade of 2026-11-08 that put `bins/new_verified.so` on chain is recorded in `hashes.json`
+(`upgrade`, `post_upgrade_run`) and in section 13 of `docs/UPGRADE_TO_VERIFIED_BUILD.md`.
 
 | Path | What it is |
 |---|---|
 | `hashes.json` | Summary: source commit, `program/` tree, image, the result of each environment, the two binaries with their sha256, the difference and the differential test result. |
-| `github-runner/` | `hashes.json`, `build-a.json`, `build-b.json` from the `docker-verified-build` workflow run 42503119763 on GitHub's linux runners (two separate jobs). |
+| `github-runner/` | `hashes.json`, `build-a.json`, `build-b.json` from the `docker-verified-build` workflow run 42503119763 on GitHub's linux runners (two separate jobs). That run was before the upgrade, so its `live_*` fields describe the previous live bytes. |
 | `linux-vm/` | `hashes.json` and the full `build.log` of two builds on a separate linux x86_64 vm (ubuntu 24.04), outside GitHub. |
 | `mac-amd64-emulation/` | `hashes.json` of two builds on a Mac (aarch64) running the linux/amd64 image under emulation (Colima with Rosetta). No full log was kept for these runs. |
-| `bins/old_live.so` | The live program bytes: the leading 215,944 bytes of a mainnet dump, sha256 `76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d`. |
-| `bins/new_verified.so` | The Docker build of `program/`, sha256 `4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`. |
+| `bins/old_live.so` | The previous live program bytes (live until the upgrade of 2026-11-08, slot 467051728): the leading 215,944 bytes of a mainnet dump, sha256 `76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d`. |
+| `bins/new_verified.so` | The Docker build of `program/`, sha256 `4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`. The live program since the upgrade of 2026-11-08. |
 | `diff-regions.py` | Prints the 38 regions where the two binaries differ (offset, length, section, bytes). |
 | `c5/upgrade_equivalence.rs` | Source of the differential test between the two binaries. |
 | `c5/c5-run-full-20261108.log` | Full log of one run of that test. |

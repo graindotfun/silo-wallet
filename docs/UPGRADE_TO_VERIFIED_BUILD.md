@@ -2,8 +2,10 @@
 
 internal procedure, published for transparency. tracker is our release operator role. astra is an internal model review lane, not an audit.
 
-**Status: procedure only (revision 3, after Astra round 2), under review. Nothing in this file has been executed on chain, and
-there is no date.** It needs, in this order: the maker admission gate of `docs/MAKER_ADMISSION_GATE_SPEC.md` (revision 2 of
+**Status: executed on 2026-11-08 in a variant (the maker was stopped instead of the admission gate), upgrade transaction
+`5gBdxnNNfjbicy4V7ZGegCXBPP8BPXRvNHbYqcMuCvmTo8vZMXXN6kq6BBt6EFsaiVd44AsurSz8F1pZ96JXzcBx`, slot 467051728. What was done and
+how it differs from the procedure is in section 13, "Executed". Sections 1 to 12 are revision 3 as written before the window,
+unchanged.** As written, it needed, in this order: the maker admission gate of `docs/MAKER_ADMISSION_GATE_SPEC.md` (revision 2 of
 the spec) implemented, reviewed and deployed; every row of the signing checklist (section 9) ticked; an approval record that
 includes explicit acceptance of the residual risk of section 8.4; and the tracker to run the steps that need no signature by
 the upgrade authority. Only the program upgrade authority holder signs. A plain summary is `docs/OWNER_SUMMARY_UPGRADE.md`;
@@ -402,7 +404,7 @@ has no pause button."*
 
 Protocol v2 (in development, not in this repository) stays on hold and is not affected by this procedure except as follows:
 its preflight and tests expect the live program to be the old build (`76424c24...`, the `OLD_SHA` constant of its preflight and
-bank test scripts, the "old artifact" of its upgrade test, and its rollback target). After this upgrade those expectations are stale and must be re-bound
+bank test scripts, the "old artifact" of its upgrade test, and its rollback target). Since this upgrade (executed 2026-11-08, section 13) those expectations are stale and must be re-bound
 to A10/A11 (and the compatibility tests rerun with the Docker artifact as the old binary) before v2 can proceed. v2 must be
 built only through the Docker workflow and follow this procedure with its own constants.
 
@@ -426,3 +428,52 @@ service is a publication and needs its own approval.
 
 No change to the program logic (protocol v2), no change of upgrade authority, no multisig, no freeze, no
 publication of the repository, no change to the maker beyond the separately reviewed admission gate.
+
+## 13. Executed
+
+Executed on 2026-11-08. Upgrade transaction
+`5gBdxnNNfjbicy4V7ZGegCXBPP8BPXRvNHbYqcMuCvmTo8vZMXXN6kq6BBt6EFsaiVd44AsurSz8F1pZ96JXzcBx`, slot 467051728, block time
+2026-11-08 20:37:25 UTC, finalized, no error. It was signed by the upgrade authority A3.
+
+### 13.1 What was done (variant "maker stopped")
+
+- The maker process was stopped (its own service only) and was not restarted after the upgrade.
+- Escrows: finalized `getProgramAccounts` scans of A1 found zero open escrows, of the maker or of anyone else, before the
+  buffer hand-over, and again twice in the signing page immediately before signing.
+- The maker's 5 swap files were all final and its journal was unchanged by the window.
+- Buffers: two buffers were written and verified on mainnet before the hand-over, 252 finalized write transactions each. The
+  upgrade buffer `2HUNn1Q3QXuLnR6Ndh6nCxnLbfZY7uy8JQxgBKSvhDSU` held the Docker build (A9, A10, A11); the rollback buffer
+  `9BFEveajgqYcBqqK8zEFisJxy8YKytTqLc8ad7Wfv1TN` holds the previous bytes (A12). The authority of both was handed over to A3.
+- Signing: the upgrade transaction was built and checked in a local signing page (23 fields checked against the constants of
+  section 2, a simulation, and the two escrow scans above) and signed by the upgrade authority holder in a wallet.
+
+### 13.2 How it differs from sections 6 to 9, and why
+
+| Written procedure | What was done instead | Why |
+|---|---|---|
+| Close admission with the maker admission gate (step 0.7, step 1, C8) and keep the maker running | The maker was stopped | The admission gate was not deployed (`docs/REVIEW_HISTORY.md`). Section 8.1 explains why a stop is unsafe while swaps run: it can interrupt an admission between storing a swap and locking its SOL, and a stopped maker cannot refund or sweep. Here no escrow was open and every swap file was final, so the maker had nothing in flight to interrupt or settle. |
+| Quiesce check of the spec (C9) | Finalized escrow scans (zero open escrows) and the 5 swap files checked as final | The quiesce check belongs to the admission gate, which was not deployed. |
+| Listed escrows of others kept 15 minutes away from their deadlines (step 3.1, C10) | Not needed: no escrow of anyone was open in any scan | |
+| The authority holder types the CLI upgrade command and reads the result on their own machine (step 3.3, C14) | The transaction was built in a local signing page, checked field by field (23 fields) and by simulation, and signed in a wallet | Recorded as a difference: the written procedure did not foresee a signing page. |
+
+### 13.3 Residual risk accepted by the upgrade authority holder
+
+The program is permissionless and has no pause. Between the last escrow scan and the moment the upgrade took effect (minutes),
+someone outside Silo could have created an escrow and sent a claim or refund near its deadline exactly as the upgrade took
+effect (R-1, section 8.4). None existed in the scans. The upgrade authority holder accepted that risk before signing.
+
+### 13.4 After the upgrade
+
+- Checked at finalized commitment: the leading 215,944 bytes of ProgramData `9jSbazFuWTXiC3RvnwE6Qw5ew9aBZ8wsxyTzhvY6BiwS` have
+  sha256 A10 (`4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`) and solana-verify hash A11
+  (`6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39`); the last deploy slot is 467051728 (before: 465229265);
+  the authority is A3; the upgrade buffer is consumed. A separate dump from the public mainnet RPC gave the same hash and is
+  byte-identical to `docs/verify-build/bins/new_verified.so`.
+- The Docker workflow ran after the upgrade (run 42521490252, commit `89101d4b0cce1190b9e23912ce128e4f2462f1cb`, same
+  `program/` tree A5): two identical builds equal to A10 and A11, and the live dump inside the run equal to them, `FULL MATCH`.
+  The secondary workflow without Docker (run 42521481281) also printed `FULL MATCH`. Both are recorded in
+  `docs/verify-build/hashes.json` (`post_upgrade_run`, `post_upgrade_run_without_docker`).
+- The previous live bytes (A12, last deploy slot 465229265) are kept in `docs/verify-build/bins/old_live.so`. The rollback
+  buffer `9BFEveajgqYcBqqK8zEFisJxy8YKytTqLc8ad7Wfv1TN` with those bytes still exists, with authority A3, and stays for now.
+- The maker stays stopped until the refund path has been reviewed and a decision is documented. Until then Silo opens no new
+  XMR to SOL swaps, and the team test swap of step 4 has not been made.

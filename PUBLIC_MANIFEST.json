@@ -59,7 +59,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "e253b6de774cca08391675dcc73b005a5fee4c94c628c74468ae789b154d2c7a",
+      "sha256": "caa20cc5586fb68ffc75b589d3ee476ef9d0d0a16f85b1133c98e2660215852a",
       "source": null,
       "status": "new"
     },
@@ -125,7 +125,7 @@
     },
     {
       "path": "docs/OWNER_SUMMARY_UPGRADE.md",
-      "sha256": "d2364b2d3790b6553e721323c4dcdec438591b5657b6acd1a2264fec878bd3fb",
+      "sha256": "ae4b6dccc273a69abf1146e8de2b086fb7e7ba632eb6b2bf3cdf8951e1199d65",
       "source": null,
       "status": "new"
     },
@@ -137,25 +137,25 @@
     },
     {
       "path": "docs/REVIEW_HISTORY.md",
-      "sha256": "1672e38cfc86f210b97ab71f0853cb04f9e597b31363fe323f1c794d2bc3f753",
+      "sha256": "0e849bd276e041ea0c5e25ffb4f1a629acc551bf90a29b93d7bb418b6587ae9a",
       "source": null,
       "status": "new"
     },
     {
       "path": "docs/UPGRADE_TO_VERIFIED_BUILD.md",
-      "sha256": "2f30d9fbaef152bb22d4b362dbec1bb66ca823ceb657740d47d9cc6f7de571a3",
+      "sha256": "ea7b16c6adec3f36dd955d6fab82b1053aadccffbc53be31a42c1d96289be2f8",
       "source": null,
       "status": "new"
     },
     {
       "path": "docs/VERIFY_BUILD.md",
-      "sha256": "81c9c7e49d9cbb3d49112a3d7276dafb19e43eb2008043b0effb0369cacd34b5",
+      "sha256": "e2e44a3118caba447d8adafb3ffd2873dce045b2019e25e20bf19621c74be3eb",
       "source": null,
       "status": "new"
     },
     {
       "path": "docs/VERIFY_IN_10_MINUTES.md",
-      "sha256": "151cc6f8d00ee77f5e4a8accba3e6c86f2affde1a7b3fbc44f23d9b2a1bd52fb",
+      "sha256": "f3a9f946831e6aa3af9e14d60bfe616284a9f709bc46598a74e22774785d58cc",
       "source": null,
       "status": "new"
     },
@@ -167,7 +167,7 @@
     },
     {
       "path": "docs/verify-build/README.md",
-      "sha256": "c48246641fffb8349625943ae446a78d7c255e9fd08dd8e33b25fcb68a0699cf",
+      "sha256": "0ec1c9adabe8b3e823c958efade6a88c13f7e7713d8725a2ecccfb11c7c30902",
       "source": null,
       "status": "new"
     },
@@ -221,7 +221,7 @@
     },
     {
       "path": "docs/verify-build/hashes.json",
-      "sha256": "8fb25e1d39f43b503dab592bdc16dfa587008ea5889ed45b9660a55206fd55df",
+      "sha256": "86f2e6523534ce43094a33a7a51e8257a8fb06f5c164bd128584fd36ea87d298",
       "source": null,
       "status": "new"
     },
