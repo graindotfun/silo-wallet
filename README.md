@@ -84,7 +84,7 @@ production build.
 
 ## Status and honest limits
 
-Silo is in a closed beta. The hosted service enforces caps on beta use; the code in this repository does not enforce a
+Silo is in an open beta with small caps. The hosted service enforces the caps; the code in this repository does not enforce a
 holding cap by itself. It has not had an independent external
 security audit. Read the code, run the tests, and report problems (see `SECURITY.md`). Do not treat this repository as a
 statement that the software is safe.

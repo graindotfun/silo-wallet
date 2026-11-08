@@ -1,607 +1,607 @@
 {
- "sourceRepository": "private",
- "sourceCommit": "4a69d41e (origin/main, 8 Nov 2026)",
- "note": "Files marked modified differ from the source only by removed internal review notes, SPDX headers, and the two named seams in native-keyring.mjs and native-keyring-testnet.mjs.",
- "files": [
-  {
-   "path": ".github/workflows/docker-verified-build.yml",
-   "sha256": "af3ca35880a8eb2a086c144263164bbb1d05480f08326bfeb124d4757bb4c95e",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": ".github/workflows/verify-build.yml",
-   "sha256": "b603fbb1fd86c43d5dd193e59497c1ebc1ab23d7a37d4d72813f11f49f1079b0",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": ".gitignore",
-   "sha256": "41ae10d31d4b6e0608b1ec8ac9eec77d89f1954b23a50aebd9413fafc6e7f198",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "CONTRIBUTING.md",
-   "sha256": "a2bcca3b1751a86f8ff768a0c5bcd2647c6133b1528e8e6922d74bae05d282a0",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "LICENSE",
-   "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "LICENSES/AGPL-3.0-only.txt",
-   "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "LICENSES/GPL-3.0-only.txt",
-   "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "LICENSES/MIT.txt",
-   "sha256": "fe0f8d5e9ca8fa019882a816f3ffd1f7dba4ea85c5d1a18636ab7fabe5543979",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "NOTICE",
-   "sha256": "267efbef52e0dea22700c2a00d3301978ccc7ba06add8d4f60ed2f301c13d66b",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "README.md",
-   "sha256": "f850ab7362915f0fbb0c04f67afce22440ad253981caa9c2cfe9a632f95fe41a",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "SECURITY.md",
-   "sha256": "87c2790b3ff697ec337186e2a9a158f1c10bee538393260ec6bed190bd90dc59",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "TRADEMARK.md",
-   "sha256": "b53e72fd34a3a2a305c08bfab7f1f57230a8b43f2b7eb9f37efca91fee77ebfa",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "components/silo-asset-icon.tsx",
-   "sha256": "03d4e8eaeb956590e2568cf67d9e1f63606af6aa9b15c215c1209be9267a2c32",
-   "source": "components/silo-asset-icon.tsx",
-   "status": "modified"
-  },
-  {
-   "path": "components/silo-atomic-panel.tsx",
-   "sha256": "260eea2892a52fc9ea7ba7eea2b84177875ca25beb1d3dc3b433e3b9ab36dbee",
-   "source": "components/silo-atomic-panel.tsx",
-   "status": "modified"
-  },
-  {
-   "path": "components/silo-atomic-pending-card.tsx",
-   "sha256": "94ee0009aaf7d8f91e3892300dec5fb64440311551834a429ffcf99ef06a03e9",
-   "source": "components/silo-atomic-pending-card.tsx",
-   "status": "modified"
-  },
-  {
-   "path": "components/silo-backup-parts.tsx",
-   "sha256": "792a0cfb02fc01142546fcade85eb2ae940190b60a4a8f1e3e4ce02b6000e177",
-   "source": "components/silo-backup-parts.tsx",
-   "status": "modified"
-  },
-  {
-   "path": "components/silo-device-unlock.tsx",
-   "sha256": "ee5b9cb8e0c75600b89f2f9665b903faa7ff1d1c70fd168dedad3e70063d7563",
-   "source": "components/silo-device-unlock.tsx",
-   "status": "modified"
-  },
-  {
-   "path": "components/silo-one-unlock-field.tsx",
-   "sha256": "743c364a19495c27fe033137ed82f5627693af8537cf00a91ed60059898cb4f6",
-   "source": "components/silo-one-unlock-field.tsx",
-   "status": "modified"
-  },
-  {
-   "path": "components/silo-shared-passphrase.tsx",
-   "sha256": "9fc8b31fcfa7fd1a549b7ca33411fcabeb614b14c08bcd41ad2a2f81bc1fe753",
-   "source": "components/silo-shared-passphrase.tsx",
-   "status": "modified"
-  },
-  {
-   "path": "docs/MAKER_ADMISSION_GATE_SPEC.md",
-   "sha256": "f7631d6de5f564eb35484939320092ae24384a8e70e3e38f010201e0b6fd7f65",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/OWNER_SUMMARY_UPGRADE.md",
-   "sha256": "d2364b2d3790b6553e721323c4dcdec438591b5657b6acd1a2264fec878bd3fb",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/PROTOCOL.md",
-   "sha256": "e5829f58aeef451659acc84d2c750883fc7d257635bac195e3b74914e81a2364",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/REVIEW_HISTORY.md",
-   "sha256": "1672e38cfc86f210b97ab71f0853cb04f9e597b31363fe323f1c794d2bc3f753",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/UPGRADE_TO_VERIFIED_BUILD.md",
-   "sha256": "2f30d9fbaef152bb22d4b362dbec1bb66ca823ceb657740d47d9cc6f7de571a3",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/VERIFY_BUILD.md",
-   "sha256": "81c9c7e49d9cbb3d49112a3d7276dafb19e43eb2008043b0effb0369cacd34b5",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/VERIFY_IN_10_MINUTES.md",
-   "sha256": "151cc6f8d00ee77f5e4a8accba3e6c86f2affde1a7b3fbc44f23d9b2a1bd52fb",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/WHAT_THE_MAKER_CAN_DO.md",
-   "sha256": "5bc75e14b70347dd9d7c9104f08617a1396205f5ad90d95220881e96c58d9637",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/README.md",
-   "sha256": "c48246641fffb8349625943ae446a78d7c255e9fd08dd8e33b25fcb68a0699cf",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/bins/new_verified.so",
-   "sha256": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/bins/old_live.so",
-   "sha256": "76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/c5/c5-run-full-20261108.log",
-   "sha256": "280a072503dd45dcc225860b7167c372b2cce8dc75ad1098396928c67b070967",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/c5/upgrade_equivalence.rs",
-   "sha256": "7191a25fae8c196b8727286e8148d3a7bd026c10fe1846be164ed574cff0631f",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/diff-regions.py",
-   "sha256": "63bdd960b1f0bd37ee16dbc6a2e496fa99aaa214ebeea415277a0b34c7e8dffb",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/github-runner/build-a.json",
-   "sha256": "25fe4aec94d96fc524df217f7ac8e2134afff90b451976b1fe9e1603a0e3c46e",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/github-runner/build-b.json",
-   "sha256": "674b2c425bff4677fde55d222eef23ca6ec04c8596cb5d32b061931b3ee5a6b1",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/github-runner/hashes.json",
-   "sha256": "a83fca10951cb0d3ae6de2bbbe715e3c1c4eb5ab28f544a38611ce46ac6ad6af",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/hashes.json",
-   "sha256": "8fb25e1d39f43b503dab592bdc16dfa587008ea5889ed45b9660a55206fd55df",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/linux-vm/build.log",
-   "sha256": "49cb617278573c4e6a633a81d900939ef531e6ddf3a953ecc49e4ea97d8be941",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/linux-vm/hashes.json",
-   "sha256": "7fe3341baeddf7ab6139f4fa1ed833fc439925539267db44eb7c9a8d67c3e823",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "docs/verify-build/mac-amd64-emulation/hashes.json",
-   "sha256": "8b2ece42b730b2d5b0fa9fa2263d9b676daf2346d9e2ad3386ebe7102dc49b9f",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "lib/browser-buffer.mjs",
-   "sha256": "15d128dfaf9155cb5e6d391c42831f4c4d21751d0553b160cae384c16accb9c2",
-   "source": "lib/browser-buffer.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/browser-rpc-session.mjs",
-   "sha256": "6800157ac5863a8095319f84080890c11a5f5718aaa08ef5e3a3ccc45d134f37",
-   "source": "lib/browser-rpc-session.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/amounts.mjs",
-   "sha256": "7fc3d054b8983bddb9568779040ede85ba1356d98d98f47309ef673a736eca38",
-   "source": "lib/silo/amounts.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/atomic-driver.mjs",
-   "sha256": "94f6310856a00080ee139c38d96fb3ad45d6e6805f99c9fcd4f31f27ea76216a",
-   "source": "lib/silo/atomic-driver.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/atomic-pending.mjs",
-   "sha256": "712c2ebce095e8d9d586ca7839e570c3f725ca7806643249e448d211379e2943",
-   "source": "lib/silo/atomic-pending.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/atomic-swap/alice-flow.mjs",
-   "sha256": "7e41496d82534a2845e080c0adba45fcd5db532421fe7d4dd32c16c50fb9c9df",
-   "source": "lib/silo/atomic-swap/alice-flow.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/atomic-swap/keys.mjs",
-   "sha256": "724458a78515b40d794cd84159af859ad0bd358b6251372bfda2e271956bbf76",
-   "source": "lib/silo/atomic-swap/keys.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/atomic-swap/sol.mjs",
-   "sha256": "47a37f95adcc70789daf91e6ef2317e8bc39f4d188d2d5571b1f302fce570d87",
-   "source": "lib/silo/atomic-swap/sol.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/atomic-swap/swap-core.mjs",
-   "sha256": "5031c058a9bec273b53cba7b0b320e74bf7537c3b365318c509865f8b4235cc8",
-   "source": "lib/silo/atomic-swap/swap-core.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/bounded-json.mjs",
-   "sha256": "fe6a7599402f9bb7789a5552a8a909311172029d10517b03a7b45a6d27ae8011",
-   "source": "lib/silo/bounded-json.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/device-unlock.mjs",
-   "sha256": "cba0a5c29d4e3aed1183cc2c579dc09698a527597499061d0ffa17c0a147ccb4",
-   "source": "lib/silo/device-unlock.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/disclosures.mjs",
-   "sha256": "09e14f107d5685aaec23c3e286d34e3cdf1aaa45a3e68844de5a8f0fa410e7d0",
-   "source": "lib/silo/disclosures.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/evm-wallet.ts",
-   "sha256": "69c4685567dbf84f5cfee9daef6837ba229a9f2f30ca7ed64751aec90c7f2184",
-   "source": "lib/silo/evm-wallet.ts",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/evm.mjs",
-   "sha256": "e21d6b259b840662848ce443700445d642e5ca386bf6a4e83ea382c125ec3924",
-   "source": "lib/silo/evm.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/legacy-envelopes.mjs",
-   "sha256": "8c03af2cf008af3f1a1ed4a9f241550e0053baf014629b232844662abf9e8955",
-   "source": "lib/silo/legacy-envelopes.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/local-envelope.mjs",
-   "sha256": "eaa342aa5c029afb0c25a0c65d3ca85cc32fb37362e681690fff2172fbf20276",
-   "source": "lib/silo/local-envelope.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/native-history.mjs",
-   "sha256": "5645c6f3a9c17df2e94bd022a2f06f57539815ffc6d94edda002a905ee47d512",
-   "source": "lib/silo/native-history.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/native-keyring-store.d.mts",
-   "sha256": "b3446abe7d2345962fabdebf57196987b1a628c695a147ff63677aae7c1cea99",
-   "source": "lib/silo/native-keyring-store.d.mts",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/native-keyring-store.mjs",
-   "sha256": "5fa02a210be2a21859d521147a5ada383ee16902fc32ed18b1b2e138230adb22",
-   "source": "lib/silo/native-keyring-store.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/native-keyring-testnet.d.mts",
-   "sha256": "184e9f33874de83b08f527153e1f90462b4a143434e6dfd992146cb2388cfa2d",
-   "source": "lib/silo/native-keyring-testnet.d.mts",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/native-keyring-testnet.mjs",
-   "sha256": "e0d41c211ae51a5e0fd5110ab183aade21264366f6879ce6da7b4ad23d8e0ebe",
-   "source": "lib/silo/native-keyring-testnet.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/native-keyring.d.mts",
-   "sha256": "099c7bbc132113be3299564405bc9493c0ea31c17c036f1faecd37f4e69033a7",
-   "source": "lib/silo/native-keyring.d.mts",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/native-keyring.mjs",
-   "sha256": "bdb929d2497157b2fd33799b265cb457ab594bd03e31679d50565385c088a3c5",
-   "source": "lib/silo/native-keyring.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/one-unlock.d.mts",
-   "sha256": "1e0589c302ea74ad9d0a48606e8b9728580267e5611d04fe205d857a9ec9dd9d",
-   "source": "lib/silo/one-unlock.d.mts",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/one-unlock.mjs",
-   "sha256": "09eac80f549ffe7269325505ead659445233492b5055e20edae39490db1473bf",
-   "source": "lib/silo/one-unlock.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/passphrase-strength.mjs",
-   "sha256": "9a594e5b16c84854e38236f2012d74957bcb999d6fdea83e10e07a7c40b00509",
-   "source": "lib/silo/passphrase-strength.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/payment-journal.mjs",
-   "sha256": "a4a47869490559b98652a4eb6d58aad3cd133f5a9ca3ad05adaafb8e829124b8",
-   "source": "lib/silo/payment-journal.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/release-gate.mjs",
-   "sha256": "d73ebdd9a0c486ecfedf0cf013012f0ea1df038050f82931e256f8efee812cba",
-   "source": "lib/silo/release-gate.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/solana-genesis.mjs",
-   "sha256": "980f7c686327330d151b3d808e72b077bbded996880355aab87c9f0bdb950188",
-   "source": "lib/silo/solana-genesis.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/solana-transfer.mjs",
-   "sha256": "3c7dcda1dcc1a7e8568d2ca5f0dccc8ee952543c452f9fd10e6deb531906a063",
-   "source": "lib/silo/solana-transfer.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/unified-backup.mjs",
-   "sha256": "8bd328b14c6dcfbe79509f1e6ed460ff9a0a91324a91a4a747e59d736e44bad5",
-   "source": "lib/silo/unified-backup.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/xmr-adapter.mjs",
-   "sha256": "58cb9bdfc39ff204c339143bbf82da8313d0824b809a5e7bceb8c8d6150e4bd3",
-   "source": "lib/silo/xmr-adapter.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/xmr-address-review.mjs",
-   "sha256": "7464fe47c4aabba73743b04632828bcdc5a2c5c704c29a0ace591500ed0fa485",
-   "source": "lib/silo/xmr-address-review.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/xmr-confirmations.mjs",
-   "sha256": "c40bc24c79ad145a83a90b7529e4909ed8c20e20c857a356e5026bd2c2d54988",
-   "source": "lib/silo/xmr-confirmations.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/xmr-node-network.mjs",
-   "sha256": "9360e8d9d1dca5199a5f243cf42d8cbb2ee5d0761bcf160b915b43e305287753",
-   "source": "lib/silo/xmr-node-network.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/xmr-request.mjs",
-   "sha256": "b73538952b51774ae005cd393a00c418b704d36614b36b212b26ea5015dcf6bf",
-   "source": "lib/silo/xmr-request.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/xmr-unsigned-fee-read.mjs",
-   "sha256": "1fad597c69dc93f89eaf4baa068b24f7460781a25f192f8ff455f32f12214d45",
-   "source": "lib/silo/xmr-unsigned-fee-read.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/silo/xmr-unsigned-fee.mjs",
-   "sha256": "d39fd9665593bf220bf232ae0ed11abac6221fd59f7a32094dece6861da180c2",
-   "source": "lib/silo/xmr-unsigned-fee.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "lib/transaction-addresses.mjs",
-   "sha256": "54f6fb3245bea7de70d05197110a38e7ecab237c03c56ae5107f76eff8500987",
-   "source": "lib/transaction-addresses.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "package.json",
-   "sha256": "dc1952b1142391d14485eb4ae96395532054ef99d3c597c7a193c8605b9473eb",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "program/Cargo.lock",
-   "sha256": "0db6d21009b36221c77155ecc00bb6f3a69eed4125918154ee1e8e1fef978ed2",
-   "source": "prototypes/xmr-sol-atomic-swap/program/Cargo.lock",
-   "status": "unchanged"
-  },
-  {
-   "path": "program/Cargo.toml",
-   "sha256": "602a58b1774043924a0ca96eb31f5d78fa14f7b14b95a852cc3e8a527b709d92",
-   "source": "prototypes/xmr-sol-atomic-swap/program/Cargo.toml",
-   "status": "modified"
-  },
-  {
-   "path": "program/src/lib.rs",
-   "sha256": "322dccf4a0d353142381ab435df721162bee8006a4f1bbd18c5d36af23d5ebd0",
-   "source": "prototypes/xmr-sol-atomic-swap/program/src/lib.rs",
-   "status": "modified"
-  },
-  {
-   "path": "program/tests/swap.rs",
-   "sha256": "d32effc435a5aae49e8f7200ec29bd8ea44978458219089f39129eac5a5723da",
-   "source": "prototypes/xmr-sol-atomic-swap/program/tests/swap.rs",
-   "status": "unchanged"
-  },
-  {
-   "path": "scripts/silo/csp-candidate/envelope-kat.json",
-   "sha256": "8f714fbb523848361ed40e2063b17db4b1eacfb88fc657d449b35b1329b24e8e",
-   "source": "scripts/silo/csp-candidate/envelope-kat.json",
-   "status": "unchanged"
-  },
-  {
-   "path": "scripts/verify-manifest.mjs",
-   "sha256": "c08a5df9c8184bc5c0f5d2ee1363b4bb3e222fc3c19b968e4ef8623e70f66d0a",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "tests/public-tree-parse.test.mjs",
-   "sha256": "b7b4ce9097f1b8f157ebf264bb03ea0ce0c1da62c51e2cd285fe3d87aa1f8ca1",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "tests/silo-atomic-driver.test.mjs",
-   "sha256": "30ff3ee95b673eb19e6f626e5770636d7f3dbebd769c7002ad678bad757073e7",
-   "source": "tests/silo-atomic-driver.test.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "tests/silo-device-unlock.test.mjs",
-   "sha256": "9b0bdb5adbe8c8d0a71d34d1b77c74c1281f5f119fb595039bccc23b1084c7fa",
-   "source": "tests/silo-device-unlock.test.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "tests/silo-envelope-open-reasons.test.mjs",
-   "sha256": "a4a9e0f0285596aebfcc04acc993ae97a8c739eab3f1a3939999e46fb5212b79",
-   "source": "tests/silo-envelope-open-reasons.test.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "tests/silo-legacy-envelopes.test.mjs",
-   "sha256": "a8f9e55baeb50420dd9b1e0ff753d60db90d860e5907e5e136419f74847a663f",
-   "source": "tests/silo-legacy-envelopes.test.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "tests/silo-native-keyring.test.mjs",
-   "sha256": "c978f5444c31f8c996e4da47f47e7b0885971e05b45eaec56c74a2ced87917a8",
-   "source": "tests/silo-native-keyring.test.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "tests/silo-one-unlock.test.mjs",
-   "sha256": "4e9722fa543245b5524586c8abb19328f1b021b0c04ec13a303e6a6ac6038273",
-   "source": "tests/silo-one-unlock.test.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "tests/silo-unified-backup-evm.test.mjs",
-   "sha256": "66a42941a1c07de141b6cc52a40432007cdd0f1381c0a70f763af8125e50dafa",
-   "source": "tests/silo-unified-backup-evm.test.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "tests/silo-unified-backup-restore.test.mjs",
-   "sha256": "fcd69a6a1759ad6ddd1b38a9a8409aeefce18992c4795009df97fc2b86e12b33",
-   "source": "tests/silo-unified-backup-restore.test.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "tests/silo-unified-backup.test.mjs",
-   "sha256": "ea55aecfd818aa50b2516dc6e90fd4bb7794e036211d5fd2be0111f0ce0da0b5",
-   "source": "tests/silo-unified-backup.test.mjs",
-   "status": "modified"
-  },
-  {
-   "path": "tsconfig.json",
-   "sha256": "bfa632d81c91c7a1b6089cdbedda769fbe7c0ad80a8815700a5523a16ddcca0a",
-   "source": null,
-   "status": "new"
-  },
-  {
-   "path": "vendor/bigint-buffer-js/index.cjs",
-   "sha256": "e029ab220b907bd93ae59b0d9e3db0597fba05cdd61fd9f30a943c19fc86f194",
-   "source": "vendor/bigint-buffer-js/index.cjs",
-   "status": "unchanged"
-  },
-  {
-   "path": "vendor/bigint-buffer-js/index.d.ts",
-   "sha256": "90d6355e9fdc40ec046e639502e4eb73e0ed1760a8c7da72923f8b17cd338324",
-   "source": "vendor/bigint-buffer-js/index.d.ts",
-   "status": "unchanged"
-  },
-  {
-   "path": "vendor/bigint-buffer-js/package.json",
-   "sha256": "fdb8b4954609456986d928749518e267cd9abb3dacd9a522b0fddb2324df1f31",
-   "source": "vendor/bigint-buffer-js/package.json",
-   "status": "modified"
-  }
- ]
+  "sourceRepository": "private",
+  "sourceCommit": "4a69d41e (origin/main, 8 Nov 2026)",
+  "note": "Files marked modified differ from the source only by removed internal review notes, SPDX headers, and the two named seams in native-keyring.mjs and native-keyring-testnet.mjs.",
+  "files": [
+    {
+      "path": ".github/workflows/docker-verified-build.yml",
+      "sha256": "af3ca35880a8eb2a086c144263164bbb1d05480f08326bfeb124d4757bb4c95e",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": ".github/workflows/verify-build.yml",
+      "sha256": "b603fbb1fd86c43d5dd193e59497c1ebc1ab23d7a37d4d72813f11f49f1079b0",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "41ae10d31d4b6e0608b1ec8ac9eec77d89f1954b23a50aebd9413fafc6e7f198",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "a2bcca3b1751a86f8ff768a0c5bcd2647c6133b1528e8e6922d74bae05d282a0",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "LICENSE",
+      "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "LICENSES/AGPL-3.0-only.txt",
+      "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "LICENSES/GPL-3.0-only.txt",
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "LICENSES/MIT.txt",
+      "sha256": "fe0f8d5e9ca8fa019882a816f3ffd1f7dba4ea85c5d1a18636ab7fabe5543979",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "NOTICE",
+      "sha256": "267efbef52e0dea22700c2a00d3301978ccc7ba06add8d4f60ed2f301c13d66b",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "README.md",
+      "sha256": "e253b6de774cca08391675dcc73b005a5fee4c94c628c74468ae789b154d2c7a",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "SECURITY.md",
+      "sha256": "87c2790b3ff697ec337186e2a9a158f1c10bee538393260ec6bed190bd90dc59",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "TRADEMARK.md",
+      "sha256": "b53e72fd34a3a2a305c08bfab7f1f57230a8b43f2b7eb9f37efca91fee77ebfa",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "components/silo-asset-icon.tsx",
+      "sha256": "03d4e8eaeb956590e2568cf67d9e1f63606af6aa9b15c215c1209be9267a2c32",
+      "source": "components/silo-asset-icon.tsx",
+      "status": "modified"
+    },
+    {
+      "path": "components/silo-atomic-panel.tsx",
+      "sha256": "260eea2892a52fc9ea7ba7eea2b84177875ca25beb1d3dc3b433e3b9ab36dbee",
+      "source": "components/silo-atomic-panel.tsx",
+      "status": "modified"
+    },
+    {
+      "path": "components/silo-atomic-pending-card.tsx",
+      "sha256": "94ee0009aaf7d8f91e3892300dec5fb64440311551834a429ffcf99ef06a03e9",
+      "source": "components/silo-atomic-pending-card.tsx",
+      "status": "modified"
+    },
+    {
+      "path": "components/silo-backup-parts.tsx",
+      "sha256": "792a0cfb02fc01142546fcade85eb2ae940190b60a4a8f1e3e4ce02b6000e177",
+      "source": "components/silo-backup-parts.tsx",
+      "status": "modified"
+    },
+    {
+      "path": "components/silo-device-unlock.tsx",
+      "sha256": "ee5b9cb8e0c75600b89f2f9665b903faa7ff1d1c70fd168dedad3e70063d7563",
+      "source": "components/silo-device-unlock.tsx",
+      "status": "modified"
+    },
+    {
+      "path": "components/silo-one-unlock-field.tsx",
+      "sha256": "743c364a19495c27fe033137ed82f5627693af8537cf00a91ed60059898cb4f6",
+      "source": "components/silo-one-unlock-field.tsx",
+      "status": "modified"
+    },
+    {
+      "path": "components/silo-shared-passphrase.tsx",
+      "sha256": "9fc8b31fcfa7fd1a549b7ca33411fcabeb614b14c08bcd41ad2a2f81bc1fe753",
+      "source": "components/silo-shared-passphrase.tsx",
+      "status": "modified"
+    },
+    {
+      "path": "docs/MAKER_ADMISSION_GATE_SPEC.md",
+      "sha256": "f7631d6de5f564eb35484939320092ae24384a8e70e3e38f010201e0b6fd7f65",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/OWNER_SUMMARY_UPGRADE.md",
+      "sha256": "d2364b2d3790b6553e721323c4dcdec438591b5657b6acd1a2264fec878bd3fb",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/PROTOCOL.md",
+      "sha256": "e5829f58aeef451659acc84d2c750883fc7d257635bac195e3b74914e81a2364",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/REVIEW_HISTORY.md",
+      "sha256": "1672e38cfc86f210b97ab71f0853cb04f9e597b31363fe323f1c794d2bc3f753",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/UPGRADE_TO_VERIFIED_BUILD.md",
+      "sha256": "2f30d9fbaef152bb22d4b362dbec1bb66ca823ceb657740d47d9cc6f7de571a3",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/VERIFY_BUILD.md",
+      "sha256": "81c9c7e49d9cbb3d49112a3d7276dafb19e43eb2008043b0effb0369cacd34b5",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/VERIFY_IN_10_MINUTES.md",
+      "sha256": "151cc6f8d00ee77f5e4a8accba3e6c86f2affde1a7b3fbc44f23d9b2a1bd52fb",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/WHAT_THE_MAKER_CAN_DO.md",
+      "sha256": "5bc75e14b70347dd9d7c9104f08617a1396205f5ad90d95220881e96c58d9637",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/README.md",
+      "sha256": "c48246641fffb8349625943ae446a78d7c255e9fd08dd8e33b25fcb68a0699cf",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/bins/new_verified.so",
+      "sha256": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/bins/old_live.so",
+      "sha256": "76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/c5/c5-run-full-20261108.log",
+      "sha256": "280a072503dd45dcc225860b7167c372b2cce8dc75ad1098396928c67b070967",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/c5/upgrade_equivalence.rs",
+      "sha256": "7191a25fae8c196b8727286e8148d3a7bd026c10fe1846be164ed574cff0631f",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/diff-regions.py",
+      "sha256": "63bdd960b1f0bd37ee16dbc6a2e496fa99aaa214ebeea415277a0b34c7e8dffb",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/github-runner/build-a.json",
+      "sha256": "25fe4aec94d96fc524df217f7ac8e2134afff90b451976b1fe9e1603a0e3c46e",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/github-runner/build-b.json",
+      "sha256": "674b2c425bff4677fde55d222eef23ca6ec04c8596cb5d32b061931b3ee5a6b1",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/github-runner/hashes.json",
+      "sha256": "a83fca10951cb0d3ae6de2bbbe715e3c1c4eb5ab28f544a38611ce46ac6ad6af",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/hashes.json",
+      "sha256": "8fb25e1d39f43b503dab592bdc16dfa587008ea5889ed45b9660a55206fd55df",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/linux-vm/build.log",
+      "sha256": "49cb617278573c4e6a633a81d900939ef531e6ddf3a953ecc49e4ea97d8be941",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/linux-vm/hashes.json",
+      "sha256": "7fe3341baeddf7ab6139f4fa1ed833fc439925539267db44eb7c9a8d67c3e823",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "docs/verify-build/mac-amd64-emulation/hashes.json",
+      "sha256": "8b2ece42b730b2d5b0fa9fa2263d9b676daf2346d9e2ad3386ebe7102dc49b9f",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "lib/browser-buffer.mjs",
+      "sha256": "15d128dfaf9155cb5e6d391c42831f4c4d21751d0553b160cae384c16accb9c2",
+      "source": "lib/browser-buffer.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/browser-rpc-session.mjs",
+      "sha256": "6800157ac5863a8095319f84080890c11a5f5718aaa08ef5e3a3ccc45d134f37",
+      "source": "lib/browser-rpc-session.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/amounts.mjs",
+      "sha256": "7fc3d054b8983bddb9568779040ede85ba1356d98d98f47309ef673a736eca38",
+      "source": "lib/silo/amounts.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/atomic-driver.mjs",
+      "sha256": "94f6310856a00080ee139c38d96fb3ad45d6e6805f99c9fcd4f31f27ea76216a",
+      "source": "lib/silo/atomic-driver.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/atomic-pending.mjs",
+      "sha256": "712c2ebce095e8d9d586ca7839e570c3f725ca7806643249e448d211379e2943",
+      "source": "lib/silo/atomic-pending.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/atomic-swap/alice-flow.mjs",
+      "sha256": "7e41496d82534a2845e080c0adba45fcd5db532421fe7d4dd32c16c50fb9c9df",
+      "source": "lib/silo/atomic-swap/alice-flow.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/atomic-swap/keys.mjs",
+      "sha256": "724458a78515b40d794cd84159af859ad0bd358b6251372bfda2e271956bbf76",
+      "source": "lib/silo/atomic-swap/keys.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/atomic-swap/sol.mjs",
+      "sha256": "47a37f95adcc70789daf91e6ef2317e8bc39f4d188d2d5571b1f302fce570d87",
+      "source": "lib/silo/atomic-swap/sol.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/atomic-swap/swap-core.mjs",
+      "sha256": "5031c058a9bec273b53cba7b0b320e74bf7537c3b365318c509865f8b4235cc8",
+      "source": "lib/silo/atomic-swap/swap-core.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/bounded-json.mjs",
+      "sha256": "fe6a7599402f9bb7789a5552a8a909311172029d10517b03a7b45a6d27ae8011",
+      "source": "lib/silo/bounded-json.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/device-unlock.mjs",
+      "sha256": "cba0a5c29d4e3aed1183cc2c579dc09698a527597499061d0ffa17c0a147ccb4",
+      "source": "lib/silo/device-unlock.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/disclosures.mjs",
+      "sha256": "09e14f107d5685aaec23c3e286d34e3cdf1aaa45a3e68844de5a8f0fa410e7d0",
+      "source": "lib/silo/disclosures.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/evm-wallet.ts",
+      "sha256": "69c4685567dbf84f5cfee9daef6837ba229a9f2f30ca7ed64751aec90c7f2184",
+      "source": "lib/silo/evm-wallet.ts",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/evm.mjs",
+      "sha256": "e21d6b259b840662848ce443700445d642e5ca386bf6a4e83ea382c125ec3924",
+      "source": "lib/silo/evm.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/legacy-envelopes.mjs",
+      "sha256": "8c03af2cf008af3f1a1ed4a9f241550e0053baf014629b232844662abf9e8955",
+      "source": "lib/silo/legacy-envelopes.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/local-envelope.mjs",
+      "sha256": "eaa342aa5c029afb0c25a0c65d3ca85cc32fb37362e681690fff2172fbf20276",
+      "source": "lib/silo/local-envelope.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/native-history.mjs",
+      "sha256": "5645c6f3a9c17df2e94bd022a2f06f57539815ffc6d94edda002a905ee47d512",
+      "source": "lib/silo/native-history.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/native-keyring-store.d.mts",
+      "sha256": "b3446abe7d2345962fabdebf57196987b1a628c695a147ff63677aae7c1cea99",
+      "source": "lib/silo/native-keyring-store.d.mts",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/native-keyring-store.mjs",
+      "sha256": "5fa02a210be2a21859d521147a5ada383ee16902fc32ed18b1b2e138230adb22",
+      "source": "lib/silo/native-keyring-store.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/native-keyring-testnet.d.mts",
+      "sha256": "184e9f33874de83b08f527153e1f90462b4a143434e6dfd992146cb2388cfa2d",
+      "source": "lib/silo/native-keyring-testnet.d.mts",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/native-keyring-testnet.mjs",
+      "sha256": "e0d41c211ae51a5e0fd5110ab183aade21264366f6879ce6da7b4ad23d8e0ebe",
+      "source": "lib/silo/native-keyring-testnet.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/native-keyring.d.mts",
+      "sha256": "099c7bbc132113be3299564405bc9493c0ea31c17c036f1faecd37f4e69033a7",
+      "source": "lib/silo/native-keyring.d.mts",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/native-keyring.mjs",
+      "sha256": "bdb929d2497157b2fd33799b265cb457ab594bd03e31679d50565385c088a3c5",
+      "source": "lib/silo/native-keyring.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/one-unlock.d.mts",
+      "sha256": "1e0589c302ea74ad9d0a48606e8b9728580267e5611d04fe205d857a9ec9dd9d",
+      "source": "lib/silo/one-unlock.d.mts",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/one-unlock.mjs",
+      "sha256": "09eac80f549ffe7269325505ead659445233492b5055e20edae39490db1473bf",
+      "source": "lib/silo/one-unlock.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/passphrase-strength.mjs",
+      "sha256": "9a594e5b16c84854e38236f2012d74957bcb999d6fdea83e10e07a7c40b00509",
+      "source": "lib/silo/passphrase-strength.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/payment-journal.mjs",
+      "sha256": "a4a47869490559b98652a4eb6d58aad3cd133f5a9ca3ad05adaafb8e829124b8",
+      "source": "lib/silo/payment-journal.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/release-gate.mjs",
+      "sha256": "d73ebdd9a0c486ecfedf0cf013012f0ea1df038050f82931e256f8efee812cba",
+      "source": "lib/silo/release-gate.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/solana-genesis.mjs",
+      "sha256": "980f7c686327330d151b3d808e72b077bbded996880355aab87c9f0bdb950188",
+      "source": "lib/silo/solana-genesis.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/solana-transfer.mjs",
+      "sha256": "3c7dcda1dcc1a7e8568d2ca5f0dccc8ee952543c452f9fd10e6deb531906a063",
+      "source": "lib/silo/solana-transfer.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/unified-backup.mjs",
+      "sha256": "8bd328b14c6dcfbe79509f1e6ed460ff9a0a91324a91a4a747e59d736e44bad5",
+      "source": "lib/silo/unified-backup.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/xmr-adapter.mjs",
+      "sha256": "58cb9bdfc39ff204c339143bbf82da8313d0824b809a5e7bceb8c8d6150e4bd3",
+      "source": "lib/silo/xmr-adapter.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/xmr-address-review.mjs",
+      "sha256": "7464fe47c4aabba73743b04632828bcdc5a2c5c704c29a0ace591500ed0fa485",
+      "source": "lib/silo/xmr-address-review.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/xmr-confirmations.mjs",
+      "sha256": "c40bc24c79ad145a83a90b7529e4909ed8c20e20c857a356e5026bd2c2d54988",
+      "source": "lib/silo/xmr-confirmations.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/xmr-node-network.mjs",
+      "sha256": "9360e8d9d1dca5199a5f243cf42d8cbb2ee5d0761bcf160b915b43e305287753",
+      "source": "lib/silo/xmr-node-network.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/xmr-request.mjs",
+      "sha256": "b73538952b51774ae005cd393a00c418b704d36614b36b212b26ea5015dcf6bf",
+      "source": "lib/silo/xmr-request.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/xmr-unsigned-fee-read.mjs",
+      "sha256": "1fad597c69dc93f89eaf4baa068b24f7460781a25f192f8ff455f32f12214d45",
+      "source": "lib/silo/xmr-unsigned-fee-read.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/silo/xmr-unsigned-fee.mjs",
+      "sha256": "d39fd9665593bf220bf232ae0ed11abac6221fd59f7a32094dece6861da180c2",
+      "source": "lib/silo/xmr-unsigned-fee.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "lib/transaction-addresses.mjs",
+      "sha256": "54f6fb3245bea7de70d05197110a38e7ecab237c03c56ae5107f76eff8500987",
+      "source": "lib/transaction-addresses.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "package.json",
+      "sha256": "dc1952b1142391d14485eb4ae96395532054ef99d3c597c7a193c8605b9473eb",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "program/Cargo.lock",
+      "sha256": "0db6d21009b36221c77155ecc00bb6f3a69eed4125918154ee1e8e1fef978ed2",
+      "source": "prototypes/xmr-sol-atomic-swap/program/Cargo.lock",
+      "status": "unchanged"
+    },
+    {
+      "path": "program/Cargo.toml",
+      "sha256": "602a58b1774043924a0ca96eb31f5d78fa14f7b14b95a852cc3e8a527b709d92",
+      "source": "prototypes/xmr-sol-atomic-swap/program/Cargo.toml",
+      "status": "modified"
+    },
+    {
+      "path": "program/src/lib.rs",
+      "sha256": "322dccf4a0d353142381ab435df721162bee8006a4f1bbd18c5d36af23d5ebd0",
+      "source": "prototypes/xmr-sol-atomic-swap/program/src/lib.rs",
+      "status": "modified"
+    },
+    {
+      "path": "program/tests/swap.rs",
+      "sha256": "d32effc435a5aae49e8f7200ec29bd8ea44978458219089f39129eac5a5723da",
+      "source": "prototypes/xmr-sol-atomic-swap/program/tests/swap.rs",
+      "status": "unchanged"
+    },
+    {
+      "path": "scripts/silo/csp-candidate/envelope-kat.json",
+      "sha256": "8f714fbb523848361ed40e2063b17db4b1eacfb88fc657d449b35b1329b24e8e",
+      "source": "scripts/silo/csp-candidate/envelope-kat.json",
+      "status": "unchanged"
+    },
+    {
+      "path": "scripts/verify-manifest.mjs",
+      "sha256": "c08a5df9c8184bc5c0f5d2ee1363b4bb3e222fc3c19b968e4ef8623e70f66d0a",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "tests/public-tree-parse.test.mjs",
+      "sha256": "b7b4ce9097f1b8f157ebf264bb03ea0ce0c1da62c51e2cd285fe3d87aa1f8ca1",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "tests/silo-atomic-driver.test.mjs",
+      "sha256": "30ff3ee95b673eb19e6f626e5770636d7f3dbebd769c7002ad678bad757073e7",
+      "source": "tests/silo-atomic-driver.test.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "tests/silo-device-unlock.test.mjs",
+      "sha256": "9b0bdb5adbe8c8d0a71d34d1b77c74c1281f5f119fb595039bccc23b1084c7fa",
+      "source": "tests/silo-device-unlock.test.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "tests/silo-envelope-open-reasons.test.mjs",
+      "sha256": "a4a9e0f0285596aebfcc04acc993ae97a8c739eab3f1a3939999e46fb5212b79",
+      "source": "tests/silo-envelope-open-reasons.test.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "tests/silo-legacy-envelopes.test.mjs",
+      "sha256": "a8f9e55baeb50420dd9b1e0ff753d60db90d860e5907e5e136419f74847a663f",
+      "source": "tests/silo-legacy-envelopes.test.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "tests/silo-native-keyring.test.mjs",
+      "sha256": "c978f5444c31f8c996e4da47f47e7b0885971e05b45eaec56c74a2ced87917a8",
+      "source": "tests/silo-native-keyring.test.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "tests/silo-one-unlock.test.mjs",
+      "sha256": "4e9722fa543245b5524586c8abb19328f1b021b0c04ec13a303e6a6ac6038273",
+      "source": "tests/silo-one-unlock.test.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "tests/silo-unified-backup-evm.test.mjs",
+      "sha256": "66a42941a1c07de141b6cc52a40432007cdd0f1381c0a70f763af8125e50dafa",
+      "source": "tests/silo-unified-backup-evm.test.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "tests/silo-unified-backup-restore.test.mjs",
+      "sha256": "fcd69a6a1759ad6ddd1b38a9a8409aeefce18992c4795009df97fc2b86e12b33",
+      "source": "tests/silo-unified-backup-restore.test.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "tests/silo-unified-backup.test.mjs",
+      "sha256": "ea55aecfd818aa50b2516dc6e90fd4bb7794e036211d5fd2be0111f0ce0da0b5",
+      "source": "tests/silo-unified-backup.test.mjs",
+      "status": "modified"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "bfa632d81c91c7a1b6089cdbedda769fbe7c0ad80a8815700a5523a16ddcca0a",
+      "source": null,
+      "status": "new"
+    },
+    {
+      "path": "vendor/bigint-buffer-js/index.cjs",
+      "sha256": "e029ab220b907bd93ae59b0d9e3db0597fba05cdd61fd9f30a943c19fc86f194",
+      "source": "vendor/bigint-buffer-js/index.cjs",
+      "status": "unchanged"
+    },
+    {
+      "path": "vendor/bigint-buffer-js/index.d.ts",
+      "sha256": "90d6355e9fdc40ec046e639502e4eb73e0ed1760a8c7da72923f8b17cd338324",
+      "source": "vendor/bigint-buffer-js/index.d.ts",
+      "status": "unchanged"
+    },
+    {
+      "path": "vendor/bigint-buffer-js/package.json",
+      "sha256": "fdb8b4954609456986d928749518e267cd9abb3dacd9a522b0fddb2324df1f31",
+      "source": "vendor/bigint-buffer-js/package.json",
+      "status": "modified"
+    }
+  ]
 }
