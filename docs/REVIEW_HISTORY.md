@@ -16,7 +16,7 @@ describes, and the stopped-maker window that was used instead. In plain terms:
   held zero accounts in four finalized scans across the window (20:20 and 20:25 UTC before the hand-over, 20:30:39 and
   20:30:44 UTC in the signing page) and the new bytes behaved identically to the old in the differential test, so an escrow
   created by a third party during those minutes would not have been affected by the change of bytes; the residual risk is in
-  section 13 of the upgrade procedure. The maker remains stopped (see "Executed" below).
+  section 13 of the upgrade procedure. The maker was restarted after the window, with the code it ran before (see "Executed" below).
 
 ## Round 1: failed
 
@@ -90,4 +90,5 @@ Executed on 2026-11-08: upgrade transaction
   upgrade (R-1). None existed in any scan.
 - Result: the live program equals the Docker build (`4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`);
   Docker workflow run 42521490252 after the upgrade: `FULL MATCH`.
-- The maker stays stopped until the refund path has been reviewed and a decision is documented.
+- The maker was stopped only for the window and restarted at 2026-11-08 21:47 UTC with the code it ran before the upgrade. The
+  refund path fixes are still under review and are not deployed; the residual risk of the old refund path remains as described above.

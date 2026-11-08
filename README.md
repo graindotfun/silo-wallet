@@ -7,7 +7,7 @@ reproduced in three independent environments. upgraded on 2026-11-08 in transact
 `5gBdxnNNfjbicy4V7ZGegCXBPP8BPXRvNHbYqcMuCvmTo8vZMXXN6kq6BBt6EFsaiVd44AsurSz8F1pZ96JXzcBx`, slot 467051728; the previous
 bytes (`76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d`) differed by 1,672 bytes of compiler output and are
 kept in `docs/verify-build/bins/` with a differential test. verify it yourself: `docs/VERIFY_IN_10_MINUTES.md`.
-the hosted xmr to sol swap is paused while the maker is stopped after the upgrade; it will be re-enabled after the maker restart review.
+the hosted xmr to sol swap is open again: the maker was stopped only for the upgrade window and restarted at 2026-11-08 21:47 UTC, running the same maker code as before the upgrade (caps 0.05 xmr per swap and 0.3 xmr per day, maker policy). the refund path fixes under review are not deployed yet.
 
 swap caps and maker quotas are maker policy, not program code, so do not rely on them (see `docs/WHAT_THE_MAKER_CAN_DO.md`).
 
