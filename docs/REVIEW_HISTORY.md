@@ -12,8 +12,11 @@ describes, and the stopped-maker window that was used instead. In plain terms:
 - The maker admission gate implementation failed its review once (2 high, 1 medium) and was fixed. Its refund path fix is still
   under review.
 - The upgrade was nevertheless executed on 2026-11-08, by the decision of the upgrade authority holder, with the maker stopped
-  and the residual risk stated in section 13 of `docs/UPGRADE_TO_VERIFIED_BUILD.md`. The maker remains stopped (see "Executed"
-  below).
+  and the residual risk stated in section 13 of `docs/UPGRADE_TO_VERIFIED_BUILD.md`. It was accepted because the escrow program
+  held zero accounts in four finalized scans across the window (20:20 and 20:25 UTC before the hand-over, 20:30:39 and
+  20:30:44 UTC in the signing page) and the new bytes behaved identically to the old in the differential test, so an escrow
+  created by a third party during those minutes would not have been affected by the change of bytes; the residual risk is in
+  section 13 of the upgrade procedure. The maker remains stopped (see "Executed" below).
 
 ## Round 1: failed
 
@@ -58,7 +61,7 @@ upgrade.
 | Item | State |
 |---|---|
 | Procedure revision 3 and spec revision 2 | Failed rounds 1 and 2, findings answered in revision 3; executed in a variant by the upgrade authority holder's decision |
-| Stopped-maker window procedure | Failed its separate review; executed anyway with the residual risk stated (section 13 of the procedure) |
+| Stopped-maker window procedure | Failed its separate review; executed anyway, for the reason given at the top of this page, with the residual risk stated (section 13 of the procedure) |
 | Maker admission gate | Fixed after a failed review; refund path fix still under review; not deployed, not used for the upgrade |
 | Rebuilds outside GitHub | Done, `docs/verify-build/` |
 | Differential test of the two binaries | Done for the paths it covers, `docs/verify-build/c5/` |

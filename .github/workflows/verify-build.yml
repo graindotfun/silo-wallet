@@ -21,8 +21,7 @@ env:
   PROGRAM_ID: 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS
   EXPECTED_SHA256: 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515
   EXPECTED_SIZE: "215944"
-  # Pinned toolchain, mirroring the macOS build that produced the previous live bytes (sha256 76424c24..., before 2026-11-08).
-  # On a linux runner the same recipe gives 4033eb70..., equal to the Docker build and to the live program since 2026-11-08:
+  # Pinned toolchain; the non-docker run reproduces the docker bytes since the 2026-11-08 upgrade (sha256 4033eb70...):
   # cargo-build-sbf 4.3.0 (installed from crates.io, NOT the newer wrapper that the Agave installer ships), platform-tools
   # v1.57 with its own cargo and rustc first on PATH (no rustup override), and no --arch flag (4.3.0 defaults to v0).
   # History: wrapper 4.4.0 with the default arch gave 202,872 bytes; with --arch v0 it gave 215,944 bytes but 1,672 bytes

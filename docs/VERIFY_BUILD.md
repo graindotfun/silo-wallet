@@ -27,11 +27,13 @@ What this does not prove, stated plainly:
 
 - The three environments that reproduced the build (GitHub's linux runner, a separate linux x86_64 vm, a Mac under amd64
   emulation) all used the same pinned Docker image. They show that the build repeats; they do not check the toolchain inside
-  that image. A different toolchain could give different bytes.
+  that image. A different toolchain could give different bytes. The verification trusts that pinned solana-verify base image
+  by its digest; whoever does not trust it can build that image themselves and repeat the build with it.
 - The program is upgradeable by a single key, the upgrade authority `8pFUuZgzab6mwXq2UqdEc2mbkDk6Wg68KSppJ4brfF4W`. A rollback
   buffer `9BFEveajgqYcBqqK8zEFisJxy8YKytTqLc8ad7Wfv1TN` holding the previous bytes (`76424c24...`) still exists under that
-  key until it is closed. With one signature the program could be switched back to bytes nobody outside can rebuild. Check the
-  last deploy slot (467051728) and the hash each time you rely on it.
+  key until it is closed. Closure is planned within days; that is a plan, not a binding date. With one signature the program
+  could be switched back to bytes nobody outside can rebuild. Check the last deploy slot (467051728) and the hash each time you
+  rely on it.
 
 ## Earlier state (before 2026-11-08, kept unchanged)
 

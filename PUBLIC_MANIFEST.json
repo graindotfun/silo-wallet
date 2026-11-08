@@ -10,7 +10,7 @@
     },
     {
       "path": ".github/workflows/verify-build.yml",
-      "sha256": "7f4f26b5e27b56d6210382d6a5c3b2ad3b7014ad8e79604a59bec1c48bcc85d8",
+      "sha256": "a34b954574ae7e1bb117e1a89d653cd888c40371371508fc7396fc523beed3dd",
       "source": null,
       "status": "new"
     },
@@ -136,19 +136,19 @@
     },
     {
       "path": "docs/REVIEW_HISTORY.md",
-      "sha256": "60fa94bfa26dd19acef310e2433d3e976a89cff54b3548144c85bcfc4f194769",
+      "sha256": "003dc1f53e3f906a36e3d0a65b2d5d63dd2368778edf0444dbfe6fe9ec97c288",
       "source": null,
       "status": "new"
     },
     {
       "path": "docs/UPGRADE_TO_VERIFIED_BUILD.md",
-      "sha256": "2b37d66ef2d6496ffbb975718dae9a248ef03c0fcb46fc25098a170e0a807c35",
+      "sha256": "5eebad8748eddbf7a4e53e3b9de94d3f3d7a1e0502e1ff26d2a20e52e1ee14d2",
       "source": null,
       "status": "new"
     },
     {
       "path": "docs/VERIFY_BUILD.md",
-      "sha256": "2ee3d3f7250dc657e9a190e936920d5c4e596c84ed7e33f10297938d28efcd1a",
+      "sha256": "65a4c659fc27c886246f03abe54fb5c6f14105737c653e72731e5d5c381d44e4",
       "source": null,
       "status": "new"
     },

@@ -484,3 +484,11 @@ in any scan. The upgrade authority holder accepted that risk before signing.
   buffer `9BFEveajgqYcBqqK8zEFisJxy8YKytTqLc8ad7Wfv1TN` with those bytes still exists, with authority A3, and stays for now.
 - The maker stays stopped until the refund path has been reviewed and a decision is documented. Until then Silo opens no new
   XMR to SOL swaps, and the team test swap of step 4 has not been made.
+
+### 13.5 What this does not prove
+
+- The verification trusts the pinned solana-verify base image
+  `solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd` by its
+  digest. Whoever does not trust that image can build it themselves and repeat the build with it.
+- The rollback buffer `9BFEveajgqYcBqqK8zEFisJxy8YKytTqLc8ad7Wfv1TN` holds the previous bytes under a single key, the upgrade
+  authority A3, until it is closed. Closure is planned within days; that is a plan, not a binding date.
