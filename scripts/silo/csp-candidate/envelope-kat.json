@@ -1,0 +1,18 @@
+{
+ "passphrase": "silo envelope self-test dummy",
+ "payload": {
+  "seed": "dummy self-test data, not a wallet",
+  "height": 1
+ },
+ "envelope": {
+  "version": 1,
+  "zone": "xmr",
+  "network": "stagenet",
+  "kdf": "PBKDF2-SHA256",
+  "iterations": 600000,
+  "cipher": "AES-256-GCM",
+  "salt": "AAECAwQFBgcICQoLDA0ODw==",
+  "iv": "ZGVmZ2hpamtsbW5v",
+  "ciphertext": "XcsTcNuwl2p/dOS3hYDwYbjFmAHdVUm5v3uKsvwwzoW7OcFLic7aKtx6cB4x6AsdXSUD7I5r9KPumCNqM7+aflDPxbrOLAkf"
+ }
+}

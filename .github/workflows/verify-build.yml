@@ -1,0 +1,137 @@
+# Reproducible build check for the Solana escrow program.
+# Builds program/ with a pinned toolchain, prints the sha256 of the .so in the public log and compares it with the bytes
+# dumped from the live program on Solana mainnet. Fails loudly on any mismatch.
+#
+# STATUS: this workflow has not been run yet. A green run is evidence only if the log shows "FULL MATCH". Until a run is
+# linked from docs/VERIFY_BUILD.md, this repository does not claim equivalence with the live program.
+name: verify-build
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'program/**'
+      - '.github/workflows/verify-build.yml'
+permissions:
+  contents: read
+env:
+  PROGRAM_ID: 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS
+  EXPECTED_SHA256: 76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d
+  EXPECTED_SIZE: "215944"
+  # Pinned toolchain, mirroring the local build that reproduced the live program (215,944 bytes, sha256 76424c24...):
+  # cargo-build-sbf 4.3.0 (installed from crates.io, NOT the newer wrapper that the Agave installer ships), platform-tools
+  # v1.57 with its own cargo and rustc first on PATH (no rustup override), and no --arch flag (4.3.0 defaults to v0).
+  # History: wrapper 4.4.0 with the default arch gave 202,872 bytes; with --arch v0 it gave 215,944 bytes but 1,672 bytes
+  # differed from the live program in 38 small regions (instruction-level code generation), so the wrapper version is pinned again.
+  CBS_VERSION: "4.3.0"
+  EXPECT_CARGO_BUILD_SBF: "cargo-build-sbf 4.3.0"
+  # Agave is still installed, for the solana CLI (used to dump the live program). Its bundled cargo-build-sbf is not used.
+  AGAVE_VERSION: v4.3.2
+  # sha256 of the installer script served at https://release.anza.xyz/v4.3.2/install, measured 8 Nov 2026. The script itself
+  # downloads the toolchain binaries; this workflow does not independently hash those binaries.
+  INSTALLER_SHA256: 6a8219038bb02ff89b8798e015081ea48760068603dc8214e48066a57a1e45e9
+  EXPECT_PLATFORM_TOOLS: "platform-tools v1.57"
+  EXPECT_RUSTC: "rustc 1.95.0"
+jobs:
+  build-and-compare:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      # actions/checkout v4.2.2, pinned to its commit
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Download and verify the installer, then install the pinned toolchain
+        run: |
+          curl -sSfL "https://release.anza.xyz/${AGAVE_VERSION}/install" -o /tmp/agave-install.sh
+          got=$(sha256sum /tmp/agave-install.sh | cut -d' ' -f1)
+          echo "installer sha256: $got"
+          [ "$got" = "$INSTALLER_SHA256" ] || { echo "::error::installer hash differs from the pinned hash"; exit 1; }
+          sh /tmp/agave-install.sh
+          echo "$HOME/.local/share/solana/install/active_release/bin" >> "$GITHUB_PATH"
+      - name: Install the pinned cargo-build-sbf from crates.io (pinned by version and the crate's own lockfile)
+        run: |
+          cargo install cargo-build-sbf --version "=${CBS_VERSION}" --locked --root "$HOME/cbs"
+          echo "$HOME/cbs/bin" >> "$GITHUB_PATH"
+      - name: Install platform-tools v1.57 and check the pins
+        run: |
+          which cargo-build-sbf
+          out=$(cargo-build-sbf --version); echo "$out"; solana --version
+          echo "$out" | grep -qx "$EXPECT_CARGO_BUILD_SBF" || { echo "::error::cargo-build-sbf is not the pinned version (PATH order?)"; exit 1; }
+          cargo-build-sbf --tools-version v1.57 --install-only
+          out=$(cargo-build-sbf --version); echo "$out"
+          echo "$out" | grep -qx "$EXPECT_PLATFORM_TOOLS" || { echo "::error::platform-tools version differs from the pin"; exit 1; }
+          echo "$out" | grep -qx "$EXPECT_RUSTC" || { echo "::error::rustc version differs from the pin (or is not reported)"; exit 1; }
+          T="$HOME/.cache/solana/v1.57/platform-tools"; ls "$T/rust/bin" | head; "$T/rust/bin/rustc" --version; "$T/rust/bin/cargo" --version
+      - name: Build program (platform-tools cargo and rustc first on PATH, no rustup override)
+        working-directory: program
+        run: |
+          T="$HOME/.cache/solana/v1.57/platform-tools"
+          PATH="$T/rust/bin:$PATH" RUSTC="$T/rust/bin/rustc" cargo-build-sbf --tools-version v1.57 --no-rustup-override --skip-tools-install -- --locked
+      - name: Dump the live program (public RPC, retried)
+        run: |
+          ok=no
+          for i in 1 2 3 4 5; do
+            if solana program dump -u https://api.mainnet-beta.solana.com "$PROGRAM_ID" live.so && [ -s live.so ]; then ok=yes; break; fi
+            echo "dump attempt $i failed, retrying"; sleep $((i * 10))
+          done
+          [ "$ok" = yes ] || { echo "::error::could not dump the live program from the public RPC"; exit 1; }
+          ls -l live.so
+      - name: Compare exactly what was verified
+        run: |
+          built=$(ls program/target/deploy/*.so); B=$(wc -c < "$built" | tr -d " "); L=$(wc -c < live.so | tr -d " ")
+          built_sha=$(sha256sum "$built" | cut -d' ' -f1)
+          echo "built:    $B bytes, sha256 $built_sha"
+          echo "live dump: $L bytes, raw sha256 $(sha256sum live.so | cut -d' ' -f1)"
+          echo "expected:  $EXPECTED_SIZE bytes, sha256 $EXPECTED_SHA256"
+          fail=0
+          [ "$B" = "$EXPECTED_SIZE" ] || { echo "::error::built length $B differs from expected $EXPECTED_SIZE"; fail=1; }
+          [ "$built_sha" = "$EXPECTED_SHA256" ] || { echo "::error::built sha256 differs from the expected sha256"; fail=1; }
+          [ "$L" -ge "$B" ] || { echo "::error::live dump ($L) is shorter than the built program ($B)"; exit 1; }
+          head -c "$B" live.so > live-prefix.so
+          prefix_sha=$(sha256sum live-prefix.so | cut -d' ' -f1)
+          echo "live dump first $B bytes sha256: $prefix_sha"
+          prefix=no; [ "$prefix_sha" = "$built_sha" ] && prefix=yes
+          # Anything after the program bytes must be all zero (padding).
+          extra=$((L - B)); padding=yes
+          if [ "$extra" -gt 0 ]; then
+            tail -c "$extra" live.so > live-tail.bin
+            head -c "$extra" /dev/zero > zeros.bin
+            cmp -s live-tail.bin zeros.bin || padding=no
+          fi
+          if [ "$prefix" = yes ]; then echo "RESULT: prefix equal (first $B bytes of the live dump equal the built program)"; else echo "RESULT: prefix DIFFERENT"; fail=1; fi
+          if [ "$extra" -gt 0 ] && [ "$padding" = yes ]; then echo "RESULT: padding only ($extra trailing zero bytes beyond the program)"; fi
+          if [ "$extra" -gt 0 ] && [ "$padding" = no ]; then echo "::error::RESULT: the live dump has $extra extra bytes that are NOT all zero"; fail=1; fi
+          if [ "$fail" = 1 ]; then echo "MISMATCH: this source is NOT shown to match the live program"; exit 1; fi
+          echo "FULL MATCH: sha256 of the exact-length program bytes ($B) is equal for the build, the live dump and the expected value; any extra bytes are zero padding"
+      - name: Diagnose differences (information only, runs even after a mismatch)
+        if: always()
+        run: |
+          set +e
+          mkdir -p diag
+          built=$(ls program/target/deploy/*.so 2>/dev/null | head -1)
+          [ -n "$built" ] && [ -s live.so ] || { echo "nothing to diagnose"; exit 0; }
+          B=$(wc -c < "$built" | tr -d " ")
+          cp "$built" diag/built.so; head -c "$B" live.so > diag/live-prefix.so; cp live.so diag/live-full.so
+          echo "built sha256: $(sha256sum diag/built.so | cut -d' ' -f1)"
+          echo "live (same length) sha256: $(sha256sum diag/live-prefix.so | cut -d' ' -f1)"
+          cmp -l diag/built.so diag/live-prefix.so | awk '{print $1-1, $2, $3}' > diag/differing-bytes.txt
+          echo "differing bytes: $(wc -l < diag/differing-bytes.txt | tr -d ' ') of $B"
+          echo "first 40 differing offsets (decimal offset, built octal, live octal):"; head -40 diag/differing-bytes.txt
+          echo "differing bytes per 4096-byte block (hex block start, count), first 60 blocks:"
+          awk '{b=int($1/4096); c[b]++} END{for(k in c) printf "%08x %d\n", k*4096, c[k]}' diag/differing-bytes.txt | sort | head -60
+          echo "--- ELF header, built vs live"; readelf -h diag/built.so > diag/built.hdr; readelf -h diag/live-prefix.so > diag/live.hdr; diff diag/built.hdr diag/live.hdr && echo "headers identical"
+          echo "--- section table of the live program (map offsets above to sections)"; readelf -S -W diag/live-prefix.so | head -40
+          echo "--- section table differences, built vs live"; readelf -S -W diag/built.so > diag/built.sec; readelf -S -W diag/live-prefix.so > diag/live.sec; diff diag/built.sec diag/live.sec && echo "section tables identical"
+          echo "--- absolute paths embedded in each file"; for f in diag/built.so diag/live-prefix.so; do echo "$f:"; strings -a "$f" | grep -E "^/(home|Users|root|build|tmp)|\.cargo/registry|/rustc/[0-9a-f]{8}" | sort -u | head -10; done
+          echo "--- strings that differ, built vs live"; strings -a diag/built.so > diag/built.strings; strings -a diag/live-prefix.so > diag/live.strings; diff diag/built.strings diag/live.strings | head -40
+          exit 0
+      - name: Upload the built program, the live dump and the diagnostics
+        if: always()
+        # actions/upload-artifact v4.6.2, pinned to its commit
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: verify-build-diagnostics
+          path: |
+            diag/
+            program/target/deploy/*.so
+          if-no-files-found: warn

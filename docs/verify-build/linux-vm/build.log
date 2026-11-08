@@ -1,0 +1,1525 @@
++ cd /root
++ rm -rf work
++ mkdir work
++ tar xzf src.tgz -C work
++ sha256sum work/src/program/Cargo.toml work/src/program/Cargo.lock work/src/program/src/lib.rs
+602a58b1774043924a0ca96eb31f5d78fa14f7b14b95a852cc3e8a527b709d92  work/src/program/Cargo.toml
+0db6d21009b36221c77155ecc00bb6f3a69eed4125918154ee1e8e1fef978ed2  work/src/program/Cargo.lock
+322dccf4a0d353142381ab435df721162bee8006a4f1bbd18c5d36af23d5ebd0  work/src/program/src/lib.rs
++ curl -sSfL https://sh.rustup.rs
++ sh -s -- -y --profile minimal --default-toolchain stable
+info: downloading installer
+warn: It looks like you have an existing installation of Rust at:
+warn: /usr/bin
+warn: This could mean one of the following:
+warn: - You have already installed rustup: you can quit the installer right now.
+warn: - You haven't installed rustup yet, but have Rust installed from elsewhere.
+warn: In the latter case, rustup can coexist with and adopt your existing Rust.
+warn: To adopt, please reply `yes`, or set RUSTUP_INIT_SKIP_PATH_CHECK to yes,
+warn: or pass `-y` to ignore all ignorable checks, then follow the instructions at:
+warn: <https://rust-lang.github.io/rustup/installation/already-installed-rust.html>
+error: cannot install while Rust is installed
+warn: continuing (because the -y flag is set and the error is ignorable)
+info: profile set to minimal
+info: default host tuple is x86_64-unknown-linux-gnu
+info: syncing channel updates for stable-x86_64-unknown-linux-gnu
+info: latest update on 2026-10-15 for version 1.99.1 (58cf8f9c3 2026-10-13)
+info: downloading 3 components
+info: default toolchain set to stable-x86_64-unknown-linux-gnu
+
+  stable-x86_64-unknown-linux-gnu installed - rustc 1.99.1 (58cf8f9c3 2026-10-13)
+
+
+Rust is installed now. Great!
+
+To get started you may need to restart your current shell.
+This would reload your PATH environment variable to include
+Cargo's bin directory ($HOME/.cargo/bin).
+
+To configure your current shell, you need to source the
+corresponding env file under $HOME/.cargo.
+
+Consider running the right command for your shell (note the leading DOT):
+. "$HOME/.cargo/env" # For sh/ash/dash/pdksh/bash
+cargo:rerun-if-env-changed=CC_x86_64-unknown-linux-gnu
+CC_x86_64-unknown-linux-gnu = None
+cargo:rerun-if-env-changed=CC_x86_64_unknown_linux_gnu
+CC_x86_64_unknown_linux_gnu = None
+cargo:rerun-if-env-changed=HOST_CC
+HOST_CC = None
+cargo:rerun-if-env-changed=CC
+CC = None
+cargo:rerun-if-env-changed=CC_ENABLE_DEBUG_OUTPUT
+cargo:rerun-if-env-changed=CPATH
+cargo:rerun-if-env-changed=C_INCLUDE_PATH
+cargo:rerun-if-env-changed=CPLUS_INCLUDE_PATH
+cargo:rerun-if-env-changed=OBJC_INCLUDE_PATH
+cargo:rerun-if-env-changed=OBJCPLUS_INCLUDE_PATH
+cargo:rerun-if-env-changed=COMPILER_PATH
+cargo:rerun-if-env-changed=SOURCE_DATE_EPOCH
+cargo:rerun-if-env-changed=GCC_EXEC_PREFIX
+cargo:rerun-if-env-changed=CRATE_CC_NO_DEFAULTS
+CRATE_CC_NO_DEFAULTS = None
+cargo:rerun-if-env-changed=CFLAGS
+CFLAGS = None
+cargo:rerun-if-env-changed=HOST_CFLAGS
+HOST_CFLAGS = None
+cargo:rerun-if-env-changed=CFLAGS_x86_64_unknown_linux_gnu
+CFLAGS_x86_64_unknown_linux_gnu = None
+cargo:rerun-if-env-changed=CFLAGS_x86_64-unknown-linux-gnu
+CFLAGS_x86_64-unknown-linux-gnu = None
++ . /root/.cargo/env
+++ case ":${PATH}:" in
+++ export PATH=/root/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+++ PATH=/root/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
++ rustc --version
+rustc 1.99.1 (58cf8f9c3 2026-10-13)
++ cargo --version
+cargo 1.99.1 (5f94df478 2026-08-27)
++ V=0.5.2
++ curl -sSfL https://static.crates.io/crates/solana-verify/solana-verify-0.5.2.crate -o /tmp/sv.crate
+++ sha256sum /tmp/sv.crate
+++ cut '-d ' -f1
++ got=100996e26394122ef5358ec756f76ea1b41aab8dd959de8b10091b5017329a7c
++ echo 'crate sha 100996e26394122ef5358ec756f76ea1b41aab8dd959de8b10091b5017329a7c'
+crate sha 100996e26394122ef5358ec756f76ea1b41aab8dd959de8b10091b5017329a7c
++ '[' 100996e26394122ef5358ec756f76ea1b41aab8dd959de8b10091b5017329a7c = 100996e26394122ef5358ec756f76ea1b41aab8dd959de8b10091b5017329a7c ']'
++ mkdir -p /tmp/sv
++ tar xzf /tmp/sv.crate -C /tmp/sv
++ cargo install --locked --path /tmp/sv/solana-verify-0.5.2 --root /root/sv
+  Installing solana-verify v0.5.2 (/tmp/sv/solana-verify-0.5.2)
+    Updating crates.io index
+warning: package `chacha20 v0.10.1` in Cargo.lock is yanked in registry `crates-io`
+  |
+  = help: consider running without --locked
+ Downloading crates ...
+  Downloaded rustc-hash v2.1.1
+  Downloaded solana-atomic-u64 v3.0.1
+  Downloaded solana-epoch-info v3.1.0
+  Downloaded solana-hash v4.2.0
+  Downloaded solana-program-error v3.0.1
+  Downloaded solana-borsh v3.0.2
+  Downloaded solana-instructions-sysvar v3.0.0
+  Downloaded ryu v1.0.23
+  Downloaded solana-compute-budget-interface v3.0.0
+  Downloaded solana-rpc-client v3.1.9
+  Downloaded Inflector v0.11.4
+  Downloaded rustc-hash v1.1.0
+  Downloaded signature v2.2.0
+  Downloaded solana-account-decoder v3.1.9
+  Downloaded atomic-waker v1.1.2
+  Downloaded smallvec v1.15.2
+  Downloaded solana-define-syscall v4.0.1
+  Downloaded solana-sdk-macro v3.0.1
+  Downloaded simd-adler32 v0.3.9
+  Downloaded solana-loader-v3-interface v6.1.1
+  Downloaded solana-seed-derivable v3.0.0
+  Downloaded zeroize_derive v1.4.3
+  Downloaded serde_json v1.0.150
+  Downloaded compression-core v0.4.32
+  Downloaded serde_core v1.0.228
+  Downloaded zeroize v1.8.2
+  Downloaded ahash v0.8.12
+  Downloaded dirs-sys-next v0.1.2
+  Downloaded either v1.15.0
+  Downloaded bv v0.11.1
+  Downloaded zerotrie v0.2.4
+  Downloaded zerovec v0.11.6
+  Downloaded bytemuck_derive v1.10.2
+  Downloaded crypto-common v0.1.7
+  Downloaded crc32fast v1.5.0
+  Downloaded solana-cluster-type v3.1.0
+  Downloaded tower-http v0.6.11
+  Downloaded solana-last-restart-slot v3.1.0
+  Downloaded zerofrom-derive v0.1.7
+  Downloaded serde_spanned v1.0.4
+  Downloaded serde_with_macros v3.17.0
+  Downloaded slab v0.4.12
+  Downloaded solana-instruction-error v2.2.0
+  Downloaded darling v0.21.3
+  Downloaded errno v0.3.14
+  Downloaded serde_urlencoded v0.7.1
+  Downloaded solana-rpc-client-api v3.1.9
+  Downloaded ctr v0.9.2
+  Downloaded curve25519-dalek-derive v0.1.1
+  Downloaded displaydoc v0.2.6
+  Downloaded solana-rpc-client-types v3.1.9
+  Downloaded rustc-demangle v0.1.27
+  Downloaded derivation-path v0.2.0
+  Downloaded scopeguard v1.2.0
+  Downloaded solana-clock v3.0.1
+  Downloaded solana-program-option v3.0.1
+  Downloaded dunce v1.0.5
+  Downloaded solana-reward-info v3.0.0
+  Downloaded der v0.7.10
+  Downloaded rustls-webpki v0.103.13
+  Downloaded solana-program-entrypoint v3.1.1
+  Downloaded http-body v1.0.1
+  Downloaded serde_derive v1.0.228
+  Downloaded solana-msg v3.1.0
+  Downloaded solana-commitment-config v3.1.1
+  Downloaded solana-curve25519 v3.1.14
+  Downloaded rand_core v0.9.5
+  Downloaded solana-epoch-rewards v3.0.1
+  Downloaded solana-hash v3.1.0
+  Downloaded solana-keypair v3.1.2
+  Downloaded sha2 v0.10.9
+  Downloaded shlex v2.0.1
+  Downloaded cargo-lock v11.0.1
+  Downloaded serde_with v3.17.0
+  Downloaded solana-get-sysvar v1.0.0
+  Downloaded solana-pubkey v3.0.0
+  Downloaded solana-sbpf v0.13.1
+  Downloaded solana-bls-signatures v1.0.0
+  Downloaded solana-cli-config v3.1.9
+  Downloaded aead v0.5.2
+  Downloaded autocfg v1.5.1
+  Downloaded cmake v0.1.58
+  Downloaded merlin v3.0.0
+  Downloaded fastrand v2.3.0
+  Downloaded zstd v0.13.3
+  Downloaded solana-config-interface v2.0.0
+  Downloaded rustversion v1.0.22
+  Downloaded signal-hook-registry v1.4.8
+  Downloaded solana-inflation v3.0.0
+  Downloaded ascii v0.9.3
+  Downloaded chacha20 v0.10.1
+  Downloaded solana-packet v3.0.0
+  Downloaded solana-derivation-path v3.0.0
+  Downloaded solana-epoch-schedule v3.0.0
+  Downloaded solana-nonce v3.1.0
+  Downloaded solana-program-pack v3.1.0
+  Downloaded darling_macro v0.21.3
+  Downloaded adler2 v2.0.1
+  Downloaded alloc-no-stdlib v2.0.4
+  Downloaded cfg_eval v0.1.2
+  Downloaded solana-sha256-hasher v3.1.0
+  Downloaded solana-slot-history v3.1.0
+  Downloaded rustc_version v0.4.1
+  Downloaded socket2 v0.6.4
+  Downloaded borsh-derive v1.6.1
+  Downloaded compression-codecs v0.4.38
+  Downloaded rustls v0.23.41
+  Downloaded solana-sysvar-id v3.1.0
+  Downloaded cfg-if v1.0.4
+  Downloaded cfg_aliases v0.2.1
+  Downloaded dirs-next v2.0.0
+  Downloaded ed25519-dalek-bip32 v0.3.0
+  Downloaded alloc-stdlib v0.2.4
+  Downloaded cpufeatures v0.3.0
+  Downloaded equivalent v1.0.2
+  Downloaded spl-discriminator v0.5.2
+  Downloaded strsim v0.8.0
+  Downloaded block-buffer v0.10.4
+  Downloaded bitflags v1.3.2
+  Downloaded async-trait v0.1.89
+  Downloaded bs58 v0.5.1
+  Downloaded arrayref v0.3.9
+  Downloaded cpufeatures v0.2.17
+  Downloaded darling_macro v0.23.0
+  Downloaded feature-probe v0.1.1
+  Downloaded jsonrpc-core v18.0.0
+  Downloaded void v1.0.2
+  Downloaded atty v0.2.14
+  Downloaded base64 v0.22.1
+  Downloaded byteorder v1.5.0
+  Downloaded zmij v1.0.21
+  Downloaded console v0.16.4
+  Downloaded ansi_term v0.12.1
+  Downloaded anyhow v1.0.103
+  Downloaded dialoguer v0.10.4
+  Downloaded base64ct v1.8.3
+  Downloaded byte-slice-cast v1.2.3
+  Downloaded solana-feature-gate-interface v3.1.0
+  Downloaded zerovec-derive v0.11.3
+  Downloaded bincode v1.3.3
+  Downloaded ed25519 v2.2.3
+  Downloaded aes-gcm-siv v0.11.1
+  Downloaded cipher v0.4.4
+  Downloaded solana-presigner v3.0.0
+  Downloaded rustls-pki-types v1.15.0
+  Downloaded solana-sdk-ids v3.1.0
+  Downloaded wincode-derive v0.4.6
+  Downloaded agave-feature-set v3.1.9
+  Downloaded console v0.15.11
+  Downloaded digest v0.10.7
+  Downloaded fs_extra v1.3.0
+  Downloaded funty v2.0.0
+  Downloaded serde_bytes v0.11.19
+  Downloaded solana-nullable v1.2.0
+  Downloaded bitflags v2.11.0
+  Downloaded const-oid v0.9.6
+  Downloaded shell-words v1.1.1
+  Downloaded signal-hook v0.4.4
+  Downloaded mime v0.3.17
+  Downloaded tokio-rustls v0.26.4
+  Downloaded tokio-macros v2.7.0
+  Downloaded zstd-safe v7.2.4
+  Downloaded blstrs v0.7.1
+  Downloaded bytemuck v1.25.0
+  Downloaded cargo_toml v0.22.3
+  Downloaded futures-io v0.3.32
+  Downloaded async-compression v0.4.42
+  Downloaded darling v0.23.0
+  Downloaded darling_core v0.23.0
+  Downloaded ff v0.13.1
+  Downloaded find-msvc-tools v0.1.9
+  Downloaded pkcs8 v0.10.2
+  Downloaded rand_core v0.6.4
+  Downloaded borsh v1.6.1
+  Downloaded bytes v1.11.1
+  Downloaded cc v1.2.66
+  Downloaded darling_core v0.21.3
+  Downloaded futures-executor v0.3.32
+  Downloaded getrandom v0.4.2
+  Downloaded hyper v1.8.1
+  Downloaded miniz_oxide v0.8.9
+  Downloaded quinn-udp v0.5.14
+  Downloaded serde v1.0.228
+  Downloaded solana-address-lookup-table-interface v3.0.1
+  Downloaded solana-native-token v3.0.0
+  Downloaded solana-remote-wallet v3.1.9
+  Downloaded url v2.5.8
+  Downloaded combine v3.8.1
+  Downloaded crossbeam-channel v0.5.15
+  Downloaded crossbeam-utils v0.8.21
+  Downloaded ed25519-dalek v2.2.0
+  Downloaded hashbrown v0.17.1
+  Downloaded icu_normalizer v2.2.0
+  Downloaded solana-account-decoder-client-types v3.1.9
+  Downloaded memchr v2.8.3
+  Downloaded pbkdf2 v0.12.2
+  Downloaded aes v0.8.4
+  Downloaded httparse v1.10.1
+  Downloaded tokio-util v0.7.18
+  Downloaded wincode v0.5.2
+  Downloaded lazy_static v1.5.0
+  Downloaded solana-cpi v3.1.0
+  Downloaded bitvec v1.0.1
+  Downloaded solana-message v3.1.0
+  Downloaded solana-zero-copy v1.1.1
+  Downloaded rand_chacha v0.9.0
+  Downloaded solana-clap-utils v3.1.9
+  Downloaded tempfile v3.27.0
+  Downloaded want v0.3.1
+  Downloaded aho-corasick v1.1.4
+  Downloaded brotli-decompressor v5.0.3
+  Downloaded itoa v1.0.18
+  Downloaded solana-pubkey v4.1.0
+  Downloaded lru-slab v0.1.2
+  Downloaded untrusted v0.9.0
+  Downloaded five8_core v1.0.0
+  Downloaded solana-system-interface v3.2.0
+  Downloaded rand v0.10.0
+  Downloaded solana-account-info v3.1.1
+  Downloaded solana-rent v3.1.0
+  Downloaded unreachable v1.0.0
+  Downloaded futures-core v0.3.32
+  Downloaded sync_wrapper v1.0.2
+  Downloaded futures-macro v0.3.32
+  Downloaded futures-util v0.3.32
+  Downloaded group v0.13.0
+  Downloaded rand_chacha v0.3.1
+  Downloaded reqwest v0.13.4
+  Downloaded five8_const v1.0.0
+  Downloaded tracing-core v0.1.36
+  Downloaded version_check v0.9.5
+  Downloaded icu_normalizer_data v2.2.0
+  Downloaded proc-macro2 v1.0.106
+  Downloaded synstructure v0.13.2
+  Downloaded num-derive v0.4.2
+  Downloaded solana-slot-hashes v3.0.1
+  Downloaded http-body-util v0.1.3
+  Downloaded hyper-rustls v0.27.9
+  Downloaded thiserror-impl v1.0.69
+  Downloaded proc-macro-crate v3.5.0
+  Downloaded clap v2.34.0
+  Downloaded iana-time-zone v0.1.65
+  Downloaded reqwest v0.12.28
+  Downloaded icu_collections v2.2.0
+  Downloaded num_cpus v1.17.0
+  Downloaded fnv v1.0.7
+  Downloaded hmac v0.12.1
+  Downloaded solana-transaction-error v3.1.0
+  Downloaded solana-transaction-status-client-types v3.1.9
+  Downloaded solana-version v3.1.9
+  Downloaded tinyvec v1.10.0
+  Downloaded aws-lc-rs v1.17.1
+  Downloaded solana-transaction-context v3.1.9
+  Downloaded tower-service v0.3.3
+  Downloaded pin-utils v0.1.0
+  Downloaded rand v0.9.2
+  Downloaded curve25519-dalek v4.1.3
+  Downloaded radium v0.7.0
+  Downloaded solana-address v1.1.0
+  Downloaded solana-sanitize v3.0.1
+  Downloaded spl-type-length-value v0.9.1
+  Downloaded universal-hash v0.5.1
+  Downloaded five8 v1.0.0
+  Downloaded icu_properties v2.2.0
+  Downloaded num-traits v0.2.19
+  Downloaded ppv-lite86 v0.2.21
+  Downloaded solana-address v2.6.1
+  Downloaded thiserror v1.0.69
+  Downloaded thiserror-impl v2.0.18
+  Downloaded typenum v1.19.0
+  Downloaded getrandom v0.2.17
+  Downloaded rand_xorshift v0.3.0
+  Downloaded subtle v2.6.1
+  Downloaded unicode-width v0.2.2
+  Downloaded unit-prefix v0.5.2
+  Downloaded wyz v0.5.1
+  Downloaded chrono v0.4.45
+  Downloaded litemap v0.8.2
+  Downloaded mio v1.2.1
+  Downloaded flate2 v1.1.9
+  Downloaded ipnet v2.12.0
+  Downloaded keccak v0.1.6
+  Downloaded opaque-debug v0.3.1
+  Downloaded rand v0.8.6
+  Downloaded zerocopy v0.8.54
+  Downloaded semver v1.0.28
+  Downloaded solana-vote-interface v4.0.4
+  Downloaded indexmap v2.14.0
+  Downloaded log v0.4.33
+  Downloaded percent-encoding v2.3.2
+  Downloaded blst v0.3.16
+  Downloaded getrandom v0.3.4
+  Downloaded ident_case v1.0.1
+  Downloaded zerofrom v0.1.8
+  Downloaded idna v1.1.0
+  Downloaded pbkdf2 v0.11.0
+  Downloaded solana-stake-interface v2.0.2
+  Downloaded tap v1.0.1
+  Downloaded winnow v1.0.3
+  Downloaded tinystr v0.8.3
+  Downloaded toml v0.9.12+spec-1.1.0
+  Downloaded try-lock v0.2.5
+  Downloaded yoke v0.8.3
+  Downloaded spl-token-confidential-transfer-proof-generation v0.5.1
+  Downloaded utf8_iter v1.0.4
+  Downloaded icu_provider v2.2.0
+  Downloaded num_enum_derive v0.7.6
+  Downloaded strsim v0.11.1
+  Downloaded textwrap v0.11.0
+  Downloaded winnow v0.7.15
+  Downloaded futures-sink v0.3.32
+  Downloaded openssl-probe v0.2.1
+  Downloaded quinn v0.11.11
+  Downloaded spl-token-interface v2.0.0
+  Downloaded jobserver v0.1.34
+  Downloaded once_cell v1.21.4
+  Downloaded pkg-config v0.3.33
+  Downloaded polyval v0.6.2
+  Downloaded rustls-native-certs v0.8.4
+  Downloaded tiny-bip39 v2.0.0
+  Downloaded pathdiff v0.2.3
+  Downloaded uriparse v0.6.4
+  Downloaded toml_edit v0.25.4+spec-1.1.0
+  Downloaded futures-task v0.3.32
+  Downloaded hash32 v0.3.1
+  Downloaded itertools v0.12.1
+  Downloaded solana-serde-varint v3.0.1
+  Downloaded tracing v0.1.44
+  Downloaded futures-channel v0.3.32
+  Downloaded pin-project-lite v0.2.17
+  Downloaded solana-svm-feature-set v3.1.9
+  Downloaded portable-atomic v1.13.1
+  Downloaded rand_core v0.10.0
+  Downloaded rpassword v7.4.0
+  Downloaded solana-seed-phrase v3.0.0
+  Downloaded solana-short-vec v3.2.2
+  Downloaded brotli v8.0.4
+  Downloaded solana-program-memory v3.1.0
+  Downloaded solana-transaction v3.1.0
+  Downloaded webpki-roots v1.0.8
+  Downloaded libc v0.2.186
+  Downloaded parking_lot_core v0.9.12
+  Downloaded solana-account v3.4.0
+  Downloaded threadpool v1.8.1
+  Downloaded toml_datetime v0.7.5+spec-1.1.0
+  Downloaded zstd-sys v2.0.16+zstd.1.5.7
+  Downloaded serde-big-array v0.5.1
+  Downloaded wincode v0.4.9
+  Downloaded spl-discriminator-syn v0.2.1
+  Downloaded yoke-derive v0.8.2
+  Downloaded toml_writer v1.1.1+spec-1.1.0
+  Downloaded vec_map v0.8.2
+  Downloaded potential_utf v0.1.5
+  Downloaded quote v1.0.46
+  Downloaded syn v2.0.118
+  Downloaded spl-token-confidential-transfer-proof-extraction v0.5.1
+  Downloaded stable_deref_trait v1.2.1
+  Downloaded idna_adapter v1.2.2
+  Downloaded regex-automata v0.4.14
+  Downloaded sha256 v1.6.0
+  Downloaded solana-fee-calculator v3.1.0
+  Downloaded rustix v1.1.4
+  Downloaded rustls-platform-verifier v0.7.0
+  Downloaded solana-offchain-message v3.0.0
+  Downloaded solana-instruction v3.4.0
+  Downloaded serde_yaml v0.9.34+deprecated
+  Downloaded lock_api v0.4.14
+  Downloaded spl-pod v0.7.3
+  Downloaded writeable v0.6.3
+  Downloaded reqwest-middleware v0.4.2
+  Downloaded form_urlencoded v1.2.2
+  Downloaded hex v0.4.3
+  Downloaded num_enum v0.7.6
+  Downloaded rtoolbox v0.0.3
+  Downloaded unicode-ident v1.0.24
+  Downloaded solana-sysvar v3.1.1
+  Downloaded futures v0.3.32
+  Downloaded http v1.4.2
+  Downloaded h2 v0.4.15
+  Downloaded quinn-proto v0.11.15
+  Downloaded uuid v1.23.4
+  Downloaded regex v1.12.4
+  Downloaded encoding_rs v0.8.35
+  Downloaded thiserror v2.0.18
+  Downloaded tower-layer v0.3.3
+  Downloaded regex-syntax v0.8.11
+  Downloaded tokio v1.52.3
+  Downloaded solana-serialize-utils v3.1.1
+  Downloaded spki v0.7.3
+  Downloaded generic-array v0.14.7
+  Downloaded ring v0.17.14
+  Downloaded unsafe-libyaml v0.2.11
+  Downloaded solana-signature v3.3.0
+  Downloaded tinyvec_macros v0.1.1
+  Downloaded toml_datetime v1.0.0+spec-1.1.0
+  Downloaded toml_parser v1.1.2+spec-1.1.0
+  Downloaded tower v0.5.3
+  Downloaded qstring v0.7.2
+  Downloaded solana-zk-sdk v4.0.0
+  Downloaded spl-token-2022-interface v2.1.0
+  Downloaded hyper-util v0.1.20
+  Downloaded parking_lot v0.12.5
+  Downloaded solana-system-interface v2.0.0
+  Downloaded linux-raw-sys v0.12.1
+  Downloaded sha3 v0.10.9
+  Downloaded unicode-normalization v0.1.25
+  Downloaded unicode-width v0.1.14
+  Downloaded inout v0.1.4
+  Downloaded icu_properties_data v2.2.0
+  Downloaded pastey v0.2.3
+  Downloaded spl-token-metadata-interface v0.8.0
+  Downloaded solana-signer v3.0.0
+  Downloaded icu_locale_core v2.2.0
+  Downloaded spl-token-group-interface v0.7.2
+  Downloaded spl-generic-token v2.0.1
+  Downloaded pairing v0.23.0
+  Downloaded indicatif v0.18.6
+  Downloaded spl-discriminator-derive v0.2.0
+  Downloaded sha2-const-stable v0.1.0
+  Downloaded aws-lc-sys v0.42.0
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.46
+   Compiling unicode-ident v1.0.24
+   Compiling libc v0.2.186
+   Compiling cfg-if v1.0.4
+   Compiling serde_core v1.0.228
+   Compiling version_check v0.9.5
+   Compiling typenum v1.19.0
+   Compiling generic-array v0.14.7
+   Compiling serde v1.0.228
+   Compiling getrandom v0.2.17
+   Compiling syn v2.0.118
+   Compiling subtle v2.6.1
+   Compiling rand_core v0.6.4
+   Compiling equivalent v1.0.2
+   Compiling hashbrown v0.17.1
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling winnow v1.0.3
+   Compiling cpufeatures v0.2.17
+   Compiling indexmap v2.14.0
+   Compiling toml_datetime v1.0.0+spec-1.1.0
+   Compiling toml_parser v1.1.2+spec-1.1.0
+   Compiling winnow v0.7.15
+   Compiling cfg_aliases v0.2.1
+   Compiling borsh v1.6.1
+   Compiling once_cell v1.21.4
+   Compiling sha2 v0.10.9
+   Compiling semver v1.0.28
+   Compiling five8_core v1.0.0
+   Compiling rustc_version v0.4.1
+   Compiling solana-sanitize v3.0.1
+   Compiling curve25519-dalek v4.1.3
+   Compiling toml_edit v0.25.4+spec-1.1.0
+   Compiling five8 v1.0.0
+   Compiling solana-atomic-u64 v3.0.1
+   Compiling five8_const v1.0.0
+   Compiling sha2-const-stable v0.1.0
+   Compiling proc-macro-crate v3.5.0
+   Compiling autocfg v1.5.1
+   Compiling find-msvc-tools v0.1.9
+   Compiling shlex v2.0.1
+   Compiling num-traits v0.2.19
+   Compiling memchr v2.8.3
+   Compiling serde_derive v1.0.228
+   Compiling zeroize_derive v1.4.3
+   Compiling bytemuck_derive v1.10.2
+   Compiling zeroize v1.8.2
+   Compiling borsh-derive v1.6.1
+   Compiling curve25519-dalek-derive v0.1.1
+   Compiling bytemuck v1.25.0
+   Compiling jobserver v0.1.34
+   Compiling solana-nullable v1.2.0
+   Compiling cc v1.2.66
+   Compiling itoa v1.0.18
+   Compiling zerocopy v0.8.54
+   Compiling lazy_static v1.5.0
+   Compiling smallvec v1.15.2
+   Compiling solana-program-error v3.0.1
+   Compiling solana-hash v4.2.0
+   Compiling solana-sha256-hasher v3.1.0
+   Compiling solana-instruction-error v2.2.0
+   Compiling bincode v1.3.3
+   Compiling percent-encoding v2.3.2
+   Compiling pkg-config v0.3.33
+   Compiling solana-address v2.6.1
+   Compiling solana-sdk-ids v3.1.0
+   Compiling solana-pubkey v4.1.0
+   Compiling solana-address v1.1.0
+   Compiling solana-instruction v3.4.0
+   Compiling solana-pubkey v3.0.0
+   Compiling solana-sysvar-id v3.1.0
+   Compiling synstructure v0.13.2
+   Compiling base64 v0.22.1
+   Compiling zerofrom-derive v0.1.7
+   Compiling fnv v1.0.7
+   Compiling signature v2.2.0
+   Compiling bs58 v0.5.1
+   Compiling thiserror v2.0.18
+   Compiling solana-sdk-macro v3.0.1
+   Compiling zerofrom v0.1.8
+   Compiling ed25519 v2.2.3
+   Compiling yoke-derive v0.8.2
+   Compiling thiserror-impl v2.0.18
+   Compiling zmij v1.0.21
+   Compiling ppv-lite86 v0.2.21
+   Compiling stable_deref_trait v1.2.1
+   Compiling pin-project-lite v0.2.17
+   Compiling log v0.4.33
+   Compiling parking_lot_core v0.9.12
+   Compiling ed25519-dalek v2.2.0
+   Compiling serde_json v1.0.150
+   Compiling bitflags v2.11.0
+   Compiling yoke v0.8.3
+   Compiling scopeguard v1.2.0
+   Compiling lock_api v0.4.14
+   Compiling solana-transaction-error v3.1.0
+   Compiling serde-big-array v0.5.1
+   Compiling zerovec-derive v0.11.3
+   Compiling solana-signature v3.3.0
+   Compiling parking_lot v0.12.5
+   Compiling rand_chacha v0.3.1
+   Compiling zerovec v0.11.6
+   Compiling displaydoc v0.2.6
+   Compiling futures-core v0.3.32
+   Compiling bytes v1.11.1
+   Compiling solana-program-memory v3.1.0
+   Compiling solana-account-info v3.1.1
+   Compiling rand v0.8.6
+   Compiling solana-signer v3.0.0
+   Compiling errno v0.3.14
+   Compiling thiserror v1.0.69
+   Compiling signal-hook-registry v1.4.8
+   Compiling futures-sink v0.3.32
+   Compiling tinystr v0.8.3
+   Compiling cmake v0.1.58
+   Compiling tokio-macros v2.7.0
+   Compiling thiserror-impl v1.0.69
+   Compiling socket2 v0.6.4
+   Compiling mio v1.2.1
+   Compiling writeable v0.6.3
+   Compiling byteorder v1.5.0
+   Compiling litemap v0.8.2
+   Compiling dunce v1.0.5
+   Compiling fs_extra v1.3.0
+   Compiling rustversion v1.0.22
+   Compiling icu_locale_core v2.2.0
+   Compiling tokio v1.52.3
+   Compiling aws-lc-sys v0.42.0
+   Compiling potential_utf v0.1.5
+   Compiling zerotrie v0.2.4
+   Compiling solana-clock v3.0.1
+   Compiling num-derive v0.4.2
+   Compiling hmac v0.12.1
+   Compiling icu_properties_data v2.2.0
+   Compiling either v1.15.0
+   Compiling utf8_iter v1.0.4
+   Compiling icu_normalizer_data v2.2.0
+   Compiling feature-probe v0.1.1
+   Compiling slab v0.4.12
+   Compiling derivation-path v0.2.0
+   Compiling bv v0.11.1
+   Compiling icu_collections v2.2.0
+   Compiling icu_provider v2.2.0
+   Compiling futures-channel v0.3.32
+   Compiling uriparse v0.6.4
+   Compiling qstring v0.7.2
+   Compiling num_enum_derive v0.7.6
+   Compiling getrandom v0.3.4
+   Compiling num_enum v0.7.6
+   Compiling solana-derivation-path v3.0.0
+   Compiling solana-epoch-schedule v3.0.0
+   Compiling solana-get-sysvar v1.0.0
+   Compiling ring v0.17.14
+   Compiling futures-macro v0.3.32
+   Compiling futures-task v0.3.32
+   Compiling futures-io v0.3.32
+   Compiling aws-lc-rs v1.17.1
+   Compiling futures-util v0.3.32
+   Compiling icu_normalizer v2.2.0
+   Compiling icu_properties v2.2.0
+   Compiling http v1.4.2
+   Compiling solana-fee-calculator v3.1.0
+   Compiling solana-rent v3.1.0
+   Compiling solana-slot-hashes v3.0.1
+   Compiling rustls-pki-types v1.15.0
+   Compiling pbkdf2 v0.11.0
+   Compiling inout v0.1.4
+   Compiling solana-define-syscall v4.0.1
+   Compiling solana-program-entrypoint v3.1.1
+   Compiling cipher v0.4.4
+   Compiling solana-seed-phrase v3.0.0
+   Compiling idna_adapter v1.2.2
+   Compiling solana-slot-history v3.1.0
+   Compiling solana-last-restart-slot v3.1.0
+   Compiling solana-seed-derivable v3.0.0
+   Compiling solana-epoch-rewards v3.0.1
+   Compiling zstd-sys v2.0.16+zstd.1.5.7
+   Compiling form_urlencoded v1.2.2
+   Compiling solana-hash v3.1.0
+   Compiling solana-short-vec v3.2.2
+   Compiling crc32fast v1.5.0
+   Compiling ident_case v1.0.1
+   Compiling strsim v0.11.1
+   Compiling untrusted v0.9.0
+   Compiling alloc-no-stdlib v2.0.4
+   Compiling alloc-stdlib v0.2.4
+   Compiling darling_core v0.21.3
+   Compiling solana-sysvar v3.1.1
+   Compiling idna v1.1.0
+   Compiling http-body v1.0.1
+   Compiling tokio-util v0.7.18
+   Compiling tracing-core v0.1.36
+   Compiling solana-serialize-utils v3.1.1
+   Compiling serde_bytes v0.11.19
+   Compiling universal-hash v0.5.1
+   Compiling adler2 v2.0.1
+   Compiling keccak v0.1.6
+   Compiling radium v0.7.0
+   Compiling rustls v0.23.41
+   Compiling opaque-debug v0.3.1
+   Compiling httparse v1.10.1
+   Compiling simd-adler32 v0.3.9
+   Compiling miniz_oxide v0.8.9
+   Compiling polyval v0.6.2
+   Compiling tracing v0.1.44
+   Compiling url v2.5.8
+   Compiling darling_macro v0.21.3
+   Compiling brotli-decompressor v5.0.3
+   Compiling ctr v0.9.2
+   Compiling aes v0.8.4
+   Compiling aead v0.5.2
+   Compiling tower-service v0.3.3
+   Compiling try-lock v0.2.5
+   Compiling solana-msg v3.1.0
+   Compiling atomic-waker v1.1.2
+   Compiling zstd-safe v7.2.4
+   Compiling tap v1.0.1
+   Compiling getrandom v0.4.2
+   Compiling rand_core v0.10.0
+   Compiling wyz v0.5.1
+   Compiling h2 v0.4.15
+   Compiling want v0.3.1
+   Compiling aes-gcm-siv v0.11.1
+   Compiling brotli v8.0.4
+   Compiling flate2 v1.1.9
+   Compiling darling v0.21.3
+   Compiling spl-discriminator-syn v0.2.1
+   Compiling merlin v3.0.0
+   Compiling sha3 v0.10.9
+   Compiling solana-account v3.4.0
+   Compiling solana-instructions-sysvar v3.0.0
+   Compiling itertools v0.12.1
+   Compiling solana-zero-copy v1.1.1
+   Compiling pin-utils v0.1.0
+   Compiling funty v2.0.0
+   Compiling unicode-width v0.2.2
+   Compiling compression-core v0.4.32
+   Compiling void v1.0.2
+   Compiling unreachable v1.0.0
+   Compiling compression-codecs v0.4.38
+   Compiling solana-zk-sdk v4.0.0
+   Compiling bitvec v1.0.1
+   Compiling hyper v1.8.1
+   Compiling spl-discriminator-derive v0.2.0
+   Compiling serde_with_macros v3.17.0
+   Compiling solana-message v3.1.0
+   Compiling sync_wrapper v1.0.2
+   Compiling ahash v0.8.12
+   Compiling rustix v1.1.4
+   Compiling solana-program-option v3.0.1
+   Compiling ascii v0.9.3
+   Compiling tower-layer v0.3.3
+   Compiling ryu v1.0.23
+   Compiling ipnet v2.12.0
+   Compiling tower v0.5.3
+   Compiling hyper-util v0.1.20
+   Compiling combine v3.8.1
+   Compiling serde_with v3.17.0
+   Compiling spl-discriminator v0.5.2
+   Compiling ff v0.13.1
+   Compiling async-compression v0.4.42
+   Compiling http-body-util v0.1.3
+   Compiling webpki-roots v1.0.8
+   Compiling hash32 v0.3.1
+   Compiling solana-commitment-config v3.1.1
+   Compiling solana-serde-varint v3.0.1
+   Compiling blst v0.3.16
+   Compiling cfg_eval v0.1.2
+   Compiling rand_xorshift v0.3.0
+   Compiling num_cpus v1.17.0
+   Compiling linux-raw-sys v0.12.1
+   Compiling rustc-demangle v0.1.27
+   Compiling solana-sbpf v0.13.1
+   Compiling threadpool v1.8.1
+   Compiling group v0.13.0
+   Compiling zstd v0.13.3
+   Compiling solana-account-decoder-client-types v3.1.9
+   Compiling tower-http v0.6.11
+   Compiling spl-pod v0.7.3
+   Compiling console v0.16.4
+   Compiling solana-system-interface v2.0.0
+   Compiling rand_core v0.9.5
+   Compiling aho-corasick v1.1.4
+   Compiling regex-syntax v0.8.11
+   Compiling anyhow v1.0.103
+   Compiling fastrand v2.3.0
+   Compiling solana-svm-feature-set v3.1.9
+   Compiling tinyvec_macros v0.1.1
+   Compiling solana-version v3.1.9
+   Compiling tinyvec v1.10.0
+   Compiling agave-feature-set v3.1.9
+   Compiling regex-automata v0.4.14
+   Compiling tempfile v3.27.0
+   Compiling rand_chacha v0.9.0
+   Compiling pairing v0.23.0
+   Compiling solana-transaction-context v3.1.9
+   Compiling spl-type-length-value v0.9.1
+   Compiling serde_urlencoded v0.7.1
+   Compiling solana-transaction v3.1.0
+   Compiling console v0.15.11
+   Compiling futures-executor v0.3.32
+   Compiling solana-curve25519 v3.1.14
+   Compiling solana-packet v3.0.0
+   Compiling spl-generic-token v2.0.1
+   Compiling solana-program-pack v3.1.0
+   Compiling solana-reward-info v3.0.0
+   Compiling solana-borsh v3.0.2
+   Compiling async-trait v0.1.89
+   Compiling unicode-width v0.1.14
+   Compiling portable-atomic v1.13.1
+   Compiling byte-slice-cast v1.2.3
+   Compiling shell-words v1.1.1
+   Compiling arrayref v0.3.9
+   Compiling dialoguer v0.10.4
+   Compiling blstrs v0.7.1
+   Compiling textwrap v0.11.0
+   Compiling spl-token-metadata-interface v0.8.0
+   Compiling solana-transaction-status-client-types v3.1.9
+   Compiling solana-offchain-message v3.0.0
+   Compiling spl-token-confidential-transfer-proof-extraction v0.5.1
+   Compiling futures v0.3.32
+   Compiling rand v0.9.2
+   Compiling regex v1.12.4
+   Compiling unicode-normalization v0.1.25
+   Compiling spl-token-group-interface v0.7.2
+   Compiling spl-token-confidential-transfer-proof-generation v0.5.1
+   Compiling ed25519-dalek-bip32 v0.3.0
+   Compiling pbkdf2 v0.12.2
+   Compiling solana-cpi v3.1.0
+   Compiling serde_spanned v1.0.4
+   Compiling toml_datetime v0.7.5+spec-1.1.0
+   Compiling atty v0.2.14
+   Compiling rtoolbox v0.0.3
+   Compiling vec_map v0.8.2
+   Compiling rustc-hash v1.1.0
+   Compiling toml_writer v1.1.1+spec-1.1.0
+   Compiling ansi_term v0.12.1
+   Compiling solana-inflation v3.0.0
+   Compiling crossbeam-utils v0.8.21
+   Compiling bitflags v1.3.2
+   Compiling cpufeatures v0.3.0
+   Compiling iana-time-zone v0.1.65
+   Compiling openssl-probe v0.2.1
+   Compiling strsim v0.8.0
+   Compiling clap v2.34.0
+   Compiling rustls-native-certs v0.8.4
+   Compiling chrono v0.4.45
+   Compiling toml v0.9.12+spec-1.1.0
+   Compiling chacha20 v0.10.1
+   Compiling solana-rpc-client-types v3.1.9
+   Compiling tiny-bip39 v2.0.0
+   Compiling rpassword v7.4.0
+   Compiling solana-stake-interface v2.0.2
+   Compiling spl-token-2022-interface v2.1.0
+   Compiling solana-keypair v3.1.2
+   Compiling Inflector v0.11.4
+   Compiling rustls-webpki v0.103.13
+   Compiling jsonrpc-core v18.0.0
+   Compiling solana-remote-wallet v3.1.9
+   Compiling solana-bls-signatures v1.0.0
+   Compiling spl-token-interface v2.0.0
+   Compiling solana-vote-interface v4.0.4
+   Compiling solana-config-interface v2.0.0
+   Compiling solana-loader-v3-interface v6.1.1
+   Compiling solana-address-lookup-table-interface v3.0.1
+   Compiling solana-nonce v3.1.0
+   Compiling solana-presigner v3.0.0
+   Compiling solana-cluster-type v3.1.0
+   Compiling dirs-sys-next v0.1.2
+   Compiling unsafe-libyaml v0.2.11
+   Compiling solana-native-token v3.0.0
+   Compiling unit-prefix v0.5.2
+   Compiling signal-hook v0.4.4
+   Compiling indicatif v0.18.6
+   Compiling serde_yaml v0.9.34+deprecated
+   Compiling solana-clap-utils v3.1.9
+   Compiling dirs-next v2.0.0
+   Compiling solana-account-decoder v3.1.9
+   Compiling rand v0.10.0
+   Compiling tokio-rustls v0.26.4
+   Compiling hyper-rustls v0.27.9
+   Compiling rustls-platform-verifier v0.7.0
+   Compiling reqwest v0.12.28
+   Compiling solana-feature-gate-interface v3.1.0
+   Compiling solana-epoch-info v3.1.0
+   Compiling encoding_rs v0.8.35
+   Compiling reqwest-middleware v0.4.2
+   Compiling solana-rpc-client-api v3.1.9
+   Compiling mime v0.3.17
+   Compiling hex v0.4.3
+   Compiling sha256 v1.6.0
+   Compiling reqwest v0.13.4
+   Compiling solana-rpc-client v3.1.9
+   Compiling crossbeam-channel v0.5.15
+   Compiling uuid v1.23.4
+   Compiling solana-cli-config v3.1.9
+   Compiling cargo_toml v0.22.3
+   Compiling cargo-lock v11.0.1
+   Compiling solana-system-interface v3.2.0
+   Compiling solana-compute-budget-interface v3.0.0
+   Compiling pathdiff v0.2.3
+   Compiling solana-verify v0.5.2 (/tmp/sv/solana-verify-0.5.2)
+    Finished `release` profile [optimized] target(s) in 3m 40s
+  Installing /root/sv/bin/solana-verify
+   Installed package `solana-verify v0.5.2 (/tmp/sv/solana-verify-0.5.2)` (executable `solana-verify`)
+warning: be sure to add `/root/sv/bin` to your PATH to be able to run the installed binaries
++ export PATH=/root/sv/bin:/root/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
++ PATH=/root/sv/bin:/root/.cargo/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
++ IMG=solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
++ docker pull solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
+docker.io/solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd: Pulling from solanafoundation/solana-verifiable-build
+699632fc6d33: Pulling fs layer
+1da3cb2f93f2: Pulling fs layer
+68b64c51cda3: Pulling fs layer
+ec935196e6a0: Pulling fs layer
+d74736caedd4: Pulling fs layer
+485a138231c8: Pulling fs layer
+5b80c6fec50b: Pulling fs layer
+937879118116: Pulling fs layer
+9368b8a8004a: Pulling fs layer
+699632fc6d33: Download complete
+5b80c6fec50b: Download complete
+68b64c51cda3: Download complete
+1da3cb2f93f2: Download complete
+937879118116: Download complete
+ec935196e6a0: Download complete
+485a138231c8: Download complete
+d74736caedd4: Download complete
+1da3cb2f93f2: Pull complete
+68b64c51cda3: Pull complete
+9368b8a8004a: Download complete
+ec935196e6a0: Pull complete
+d74736caedd4: Pull complete
+485a138231c8: Pull complete
+5b80c6fec50b: Pull complete
+937879118116: Pull complete
+699632fc6d33: Pull complete
+9368b8a8004a: Pull complete
+Digest: sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
+Status: Downloaded newer image for solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
+docker.io/solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
++ docker image inspect solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd --format 'id {{.Id}} digests {{.RepoDigests}} arch {{.Architecture}}'
+id sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd digests [solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd] arch amd64
++ solana-verify --version
+solana-verify 0.5.2
++ for r in a b
++ rm -rf /root/work/src/program/target
++ solana-verify build /root/work/src/program --library-name xmr_sol_swap --base-image solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
+Mounting path: /root/work/src/program
+Workspace path: /root/work/src/program
+Workdir: /build
+Building program at /build//
+Building manifest path: /build//Cargo.toml
+No Docker resource limits are set.
+You can set the SVB_DOCKER_MEMORY_LIMIT and SVB_DOCKER_CPU_LIMIT environment variables to limit Docker resources.
+For example: SVB_DOCKER_MEMORY_LIMIT=2g SVB_DOCKER_CPU_LIMIT=2.
+Using container Rust toolchain: 1.97.1-x86_64-unknown-linux-gnu
+   Compiling proc-macro2 v1.0.107
+   Compiling quote v1.0.47
+   Compiling unicode-ident v1.0.26
+   Compiling serde_core v1.0.229
+   Compiling version_check v0.9.5
+   Compiling serde v1.0.229
+   Compiling generic-array v0.14.7
+   Compiling syn v1.0.109
+   Compiling typenum v1.20.1
+   Compiling syn v3.0.6
+   Compiling equivalent v1.0.2
+   Compiling hashbrown v0.17.1
+   Compiling winnow v1.0.4
+   Compiling indexmap v2.14.2
+   Compiling cfg-if v1.0.5
+   Compiling toml_datetime v1.1.1+spec-1.1.0
+   Compiling cfg_aliases v0.2.2
+   Compiling autocfg v1.5.1
+   Compiling toml_parser v1.1.3+spec-1.1.0
+   Compiling solana-define-syscall v2.2.1
+   Compiling borsh v1.8.1
+   Compiling toml_edit v0.25.15+spec-1.1.0
+   Compiling serde_derive v1.0.229
+   Compiling once_cell v1.21.4
+   Compiling zerocopy v0.8.61
+   Compiling proc-macro-crate v3.5.0
+   Compiling block-buffer v0.10.4
+   Compiling borsh-derive v1.8.1
+   Compiling crypto-common v0.1.7
+   Compiling bytemuck_derive v1.12.1
+   Compiling ahash v0.8.12
+   Compiling bytemuck v1.25.2
+   Compiling digest v0.10.7
+   Compiling borsh-derive-internal v0.10.4
+   Compiling num-traits v0.2.19
+   Compiling solana-sanitize v2.2.1
+   Compiling solana-atomic-u64 v2.2.1
+   Compiling bs58 v0.5.1
+   Compiling toml v0.5.11
+   Compiling borsh-schema-derive-internal v0.10.4
+   Compiling solana-hash v2.2.1
+   Compiling sha2 v0.10.9
+   Compiling proc-macro-crate v0.1.5
+   Compiling borsh-derive v0.10.4
+   Compiling five8_core v0.1.2
+   Compiling five8_const v0.1.4
+   Compiling solana-decode-error v2.3.0
+   Compiling solana-sha256-hasher v2.2.1
+   Compiling syn v2.0.119
+   Compiling bincode v1.3.3
+   Compiling zmij v1.0.23
+   Compiling thiserror v1.0.69
+   Compiling anyhow v1.0.104
+   Compiling hashbrown v0.13.2
+   Compiling serde_json v1.0.151
+   Compiling borsh v0.10.4
+   Compiling solana-msg v2.2.1
+   Compiling unicode-segmentation v1.13.3
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling cpufeatures v0.2.17
+   Compiling solana-pubkey v2.2.1
+   Compiling solana-instruction v2.2.1
+   Compiling solana-sdk-ids v2.2.1
+   Compiling solana-sysvar-id v2.2.1
+   Compiling solana-program-error v2.2.2
+   Compiling heck v0.3.3
+   Compiling solana-program-memory v2.2.1
+   Compiling solana-system-interface v1.0.0
+   Compiling solana-account-info v2.2.1
+   Compiling hybrid-array v0.4.15
+   Compiling find-msvc-tools v0.1.14
+   Compiling shlex v2.0.1
+   Compiling feature-probe v0.1.1
+   Compiling solana-sdk-macro v2.2.1
+   Compiling thiserror-impl v1.0.69
+   Compiling cc v1.6.0
+   Compiling cmov v0.5.4
+   Compiling ctutils v0.4.3
+   Compiling solana-clock v2.2.1
+   Compiling bv v0.11.1
+   Compiling block-buffer v0.12.1
+   Compiling crypto-common v0.2.2
+   Compiling thiserror v2.0.21
+   Compiling solana-rent v2.2.1
+   Compiling solana-stable-layout v2.2.1
+   Compiling anchor-syn v0.31.2
+   Compiling solana-serialize-utils v2.2.1
+   Compiling thiserror-impl v2.0.21
+   Compiling blake3 v1.8.7
+   Compiling digest v0.11.3
+   Compiling serde_bytes v0.11.19
+   Compiling log v0.4.34
+   Compiling arrayvec v0.7.8
+   Compiling constant_time_eq v0.4.2
+   Compiling solana-fee-calculator v2.2.1
+   Compiling solana-cpi v2.2.1
+   Compiling solana-slot-hashes v2.2.1
+   Compiling solana-short-vec v2.2.1
+   Compiling memoffset v0.9.1
+   Compiling lazy_static v1.5.1
+   Compiling keccak v0.1.6
+   Compiling solana-stake-interface v1.2.1
+   Compiling sha3 v0.10.9
+   Compiling solana-slot-history v2.2.1
+   Compiling solana-instructions-sysvar v2.2.1
+   Compiling solana-account v2.2.1
+   Compiling solana-epoch-schedule v2.2.1
+   Compiling solana-epoch-rewards v2.2.1
+   Compiling solana-last-restart-slot v2.2.1
+   Compiling num-derive v0.4.2
+   Compiling solana-program-entrypoint v2.2.1
+   Compiling solana-transaction-error v2.2.1
+   Compiling solana-bincode v2.2.1
+   Compiling anchor-lang-idl-spec v0.1.0
+   Compiling solana-serde-varint v2.2.1
+   Compiling solana-message v2.2.1
+   Compiling solana-vote-interface v2.2.3
+   Compiling solana-sysvar v2.2.1
+   Compiling anchor-lang-idl v0.1.4
+   Compiling solana-feature-gate-interface v2.2.1
+   Compiling solana-keccak-hasher v2.2.1
+   Compiling solana-address-lookup-table-interface v2.2.2
+   Compiling solana-blake3-hasher v2.2.1
+   Compiling solana-secp256k1-recover v2.2.1
+   Compiling solana-nonce v2.2.1
+   Compiling solana-loader-v2-interface v2.2.1
+   Compiling solana-loader-v4-interface v2.2.1
+   Compiling solana-loader-v3-interface v3.0.0
+   Compiling solana-program-pack v2.2.1
+   Compiling solana-borsh v2.2.1
+   Compiling solana-big-mod-exp v2.2.1
+   Compiling getrandom v0.2.17
+   Compiling solana-native-token v2.2.1
+   Compiling solana-program-option v2.2.1
+   Compiling anchor-attribute-error v0.31.2
+   Compiling anchor-derive-accounts v0.31.2
+   Compiling anchor-attribute-access-control v0.31.2
+   Compiling anchor-attribute-constant v0.31.2
+   Compiling anchor-derive-serde v0.31.2
+   Compiling anchor-attribute-event v0.31.2
+   Compiling anchor-attribute-account v0.31.2
+   Compiling solana-program v2.2.1
+   Compiling anchor-derive-space v0.31.2
+   Compiling subtle v2.6.1
+   Compiling base64 v0.21.7
+   Compiling solana-curve25519 v2.2.7
+   Compiling anchor-attribute-program v0.31.2
+   Compiling anchor-lang v0.31.1
+   Compiling xmr-sol-swap v0.1.0 (/build)
+warning: unexpected `cfg` condition value: `custom-heap`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `$crate::custom_heap_default` crate for guidance on how handle this unexpected cfg
+   = help: the macro `$crate::custom_heap_default` may come from an old version of the `solana_program_entrypoint` crate, try updating your dependency with `cargo update -p solana_program_entrypoint`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+   = note: this warning originates in the macro `$crate::custom_heap_default` which comes from the expansion of the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `custom-panic`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `$crate::custom_panic_default` crate for guidance on how handle this unexpected cfg
+   = help: the macro `$crate::custom_panic_default` may come from an old version of the `solana_program_entrypoint` crate, try updating your dependency with `cargo update -p solana_program_entrypoint`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: this warning originates in the macro `$crate::custom_panic_default` which comes from the expansion of the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `program` crate for guidance on how handle this unexpected cfg
+   = help: the attribute macro `program` may come from an old version of the `anchor_attribute_program` crate, try updating your dependency with `cargo update -p anchor_attribute_program`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: this warning originates in the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+   = help: the derive macro `Accounts` may come from an old version of the `anchor_derive_accounts` crate, try updating your dependency with `cargo update -p anchor_derive_accounts`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:176:10
+    |
+176 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = help: the derive macro `Accounts` may come from an old version of the `anchor_derive_accounts` crate, try updating your dependency with `cargo update -p anchor_derive_accounts`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:192:10
+    |
+192 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = help: the derive macro `Accounts` may come from an old version of the `anchor_derive_accounts` crate, try updating your dependency with `cargo update -p anchor_derive_accounts`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:204:10
+    |
+204 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = help: the derive macro `Accounts` may come from an old version of the `anchor_derive_accounts` crate, try updating your dependency with `cargo update -p anchor_derive_accounts`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:223:10
+    |
+223 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = help: the derive macro `Accounts` may come from an old version of the `anchor_derive_accounts` crate, try updating your dependency with `cargo update -p anchor_derive_accounts`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `xmr-sol-swap` (lib) generated 13 warnings (5 duplicates)
+    Finished `release` profile [optimized] target(s) in 48.00s
+Finished building program
+Program Solana version: v0.0.0
+6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39
++ mkdir -p /root/out-a
++ cp /root/work/src/program/target/deploy/xmr_sol_swap.so /root/out-a/
+++ wc -c
+++ sha256sum /root/out-a/xmr_sol_swap.so
+++ solana-verify get-executable-hash /root/out-a/xmr_sol_swap.so
+++ tail -1
++ echo 'run a: 215944 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515  /root/out-a/xmr_sol_swap.so svh 6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39'
+run a: 215944 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515  /root/out-a/xmr_sol_swap.so svh 6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39
++ for r in a b
++ rm -rf /root/work/src/program/target
++ solana-verify build /root/work/src/program --library-name xmr_sol_swap --base-image solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
+Mounting path: /root/work/src/program
+Workspace path: /root/work/src/program
+Workdir: /build
+Building program at /build//
+Building manifest path: /build//Cargo.toml
+No Docker resource limits are set.
+You can set the SVB_DOCKER_MEMORY_LIMIT and SVB_DOCKER_CPU_LIMIT environment variables to limit Docker resources.
+For example: SVB_DOCKER_MEMORY_LIMIT=2g SVB_DOCKER_CPU_LIMIT=2.
+Using container Rust toolchain: 1.97.1-x86_64-unknown-linux-gnu
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.26
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling version_check v0.9.5
+   Compiling serde v1.0.229
+   Compiling generic-array v0.14.7
+   Compiling syn v1.0.109
+   Compiling typenum v1.20.1
+   Compiling syn v3.0.6
+   Compiling hashbrown v0.17.1
+   Compiling winnow v1.0.4
+   Compiling equivalent v1.0.2
+   Compiling indexmap v2.14.2
+   Compiling cfg-if v1.0.5
+   Compiling toml_datetime v1.1.1+spec-1.1.0
+   Compiling autocfg v1.5.1
+   Compiling toml_parser v1.1.3+spec-1.1.0
+   Compiling solana-define-syscall v2.2.1
+   Compiling cfg_aliases v0.2.2
+   Compiling borsh v1.8.1
+   Compiling toml_edit v0.25.15+spec-1.1.0
+   Compiling once_cell v1.21.4
+   Compiling serde_derive v1.0.229
+   Compiling zerocopy v0.8.61
+   Compiling proc-macro-crate v3.5.0
+   Compiling bytemuck_derive v1.12.1
+   Compiling borsh-derive v1.8.1
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling ahash v0.8.12
+   Compiling bytemuck v1.25.2
+   Compiling digest v0.10.7
+   Compiling borsh-derive-internal v0.10.4
+   Compiling num-traits v0.2.19
+   Compiling solana-atomic-u64 v2.2.1
+   Compiling bs58 v0.5.1
+   Compiling solana-sanitize v2.2.1
+   Compiling borsh-schema-derive-internal v0.10.4
+   Compiling toml v0.5.11
+   Compiling solana-hash v2.2.1
+   Compiling sha2 v0.10.9
+   Compiling five8_core v0.1.2
+   Compiling five8_const v0.1.4
+   Compiling solana-sha256-hasher v2.2.1
+   Compiling solana-decode-error v2.3.0
+   Compiling syn v2.0.119
+   Compiling proc-macro-crate v0.1.5
+   Compiling bincode v1.3.3
+   Compiling borsh-derive v0.10.4
+   Compiling zmij v1.0.23
+   Compiling anyhow v1.0.104
+   Compiling thiserror v1.0.69
+   Compiling serde_json v1.0.151
+   Compiling hashbrown v0.13.2
+   Compiling solana-msg v2.2.1
+   Compiling itoa v1.0.18
+   Compiling borsh v0.10.4
+   Compiling unicode-segmentation v1.13.3
+   Compiling cpufeatures v0.2.17
+   Compiling memchr v2.8.3
+   Compiling solana-pubkey v2.2.1
+   Compiling solana-instruction v2.2.1
+   Compiling solana-sdk-ids v2.2.1
+   Compiling solana-sysvar-id v2.2.1
+   Compiling heck v0.3.3
+   Compiling solana-program-error v2.2.2
+   Compiling solana-program-memory v2.2.1
+   Compiling solana-account-info v2.2.1
+   Compiling solana-system-interface v1.0.0
+   Compiling hybrid-array v0.4.15
+   Compiling solana-sdk-macro v2.2.1
+   Compiling thiserror-impl v1.0.69
+   Compiling solana-clock v2.2.1
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.14
+   Compiling cmov v0.5.4
+   Compiling feature-probe v0.1.1
+   Compiling cc v1.6.0
+   Compiling bv v0.11.1
+   Compiling ctutils v0.4.3
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling thiserror v2.0.21
+   Compiling solana-rent v2.2.1
+   Compiling anchor-syn v0.31.2
+   Compiling solana-serialize-utils v2.2.1
+   Compiling digest v0.11.3
+   Compiling solana-stable-layout v2.2.1
+   Compiling thiserror-impl v2.0.21
+   Compiling serde_bytes v0.11.19
+   Compiling constant_time_eq v0.4.2
+   Compiling arrayvec v0.7.8
+   Compiling blake3 v1.8.7
+   Compiling log v0.4.34
+   Compiling solana-fee-calculator v2.2.1
+   Compiling solana-cpi v2.2.1
+   Compiling solana-slot-hashes v2.2.1
+   Compiling solana-short-vec v2.2.1
+   Compiling memoffset v0.9.1
+   Compiling lazy_static v1.5.1
+   Compiling keccak v0.1.6
+   Compiling solana-stake-interface v1.2.1
+   Compiling sha3 v0.10.9
+   Compiling solana-slot-history v2.2.1
+   Compiling solana-instructions-sysvar v2.2.1
+   Compiling solana-account v2.2.1
+   Compiling solana-last-restart-slot v2.2.1
+   Compiling solana-epoch-rewards v2.2.1
+   Compiling solana-epoch-schedule v2.2.1
+   Compiling num-derive v0.4.2
+   Compiling solana-program-entrypoint v2.2.1
+   Compiling solana-bincode v2.2.1
+   Compiling solana-transaction-error v2.2.1
+   Compiling anchor-lang-idl-spec v0.1.0
+   Compiling solana-serde-varint v2.2.1
+   Compiling solana-message v2.2.1
+   Compiling solana-vote-interface v2.2.3
+   Compiling solana-sysvar v2.2.1
+   Compiling anchor-lang-idl v0.1.4
+   Compiling solana-feature-gate-interface v2.2.1
+   Compiling solana-keccak-hasher v2.2.1
+   Compiling solana-address-lookup-table-interface v2.2.2
+   Compiling solana-secp256k1-recover v2.2.1
+   Compiling solana-blake3-hasher v2.2.1
+   Compiling solana-nonce v2.2.1
+   Compiling solana-loader-v2-interface v2.2.1
+   Compiling solana-loader-v3-interface v3.0.0
+   Compiling solana-loader-v4-interface v2.2.1
+   Compiling solana-program-pack v2.2.1
+   Compiling solana-borsh v2.2.1
+   Compiling solana-big-mod-exp v2.2.1
+   Compiling getrandom v0.2.17
+   Compiling solana-program-option v2.2.1
+   Compiling solana-native-token v2.2.1
+   Compiling anchor-derive-serde v0.31.2
+   Compiling anchor-attribute-account v0.31.2
+   Compiling anchor-attribute-access-control v0.31.2
+   Compiling anchor-attribute-constant v0.31.2
+   Compiling anchor-attribute-error v0.31.2
+   Compiling solana-program v2.2.1
+   Compiling anchor-attribute-event v0.31.2
+   Compiling anchor-derive-accounts v0.31.2
+   Compiling anchor-derive-space v0.31.2
+   Compiling base64 v0.21.7
+   Compiling subtle v2.6.1
+   Compiling solana-curve25519 v2.2.7
+   Compiling anchor-attribute-program v0.31.2
+   Compiling anchor-lang v0.31.1
+   Compiling xmr-sol-swap v0.1.0 (/build)
+warning: unexpected `cfg` condition value: `custom-heap`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `$crate::custom_heap_default` crate for guidance on how handle this unexpected cfg
+   = help: the macro `$crate::custom_heap_default` may come from an old version of the `solana_program_entrypoint` crate, try updating your dependency with `cargo update -p solana_program_entrypoint`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+   = note: this warning originates in the macro `$crate::custom_heap_default` which comes from the expansion of the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `custom-panic`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `$crate::custom_panic_default` crate for guidance on how handle this unexpected cfg
+   = help: the macro `$crate::custom_panic_default` may come from an old version of the `solana_program_entrypoint` crate, try updating your dependency with `cargo update -p solana_program_entrypoint`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: this warning originates in the macro `$crate::custom_panic_default` which comes from the expansion of the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `program` crate for guidance on how handle this unexpected cfg
+   = help: the attribute macro `program` may come from an old version of the `anchor_attribute_program` crate, try updating your dependency with `cargo update -p anchor_attribute_program`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: this warning originates in the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+   = help: the derive macro `Accounts` may come from an old version of the `anchor_derive_accounts` crate, try updating your dependency with `cargo update -p anchor_derive_accounts`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:176:10
+    |
+176 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = help: the derive macro `Accounts` may come from an old version of the `anchor_derive_accounts` crate, try updating your dependency with `cargo update -p anchor_derive_accounts`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:192:10
+    |
+192 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = help: the derive macro `Accounts` may come from an old version of the `anchor_derive_accounts` crate, try updating your dependency with `cargo update -p anchor_derive_accounts`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:204:10
+    |
+204 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = help: the derive macro `Accounts` may come from an old version of the `anchor_derive_accounts` crate, try updating your dependency with `cargo update -p anchor_derive_accounts`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:223:10
+    |
+223 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = help: the derive macro `Accounts` may come from an old version of the `anchor_derive_accounts` crate, try updating your dependency with `cargo update -p anchor_derive_accounts`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `xmr-sol-swap` (lib) generated 13 warnings (5 duplicates)
+    Finished `release` profile [optimized] target(s) in 47.21s
+Finished building program
+Program Solana version: v0.0.0
+6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39
++ mkdir -p /root/out-b
++ cp /root/work/src/program/target/deploy/xmr_sol_swap.so /root/out-b/
+++ wc -c
+++ sha256sum /root/out-b/xmr_sol_swap.so
+++ solana-verify get-executable-hash /root/out-b/xmr_sol_swap.so
+++ tail -1
++ echo 'run b: 215944 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515  /root/out-b/xmr_sol_swap.so svh 6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39'
+run b: 215944 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515  /root/out-b/xmr_sol_swap.so svh 6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39
++ date -u +%T
++ echo BUILD_DONE
+BUILD_DONE

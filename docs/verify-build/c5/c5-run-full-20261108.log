@@ -1,0 +1,295 @@
+warning: unexpected `cfg` condition value: `custom-heap`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `$crate::custom_heap_default` crate for guidance on how handle this unexpected cfg
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+   = note: this warning originates in the macro `$crate::custom_heap_default` which comes from the expansion of the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `solana`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `target_os` are: `aix`, `amdhsa`, `android`, `cuda`, `cygwin`, `dragonfly`, `emscripten`, `espidf`, `freebsd`, `fuchsia`, `haiku`, `helenos`, `hermit`, `horizon`, `hurd`, `illumos`, `ios`, `l4re`, `linux`, `lynxos178`, `macos`, `managarm`, `motor`, `netbsd`, `none`, `nto`, `nuttx`, `openbsd`, `psp`, `psx`, `qnx`, `qurt`, `redox`, `rtems`, and `solaris` and 15 more
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `$crate::custom_heap_default` crate for guidance on how handle this unexpected cfg
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: this warning originates in the macro `$crate::custom_heap_default` which comes from the expansion of the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `custom-panic`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `$crate::custom_panic_default` crate for guidance on how handle this unexpected cfg
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: this warning originates in the macro `$crate::custom_panic_default` which comes from the expansion of the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `solana`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `target_os` are: `aix`, `amdhsa`, `android`, `cuda`, `cygwin`, `dragonfly`, `emscripten`, `espidf`, `freebsd`, `fuchsia`, `haiku`, `helenos`, `hermit`, `horizon`, `hurd`, `illumos`, `ios`, `l4re`, `linux`, `lynxos178`, `macos`, `managarm`, `motor`, `netbsd`, `none`, `nto`, `nuttx`, `openbsd`, `psp`, `psx`, `qnx`, `qurt`, `redox`, `rtems`, and `solaris` and 15 more
+   = note: using a cfg inside a macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `$crate::custom_panic_default` crate for guidance on how handle this unexpected cfg
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: this warning originates in the macro `$crate::custom_panic_default` which comes from the expansion of the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a attribute macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `program` crate for guidance on how handle this unexpected cfg
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: this warning originates in the attribute macro `program` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+  --> src/lib.rs:47:1
+   |
+47 | #[program]
+   | ^^^^^^^^^^
+   |
+   = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+   = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+   = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:176:10
+    |
+176 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:192:10
+    |
+192 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:204:10
+    |
+204 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition value: `anchor-debug`
+   --> src/lib.rs:223:10
+    |
+223 | #[derive(Accounts)]
+    |          ^^^^^^^^
+    |
+    = note: expected values for `feature` are: `cpi`, `default`, `idl-build`, `no-entrypoint`, `no-idl`, and `no-log-ix-name`
+    = note: using a cfg inside a derive macro will use the cfgs from the destination crate and not the ones from the defining crate
+    = help: try referring to `Accounts` crate for guidance on how handle this unexpected cfg
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+    = note: this warning originates in the derive macro `Accounts` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `xmr-sol-swap` (lib) generated 15 warnings (5 duplicates)
+    Finished `test` profile [unoptimized] target(s) in 2.54s
+warning: the following packages contain code that will be rejected by a future version of Rust: proc-macro-error2 v2.0.1
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running tests/upgrade_equivalence.rs (<build dir>/target/debug/deps/upgrade_equivalence-77fc9b1e985ac345)
+
+running 2 tests
+test harness_canary_upgrade_changes_executing_code ... canary under OLD: Err(InstructionError(0, Custom(101)))
+canary under MEMO: Ok(()) ["Program 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS invoke [1]", "Program log: Memo (len 5): \"hello\"", "Program 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS consumed 3225 of 200000 compute units", "Program 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS success"]
+canary under NEW: Err(InstructionError(0, Custom(101)))
+ok
+test upgrade_equivalence_differential ... OLD 215944 bytes sha256 76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d
+NEW 215944 bytes sha256 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515
+differing bytes = 1672
+
+== happy: lock, ready, claim (3 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Ready { e: 0, mallory: false } -> Ok(()) (CU old 3663 new 3663)
+  step 2 t=+2 Claim { e: 0, s: A, wrong_dest: false } -> Ok(()) (CU old 6050 new 6050)
+
+== ready then claim at t1-1 (last claim second) (3 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Ready { e: 0, mallory: false } -> Ok(()) (CU old 3663 new 3663)
+  step 2 t=+7199 Claim { e: 0, s: A, wrong_dest: false } -> Ok(()) (CU old 6049 new 6049)
+
+== ready, claim at t1 refused, refund at t1 (4 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Ready { e: 0, mallory: false } -> Ok(()) (CU old 3663 new 3663)
+  step 2 t=+7200 Claim { e: 0, s: A, wrong_dest: false } -> Err(InstructionError(0, Custom(6004))) (CU old 4991 new 4991)
+  step 3 t=+7200 Refund { e: 0, s: B, wrong_refunder: false } -> Ok(()) (CU old 5697 new 5697)
+
+== ready, claim at t1+1 refused, refund at t1+1 (4 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Ready { e: 0, mallory: false } -> Ok(()) (CU old 3663 new 3663)
+  step 2 t=+7201 Claim { e: 0, s: A, wrong_dest: false } -> Err(InstructionError(0, Custom(6004))) (CU old 4991 new 4991)
+  step 3 t=+7201 Refund { e: 0, s: B, wrong_refunder: false } -> Ok(()) (CU old 5697 new 5697)
+
+== no ready: claim t0-1 refused, claim t0 ok (3 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+3599 Claim { e: 0, s: A, wrong_dest: false } -> Err(InstructionError(0, Custom(6004))) (CU old 4997 new 4997)
+  step 2 t=+3600 Claim { e: 0, s: A, wrong_dest: false } -> Ok(()) (CU old 6050 new 6050)
+
+== no ready: claim at t0+1 (2 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+3601 Claim { e: 0, s: A, wrong_dest: false } -> Ok(()) (CU old 6050 new 6050)
+
+== no ready: claim at t1-1 (2 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+7199 Claim { e: 0, s: A, wrong_dest: false } -> Ok(()) (CU old 6050 new 6050)
+
+== no ready: refund at t0-1 (last early refund second) (2 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+3599 Refund { e: 0, s: B, wrong_refunder: false } -> Ok(()) (CU old 5695 new 5695)
+
+== no ready: refund t0, t0+1, t1-1 refused, t1 ok (5 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+3600 Refund { e: 0, s: B, wrong_refunder: false } -> Err(InstructionError(0, Custom(6004))) (CU old 4743 new 4743)
+  step 2 t=+3601 Refund { e: 0, s: B, wrong_refunder: false } -> Err(InstructionError(0, Custom(6004))) (CU old 4743 new 4743)
+  step 3 t=+7199 Refund { e: 0, s: B, wrong_refunder: false } -> Err(InstructionError(0, Custom(6004))) (CU old 4743 new 4743)
+  step 4 t=+7200 Refund { e: 0, s: B, wrong_refunder: false } -> Ok(()) (CU old 5698 new 5698)
+
+== no ready: refund at t1+1 (2 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+7201 Refund { e: 0, s: B, wrong_refunder: false } -> Ok(()) (CU old 5698 new 5698)
+
+== ready: refund t0-1 and t0 refused (4 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Ready { e: 0, mallory: false } -> Ok(()) (CU old 3663 new 3663)
+  step 2 t=+3599 Refund { e: 0, s: B, wrong_refunder: false } -> Err(InstructionError(0, Custom(6004))) (CU old 4741 new 4741)
+  step 3 t=+3600 Refund { e: 0, s: B, wrong_refunder: false } -> Err(InstructionError(0, Custom(6004))) (CU old 4742 new 4742)
+
+== set_ready at t0-1 ok, second ready refused (4 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+3599 Ready { e: 0, mallory: false } -> Ok(()) (CU old 3663 new 3663)
+  step 2 t=+3599 Ready { e: 0, mallory: false } -> Err(InstructionError(0, Custom(6003))) (CU old 4591 new 4591)
+  step 3 t=+3599 Claim { e: 0, s: A, wrong_dest: false } -> Ok(()) (CU old 6050 new 6050)
+
+== set_ready at t0 refused, at t0+1 refused (4 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+3600 Ready { e: 0, mallory: false } -> Err(InstructionError(0, Custom(6004))) (CU old 4724 new 4724)
+  step 2 t=+3601 Ready { e: 0, mallory: false } -> Err(InstructionError(0, Custom(6004))) (CU old 4724 new 4724)
+  step 3 t=+3601 Claim { e: 0, s: A, wrong_dest: false } -> Ok(()) (CU old 6050 new 6050)
+
+== set_ready by mallory refused (3 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Ready { e: 0, mallory: true } -> Err(InstructionError(0, Custom(2006))) (CU old 4659 new 4659)
+  step 2 t=+2 Ready { e: 0, mallory: false } -> Ok(()) (CU old 3663 new 3663)
+
+== bad secrets on claim (9 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Ready { e: 0, mallory: false } -> Ok(()) (CU old 3663 new 3663)
+  step 2 t=+2 Claim { e: 0, s: B, wrong_dest: false } -> Err(InstructionError(0, Custom(6005))) (CU old 7121 new 7121)
+  step 3 t=+3 Claim { e: 0, s: Zero, wrong_dest: false } -> Err(InstructionError(0, Custom(6005))) (CU old 4959 new 4959)
+  step 4 t=+4 Claim { e: 0, s: Random, wrong_dest: false } -> Err(InstructionError(0, Custom(6005))) (CU old 7121 new 7121)
+  step 5 t=+5 Claim { e: 0, s: APlusL, wrong_dest: false } -> Err(InstructionError(0, Custom(6005))) (CU old 4898 new 4898)
+  step 6 t=+6 Claim { e: 0, s: L, wrong_dest: false } -> Err(InstructionError(0, Custom(6005))) (CU old 4984 new 4984)
+  step 7 t=+7 Claim { e: 0, s: Max, wrong_dest: false } -> Err(InstructionError(0, Custom(6005))) (CU old 4896 new 4896)
+  step 8 t=+8 Claim { e: 0, s: A, wrong_dest: false } -> Ok(()) (CU old 6050 new 6050)
+
+== bad secrets on refund (7 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Refund { e: 0, s: A, wrong_refunder: false } -> Err(InstructionError(0, Custom(6005))) (CU old 6865 new 6865)
+  step 2 t=+2 Refund { e: 0, s: Zero, wrong_refunder: false } -> Err(InstructionError(0, Custom(6005))) (CU old 4703 new 4703)
+  step 3 t=+3 Refund { e: 0, s: Random, wrong_refunder: false } -> Err(InstructionError(0, Custom(6005))) (CU old 6865 new 6865)
+  step 4 t=+4 Refund { e: 0, s: L, wrong_refunder: false } -> Err(InstructionError(0, Custom(6005))) (CU old 4728 new 4728)
+  step 5 t=+5 Refund { e: 0, s: Max, wrong_refunder: false } -> Err(InstructionError(0, Custom(6005))) (CU old 4640 new 4640)
+  step 6 t=+6 Refund { e: 0, s: B, wrong_refunder: false } -> Ok(()) (CU old 5695 new 5695)
+
+== wrong destination / wrong refunder accounts (5 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Ready { e: 0, mallory: false } -> Ok(()) (CU old 3663 new 3663)
+  step 2 t=+2 Claim { e: 0, s: A, wrong_dest: true } -> Err(InstructionError(0, Custom(2001))) (CU old 4924 new 4924)
+  step 3 t=+7200 Refund { e: 0, s: B, wrong_refunder: true } -> Err(InstructionError(0, Custom(2006))) (CU old 4658 new 4658)
+  step 4 t=+7200 Refund { e: 0, s: B, wrong_refunder: false } -> Ok(()) (CU old 5697 new 5697)
+
+== double claim then refund refused (5 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Ready { e: 0, mallory: false } -> Ok(()) (CU old 3663 new 3663)
+  step 2 t=+2 Claim { e: 0, s: A, wrong_dest: false } -> Ok(()) (CU old 6050 new 6050)
+  step 3 t=+3 Claim { e: 0, s: A, wrong_dest: false } -> Err(InstructionError(0, Custom(3012))) (CU old 2544 new 2544)
+  step 4 t=+7200 Refund { e: 0, s: B, wrong_refunder: false } -> Err(InstructionError(0, Custom(3012))) (CU old 2372 new 2372)
+
+== refund then claim refused (3 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Refund { e: 0, s: B, wrong_refunder: false } -> Ok(()) (CU old 5695 new 5695)
+  step 2 t=+3600 Claim { e: 0, s: A, wrong_dest: false } -> Err(InstructionError(0, Custom(3012))) (CU old 2544 new 2544)
+
+== double lock same PDA refused (3 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Err(InstructionError(0, Custom(0))) (CU old 10591 new 10591)
+  step 2 t=+2 Refund { e: 0, s: B, wrong_refunder: false } -> Ok(()) (CU old 5695 new 5695)
+
+== ops on never-locked escrow (3 steps)
+  step 0 t=+0 Claim { e: 1, s: A, wrong_dest: false } -> Err(InstructionError(0, Custom(3012))) (CU old 2544 new 2544)
+  step 1 t=+1 Refund { e: 1, s: B, wrong_refunder: false } -> Err(InstructionError(0, Custom(3012))) (CU old 2372 new 2372)
+  step 2 t=+2 Ready { e: 1, mallory: false } -> Err(InstructionError(0, Custom(3012))) (CU old 2378 new 2378)
+
+== lock validation (9 steps)
+  step 0 t=+0 Lock { e: 0, cp: OffCurve, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Err(InstructionError(0, Custom(6002))) (CU old 14234 new 14234)
+  step 1 t=+1 Lock { e: 0, cp: A, rp: Identity, amount: 250000000, t0: 3600, t1: 7200 } -> Err(InstructionError(0, Custom(6002))) (CU old 14242 new 14242)
+  step 2 t=+2 Lock { e: 0, cp: A, rp: A, amount: 250000000, t0: 3600, t1: 7200 } -> Err(InstructionError(0, Custom(6002))) (CU old 14058 new 14058)
+  step 3 t=+3 Lock { e: 0, cp: LowOrder, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 4 t=+4 Lock { e: 1, cp: NonCanonY, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 10939 new 10939)
+  step 5 t=+5 Lock { e: 2, cp: A, rp: B, amount: 0, t0: 3600, t1: 7200 } -> Err(InstructionError(0, Custom(6000))) (CU old 8006 new 8006)
+  step 6 t=+6 Lock { e: 2, cp: A, rp: B, amount: 250000000, t0: 6, t1: 7200 } -> Err(InstructionError(0, Custom(6001))) (CU old 8029 new 8029)
+  step 7 t=+7 Lock { e: 2, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 3600 } -> Err(InstructionError(0, Custom(6001))) (CU old 8030 new 8030)
+  step 8 t=+8 Lock { e: 2, cp: A, rp: B, amount: 250000000, t0: 9, t1: 10 } -> Ok(()) (CU old 9439 new 9439)
+
+== raw / malformed instruction data (6 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Raw { e: 0, data: [] } -> Err(InstructionError(0, Custom(101))) (CU old 1974 new 1974)
+  step 2 t=+2 Raw { e: 0, data: [255, 255, 255, 255, 255, 255, 255, 255] } -> Err(InstructionError(0, Custom(101))) (CU old 1984 new 1984)
+  step 3 t=+3 Raw { e: 0, data: [1, 2, 3] } -> Err(InstructionError(0, Custom(101))) (CU old 1974 new 1974)
+  step 4 t=+4 Raw { e: 0, data: [62, 198, 214, 193, 213, 159, 108, 210, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] } -> Err(InstructionError(0, Custom(102))) (CU old 2369 new 2369)
+  step 5 t=+5 Raw { e: 0, data: [62, 198, 214, 193, 213, 159, 108, 210, 221, 199, 235, 37, 66, 62, 163, 3, 166, 215, 183, 176, 82, 9, 228, 81, 109, 5, 163, 38, 213, 105, 3, 175, 19, 20, 75, 208, 64, 160, 56, 0, 7] } -> Err(InstructionError(0, Custom(6004))) (CU old 4997 new 4997)
+
+== multi-escrow lifecycle across switches (8 steps)
+  step 0 t=+0 Lock { e: 0, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 15439 new 15439)
+  step 1 t=+1 Lock { e: 1, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 10939 new 10939)
+  step 2 t=+2 Ready { e: 0, mallory: false } -> Ok(()) (CU old 3663 new 3663)
+  step 3 t=+3 Lock { e: 2, cp: A, rp: B, amount: 250000000, t0: 3600, t1: 7200 } -> Ok(()) (CU old 9439 new 9439)
+  step 4 t=+4 Claim { e: 0, s: A, wrong_dest: false } -> Ok(()) (CU old 6050 new 6050)
+  step 5 t=+5 Refund { e: 2, s: B, wrong_refunder: false } -> Ok(()) (CU old 5695 new 5695)
+  step 6 t=+3600 Claim { e: 1, s: A, wrong_dest: false } -> Ok(()) (CU old 6050 new 6050)
+  step 7 t=+3601 Claim { e: 2, s: A, wrong_dest: false } -> Err(InstructionError(0, Custom(3012))) (CU old 2544 new 2544)
+
+RUNS (mode runs excluding the OLD/NEW reference pair per script) = 248, compared steps = 1426
+CU differences between OLD-only and NEW-only reference runs: 0
+CU attribution checks passed 0/0
+DIVERGENCES = 0
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 265.54s
+

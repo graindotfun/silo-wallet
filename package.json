@@ -1,0 +1,40 @@
+{
+  "name": "silo-wallet-core",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "description": "Self-custody wallet core and atomic swap client for Silo.",
+  "engines": { "node": "^22.22.3 || ^24.12.0" },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "typecheck": "tsc --noEmit",
+    "verify:manifest": "node scripts/verify-manifest.mjs"
+  },
+  "dependencies": {
+    "@noble/curves": "1.9.7",
+    "@noble/hashes": "1.8.0",
+    "@solana/spl-token": "0.4.15",
+    "@solana/web3.js": "1.99.0",
+    "bigint-buffer": "file:vendor/bigint-buffer-js",
+    "bn.js": "5.2.5",
+    "bs58": "6.0.0",
+    "buffer": "6.0.3",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "tweetnacl": "1.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.19",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "19.2.3",
+    "esbuild": "0.28.1",
+    "typescript": "5.9.3"
+  },
+  "overrides": {
+    "bn.js": "$bn.js",
+    "@solana/web3.js": { "jayson": "5.0.0" },
+    "ws": "8.22.0",
+    "uuid": "11.1.1"
+  }
+}

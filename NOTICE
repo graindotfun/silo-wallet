@@ -1,0 +1,12 @@
+Silo wallet core
+Copyright (c) 2026 Grain contributors
+
+Licences that apply to parts of this repository (full texts in LICENSES/):
+
+- Everything not listed below: GNU Affero General Public License v3.0 only (LICENSES/AGPL-3.0-only.txt, also LICENSE).
+- program/ (the Solana escrow program): MIT (LICENSES/MIT.txt), as declared in program/Cargo.toml.
+- vendor/bigint-buffer-js/: GNU General Public License v3.0 only (LICENSES/GPL-3.0-only.txt), as declared in its package.json.
+  GPL-3.0 code may be combined with AGPL-3.0 code; the combined work as distributed is governed by the AGPL-3.0 section 13 terms.
+
+Third-party packages installed through npm and Cargo keep their own licences; they are not copied into this repository.
+The name Silo and the Silo logo are not licensed (see TRADEMARK.md).

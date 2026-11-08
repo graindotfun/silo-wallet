@@ -1,0 +1,160 @@
+# Docker reproducible build of the escrow program (program/) with solana-verify.
+#
+# Purpose: produce the bytes that a third party can reproduce with `solana-verify build` / `solana-verify verify-from-repo`.
+# The program is built twice, in two separate jobs on two separate runners, from the same commit, inside the same
+# digest-pinned Docker image (mount path program/ -> /build in the container). The compare job fails unless both builds
+# are byte-identical. It also dumps the live mainnet program read-only and reports whether it matches (information only).
+#
+# EXPECTATION: this Docker build is NOT expected to equal the live program (sha256 76424c24..., built on macOS). Putting
+# the Docker bytes on chain is a program upgrade of the same source and follows docs/UPGRADE_TO_VERIFIED_BUILD.md, which
+# checks the result against fixed constants (commit, program/ tree, size, sha256, solana-verify hash), not against this
+# run's own hashes.json.
+# What it does and does not do: it holds no key, signs nothing and sends no transaction (no buffer, no upgrade, no on-chain
+# write). It does write files on the runners (build output, build.json, hashes.json, a read-only dump of the live program)
+# and uploads them as workflow artifacts.
+# What it proves: the two jobs, sharing the same pinned image and toolchain, produce identical bytes (repeatability). It does
+# not prove compiler correctness or independence from that toolchain. Remaining trust inputs: the published image, apt
+# packages on the runner (unpinned, used only to compile solana-verify), crates.io downloads at build time (checked against
+# the Cargo.lock checksums) and network access during the build.
+name: docker-verified-build
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  PROGRAM_ID: 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS
+  LIBRARY_NAME: xmr_sol_swap
+  LIVE_SHA256: 76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d
+  LIVE_SIZE: "215944"
+  # solana-verify 0.5.2, pinned by the sha256 of its crates.io .crate file (measured 8 Nov 2026) and built with --locked.
+  SOLANA_VERIFY_VERSION: "0.5.2"
+  SOLANA_VERIFY_CRATE_SHA256: 100996e26394122ef5358ec756f76ea1b41aab8dd959de8b10091b5017329a7c
+  # solanafoundation/solana-verifiable-build:4.3.0 (single-arch linux/amd64 manifest), pinned by digest. This is the same
+  # digest that solana-verify 0.5.2 maps to Solana 4.3.0 in its own image table. Image contents (from its config history):
+  # rust 1.97.1 base, label agave.version=v4.3.0, cargo-build-sbf 4.3.0 installed with --locked, platform-tools v1.57
+  # preinstalled, WORKDIR /build. cargo-build-sbf 4.3.0 defaults to platform-tools v1.57 and arch v0, matching the live build.
+  BASE_IMAGE: solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
+jobs:
+  build:
+    name: docker build ${{ matrix.run }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        run: [a, b]
+    steps:
+      # actions/checkout v4.2.2, pinned to its commit
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Record the source identity
+        run: |
+          echo "commit: $(git rev-parse HEAD)"
+          echo "program tree: $(git rev-parse HEAD:program)"
+          sha256sum program/Cargo.toml program/Cargo.lock program/src/lib.rs
+      - name: Install the pinned solana-verify (crate hash checked, --locked)
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq pkg-config libudev-dev libssl-dev >/dev/null
+          curl -sSfL "https://static.crates.io/crates/solana-verify/solana-verify-${SOLANA_VERIFY_VERSION}.crate" -o /tmp/sv.crate
+          got=$(sha256sum /tmp/sv.crate | cut -d' ' -f1); echo "solana-verify crate sha256: $got"
+          [ "$got" = "$SOLANA_VERIFY_CRATE_SHA256" ] || { echo "::error::solana-verify crate hash differs from the pin"; exit 1; }
+          mkdir -p /tmp/sv && tar xzf /tmp/sv.crate -C /tmp/sv
+          cargo install --locked --path "/tmp/sv/solana-verify-${SOLANA_VERIFY_VERSION}" --root "$HOME/sv"
+          echo "$HOME/sv/bin" >> "$GITHUB_PATH"
+      - name: Pull the digest-pinned build image
+        run: |
+          docker pull "$BASE_IMAGE"
+          docker image inspect "$BASE_IMAGE" --format 'image id {{.Id}} repo digests {{.RepoDigests}} arch {{.Architecture}}'
+          docker run --rm "$BASE_IMAGE" sh -c 'pwd; cargo-build-sbf --version'
+      - name: solana-verify build (mount program/ at /build)
+        run: |
+          solana-verify --version
+          solana-verify build "$GITHUB_WORKSPACE/program" --library-name "$LIBRARY_NAME" --base-image "$BASE_IMAGE"
+      - name: Hash the build output
+        run: |
+          so="program/target/deploy/${LIBRARY_NAME}.so"
+          ls -l "$so"
+          mkdir -p out && cp "$so" "out/${LIBRARY_NAME}.so"
+          size=$(wc -c < "out/${LIBRARY_NAME}.so" | tr -d ' ')
+          sha=$(sha256sum "out/${LIBRARY_NAME}.so" | cut -d' ' -f1)
+          svh=$(solana-verify get-executable-hash "out/${LIBRARY_NAME}.so" | tail -1)
+          echo "run ${{ matrix.run }}: $size bytes, sha256 $sha, solana-verify executable hash $svh"
+          printf '{"run":"%s","runner":"%s","size":%s,"sha256":"%s","solana_verify_executable_hash":"%s"}\n' \
+            "${{ matrix.run }}" "$RUNNER_NAME" "$size" "$sha" "$svh" > out/build.json
+          cat out/build.json
+      - name: Upload this build
+        # actions/upload-artifact v4.6.2, pinned to its commit
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: build-${{ matrix.run }}
+          path: out/
+          if-no-files-found: error
+  compare:
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      # actions/checkout v4.2.2, pinned to its commit
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      # actions/download-artifact v4.3.0, pinned to its commit
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          path: builds
+      - name: Dump the live program read-only (public RPC, information only)
+        continue-on-error: true
+        run: |
+          set +e
+          for i in 1 2 3 4 5; do
+            out=$(curl -sS -X POST https://api.mainnet-beta.solana.com -H 'Content-Type: application/json' \
+              -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"getAccountInfo\",\"params\":[\"$PROGRAM_ID\",{\"encoding\":\"jsonParsed\"}]}")
+            pd=$(echo "$out" | jq -r '.result.value.data.parsed.info.programData // empty')
+            [ -n "$pd" ] && break; sleep $((i * 10))
+          done
+          echo "programdata account: $pd"
+          for i in 1 2 3 4 5; do
+            curl -sS -X POST https://api.mainnet-beta.solana.com -H 'Content-Type: application/json' \
+              -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"getAccountInfo\",\"params\":[\"$pd\",{\"encoding\":\"base64\"}]}" > pd.json
+            jq -r '.result.value.data[0] // empty' pd.json | base64 -d > pd.bin 2>/dev/null && [ -s pd.bin ] && break
+            sleep $((i * 10))
+          done
+          # ProgramData layout: 4-byte enum tag, 8-byte slot, 1-byte option tag, 32-byte authority = 45-byte header.
+          tail -c +46 pd.bin > live-full.so
+          head -c "$LIVE_SIZE" live-full.so > live.so
+          echo "live (first $LIVE_SIZE bytes) sha256: $(sha256sum live.so | cut -d' ' -f1)"
+      - name: Compare the two builds (determinism) and write hashes.json
+        run: |
+          a="builds/build-a/${LIBRARY_NAME}.so"; b="builds/build-b/${LIBRARY_NAME}.so"
+          sa=$(sha256sum "$a" | cut -d' ' -f1); sb=$(sha256sum "$b" | cut -d' ' -f1)
+          za=$(wc -c < "$a" | tr -d ' '); zb=$(wc -c < "$b" | tr -d ' ')
+          echo "build a: $za bytes, sha256 $sa"
+          echo "build b: $zb bytes, sha256 $sb"
+          deterministic=false; cmp -s "$a" "$b" && deterministic=true
+          live_sha=""; live_equal=false
+          if [ -s live.so ]; then live_sha=$(sha256sum live.so | cut -d' ' -f1); [ "$live_sha" = "$sa" ] && live_equal=true; fi
+          diff_vs_live=""
+          if [ -s live.so ] && [ "$za" = "$LIVE_SIZE" ]; then diff_vs_live=$(cmp -l "$a" live.so | wc -l | tr -d ' '); fi
+          jq -n --arg commit "$(git rev-parse HEAD)" --arg tree "$(git rev-parse HEAD:program)" \
+            --arg image "$BASE_IMAGE" --arg sv "$SOLANA_VERIFY_VERSION" --arg pid "$PROGRAM_ID" \
+            --slurpfile ja builds/build-a/build.json --slurpfile jb builds/build-b/build.json \
+            --argjson det "$deterministic" --arg live_sha "$live_sha" --arg live_expected "$LIVE_SHA256" \
+            --argjson live_equal "$live_equal" --arg diff_vs_live "$diff_vs_live" \
+            --arg run_url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
+            '{program_id:$pid, commit:$commit, program_tree:$tree, mount_path:"program", container_path:"/build",
+              base_image:$image, solana_verify:$sv, builds:[$ja[0],$jb[0]], deterministic:$det,
+              live_expected_sha256:$live_expected, live_dump_sha256:$live_sha, docker_build_equals_live:$live_equal,
+              bytes_differing_from_live:$diff_vs_live, run_url:$run_url}' > hashes.json
+          cat hashes.json
+          mkdir -p final && cp "$a" "final/${LIBRARY_NAME}.so" && cp hashes.json final/
+          [ "$deterministic" = true ] || { echo "::error::NOT DETERMINISTIC: the two Docker builds differ"; exit 1; }
+          echo "DETERMINISTIC: both Docker builds are byte-identical (sha256 $sa)"
+          if [ "$live_equal" = true ]; then echo "NOTE: the Docker build equals the live program"; else echo "NOTE: the Docker build differs from the live program (expected); see docs/UPGRADE_TO_VERIFIED_BUILD.md"; fi
+      - name: Upload the verified-build .so and hashes.json
+        # actions/upload-artifact v4.6.2, pinned to its commit
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: docker-verified-build
+          path: final/
+          if-no-files-found: error

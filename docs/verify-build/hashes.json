@@ -1,0 +1,71 @@
+{
+  "program_id": "7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS",
+  "source_commit": "e8684f369d1d1139b0f7f53bb89563d96543bca8",
+  "program_tree": "75f75111781c25b612a0ac04408cb8ae8383fc07",
+  "base_image": "solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd",
+  "solana_verify": "0.5.2",
+  "note": "sha256 is of the exact file; solana_verify_hash is sha256 of the file with trailing zero bytes removed (the solana-verify convention). they are different values.",
+  "environments": [
+    {
+      "name": "github linux runner",
+      "file": "github-runner/hashes.json",
+      "builds": 2,
+      "size": 215944,
+      "sha256": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
+      "solana_verify_hash": "6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39",
+      "deterministic": true
+    },
+    {
+      "name": "separate linux x86_64 vm",
+      "file": "linux-vm/hashes.json",
+      "log": "linux-vm/build.log",
+      "builds": 2,
+      "size": 215944,
+      "sha256": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
+      "solana_verify_hash": "6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39",
+      "deterministic": true
+    },
+    {
+      "name": "mac under amd64 emulation",
+      "file": "mac-amd64-emulation/hashes.json",
+      "builds": 2,
+      "size": 215944,
+      "sha256": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
+      "solana_verify_hash": "6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39",
+      "deterministic": true
+    }
+  ],
+  "bins": [
+    {
+      "path": "bins/old_live.so",
+      "what": "the live program bytes, leading 215,944 bytes of a mainnet dump",
+      "size": 215944,
+      "sha256": "76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d",
+      "sha256_trailing_zeros_trimmed": "7d4a2f49a0ad83fd88f38c74fe8d9047a9cc51ef1e8e87632e157af99b11e423"
+    },
+    {
+      "path": "bins/new_verified.so",
+      "what": "the docker build of program/ at source_commit",
+      "size": 215944,
+      "sha256": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
+      "sha256_trailing_zeros_trimmed": "6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39"
+    }
+  ],
+  "difference": {
+    "differing_bytes": 1672,
+    "regions": 38,
+    "per_section": {
+      ".text": 1668,
+      ".rel.dyn": 4
+    },
+    "script": "diff-regions.py"
+  },
+  "c5_differential_test": {
+    "source": "c5/upgrade_equivalence.rs",
+    "log": "c5/c5-run-full-20261108.log",
+    "runs": 248,
+    "compared_steps": 1426,
+    "divergences": 0
+  },
+  "bins_note": "sha256_trailing_zeros_trimmed was computed with python (sha256 of the bytes with trailing zero bytes removed), the same convention as solana-verify get-executable-hash; it was not produced by solana-verify itself for old_live.so. the upgrade procedure still computes its value A13 two ways on the day."
+}

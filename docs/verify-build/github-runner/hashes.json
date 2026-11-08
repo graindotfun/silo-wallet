@@ -1,0 +1,31 @@
+{
+  "program_id": "7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS",
+  "commit": "e8684f369d1d1139b0f7f53bb89563d96543bca8",
+  "program_tree": "75f75111781c25b612a0ac04408cb8ae8383fc07",
+  "mount_path": "program",
+  "container_path": "/build",
+  "base_image": "solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd",
+  "solana_verify": "0.5.2",
+  "builds": [
+    {
+      "run": "a",
+      "runner": "GitHub Actions 1000003930",
+      "size": 215944,
+      "sha256": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
+      "solana_verify_executable_hash": "6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39"
+    },
+    {
+      "run": "b",
+      "runner": "GitHub Actions 1000003929",
+      "size": 215944,
+      "sha256": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
+      "solana_verify_executable_hash": "6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39"
+    }
+  ],
+  "deterministic": true,
+  "live_expected_sha256": "76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d",
+  "live_dump_sha256": "76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d",
+  "docker_build_equals_live": false,
+  "bytes_differing_from_live": "1672",
+  "run_url": "https://github.com/graindotfun/silo-wallet/actions/runs/42503119763"
+}
