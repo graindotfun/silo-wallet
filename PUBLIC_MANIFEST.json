@@ -5,13 +5,13 @@
   "files": [
     {
       "path": ".github/workflows/docker-verified-build.yml",
-      "sha256": "af3ca35880a8eb2a086c144263164bbb1d05480f08326bfeb124d4757bb4c95e",
+      "sha256": "c8e91b80c82dc1f8b55319f4ec403aaf10e2c333b038ed4b618336ddf58ef064",
       "source": null,
       "status": "new"
     },
     {
       "path": ".github/workflows/verify-build.yml",
-      "sha256": "b603fbb1fd86c43d5dd193e59497c1ebc1ab23d7a37d4d72813f11f49f1079b0",
+      "sha256": "7f4f26b5e27b56d6210382d6a5c3b2ad3b7014ad8e79604a59bec1c48bcc85d8",
       "source": null,
       "status": "new"
     },

@@ -2,8 +2,12 @@
 # Builds program/ with a pinned toolchain, prints the sha256 of the .so in the public log and compares it with the bytes
 # dumped from the live program on Solana mainnet. Fails loudly on any mismatch.
 #
-# STATUS: this workflow has not been run yet. A green run is evidence only if the log shows "FULL MATCH". Until a run is
-# linked from docs/VERIFY_BUILD.md, this repository does not claim equivalence with the live program.
+# STATUS: secondary check. The supported check is .github/workflows/docker-verified-build.yml (a pinned image that anyone can
+# repeat with solana-verify). This workflow builds without Docker; on GitHub's linux runner it gives the same bytes as the
+# Docker build (run 42490579014). A green run is evidence only if the log shows "FULL MATCH".
+# Expected value: since the upgrade of 2026-11-08 (slot 467051728) the live program is the Docker build, sha256
+# 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515. The previous live bytes (sha256
+# 76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d, built on macOS) are no longer checked here.
 name: verify-build
 on:
   workflow_dispatch:
@@ -15,9 +19,10 @@ permissions:
   contents: read
 env:
   PROGRAM_ID: 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS
-  EXPECTED_SHA256: 76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d
+  EXPECTED_SHA256: 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515
   EXPECTED_SIZE: "215944"
-  # Pinned toolchain, mirroring the local build that reproduced the live program (215,944 bytes, sha256 76424c24...):
+  # Pinned toolchain, mirroring the macOS build that produced the previous live bytes (sha256 76424c24..., before 2026-11-08).
+  # On a linux runner the same recipe gives 4033eb70..., equal to the Docker build and to the live program since 2026-11-08:
   # cargo-build-sbf 4.3.0 (installed from crates.io, NOT the newer wrapper that the Agave installer ships), platform-tools
   # v1.57 with its own cargo and rustc first on PATH (no rustup override), and no --arch flag (4.3.0 defaults to v0).
   # History: wrapper 4.4.0 with the default arch gave 202,872 bytes; with --arch v0 it gave 215,944 bytes but 1,672 bytes

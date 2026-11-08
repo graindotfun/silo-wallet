@@ -3,12 +3,14 @@
 # Purpose: produce the bytes that a third party can reproduce with `solana-verify build` / `solana-verify verify-from-repo`.
 # The program is built twice, in two separate jobs on two separate runners, from the same commit, inside the same
 # digest-pinned Docker image (mount path program/ -> /build in the container). The compare job fails unless both builds
-# are byte-identical. It also dumps the live mainnet program read-only and reports whether it matches (information only).
+# are byte-identical and equal the fixed expected sha256 below. It also dumps the live mainnet program read-only and
+# compares it with the build: it prints "FULL MATCH" when the live program bytes equal the Docker build, and fails if a dump
+# was read and differs.
 #
-# EXPECTATION: this Docker build is NOT expected to equal the live program (sha256 76424c24..., built on macOS). Putting
-# the Docker bytes on chain is a program upgrade of the same source and follows docs/UPGRADE_TO_VERIFIED_BUILD.md, which
-# checks the result against fixed constants (commit, program/ tree, size, sha256, solana-verify hash), not against this
-# run's own hashes.json.
+# EXPECTATION: since the upgrade of 2026-11-08 (transaction
+# 5gBdxnNNfjbicy4V7ZGegCXBPP8BPXRvNHbYqcMuCvmTo8vZMXXN6kq6BBt6EFsaiVd44AsurSz8F1pZ96JXzcBx, slot 467051728) the live program
+# is this Docker build, so a run is expected to print FULL MATCH. The previous live bytes (sha256
+# 76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d, built on macOS) are kept in docs/verify-build/bins/old_live.so.
 # What it does and does not do: it holds no key, signs nothing and sends no transaction (no buffer, no upgrade, no on-chain
 # write). It does write files on the runners (build output, build.json, hashes.json, a read-only dump of the live program)
 # and uploads them as workflow artifacts.
@@ -24,8 +26,11 @@ permissions:
 env:
   PROGRAM_ID: 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS
   LIBRARY_NAME: xmr_sol_swap
-  LIVE_SHA256: 76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d
+  # Expected sha256 of the exact 215,944 program bytes, for the build and for the current live program (since 2026-11-08).
+  LIVE_SHA256: 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515
   LIVE_SIZE: "215944"
+  # Previous live bytes, before the 2026-11-08 upgrade (information only, not checked).
+  PREVIOUS_LIVE_SHA256: 76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d
   # solana-verify 0.5.2, pinned by the sha256 of its crates.io .crate file (measured 8 Nov 2026) and built with --locked.
   SOLANA_VERIFY_VERSION: "0.5.2"
   SOLANA_VERIFY_CRATE_SHA256: 100996e26394122ef5358ec756f76ea1b41aab8dd959de8b10091b5017329a7c
@@ -103,7 +108,7 @@ jobs:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
         with:
           path: builds
-      - name: Dump the live program read-only (public RPC, information only)
+      - name: Dump the live program read-only (public RPC)
         continue-on-error: true
         run: |
           set +e
@@ -124,6 +129,8 @@ jobs:
           tail -c +46 pd.bin > live-full.so
           head -c "$LIVE_SIZE" live-full.so > live.so
           echo "live (first $LIVE_SIZE bytes) sha256: $(sha256sum live.so | cut -d' ' -f1)"
+          full=$(wc -c < live-full.so | tr -d ' '); extra=$((full - LIVE_SIZE)); echo "live program bytes in the account: $full"
+          if [ "$extra" -gt 0 ]; then tail -c "$extra" live-full.so | tr -d '\000' | wc -c | tr -d ' ' > live-tail-nonzero.txt; else echo 0 > live-tail-nonzero.txt; fi
       - name: Compare the two builds (determinism) and write hashes.json
         run: |
           a="builds/build-a/${LIBRARY_NAME}.so"; b="builds/build-b/${LIBRARY_NAME}.so"
@@ -132,25 +139,37 @@ jobs:
           echo "build a: $za bytes, sha256 $sa"
           echo "build b: $zb bytes, sha256 $sb"
           deterministic=false; cmp -s "$a" "$b" && deterministic=true
-          live_sha=""; live_equal=false
-          if [ -s live.so ]; then live_sha=$(sha256sum live.so | cut -d' ' -f1); [ "$live_sha" = "$sa" ] && live_equal=true; fi
+          live_sha=""; live_equal=false; live_result="not checked (no dump)"
+          tail_nonzero=$(cat live-tail-nonzero.txt 2>/dev/null || echo 0)
+          if [ -s live.so ]; then
+            live_sha=$(sha256sum live.so | cut -d' ' -f1)
+            if [ "$live_sha" = "$sa" ] && [ "$tail_nonzero" = 0 ]; then live_equal=true; live_result="FULL MATCH"; else live_result="MISMATCH"; fi
+          fi
           diff_vs_live=""
           if [ -s live.so ] && [ "$za" = "$LIVE_SIZE" ]; then diff_vs_live=$(cmp -l "$a" live.so | wc -l | tr -d ' '); fi
           jq -n --arg commit "$(git rev-parse HEAD)" --arg tree "$(git rev-parse HEAD:program)" \
             --arg image "$BASE_IMAGE" --arg sv "$SOLANA_VERIFY_VERSION" --arg pid "$PROGRAM_ID" \
             --slurpfile ja builds/build-a/build.json --slurpfile jb builds/build-b/build.json \
             --argjson det "$deterministic" --arg live_sha "$live_sha" --arg live_expected "$LIVE_SHA256" \
-            --argjson live_equal "$live_equal" --arg diff_vs_live "$diff_vs_live" \
+            --arg previous_live "$PREVIOUS_LIVE_SHA256" \
+            --argjson live_equal "$live_equal" --arg live_result "$live_result" --arg diff_vs_live "$diff_vs_live" \
             --arg run_url "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" \
             '{program_id:$pid, commit:$commit, program_tree:$tree, mount_path:"program", container_path:"/build",
               base_image:$image, solana_verify:$sv, builds:[$ja[0],$jb[0]], deterministic:$det,
-              live_expected_sha256:$live_expected, live_dump_sha256:$live_sha, docker_build_equals_live:$live_equal,
+              live_expected_sha256:$live_expected, previous_live_sha256:$previous_live, live_dump_sha256:$live_sha,
+              docker_build_equals_live:$live_equal, live_result:$live_result,
               bytes_differing_from_live:$diff_vs_live, run_url:$run_url}' > hashes.json
           cat hashes.json
           mkdir -p final && cp "$a" "final/${LIBRARY_NAME}.so" && cp hashes.json final/
           [ "$deterministic" = true ] || { echo "::error::NOT DETERMINISTIC: the two Docker builds differ"; exit 1; }
           echo "DETERMINISTIC: both Docker builds are byte-identical (sha256 $sa)"
-          if [ "$live_equal" = true ]; then echo "NOTE: the Docker build equals the live program"; else echo "NOTE: the Docker build differs from the live program (expected); see docs/UPGRADE_TO_VERIFIED_BUILD.md"; fi
+          [ "$za" = "$LIVE_SIZE" ] && [ "$sa" = "$LIVE_SHA256" ] || { echo "::error::the build ($za bytes, $sa) differs from the expected $LIVE_SIZE bytes, $LIVE_SHA256"; exit 1; }
+          echo "EXPECTED: the build equals the fixed expected value ($LIVE_SIZE bytes, sha256 $LIVE_SHA256)"
+          case "$live_result" in
+            "FULL MATCH") echo "FULL MATCH: the live program (first $LIVE_SIZE bytes of its ProgramData, sha256 $live_sha, nothing but zeros after them) equals the Docker build";;
+            MISMATCH) echo "::error::MISMATCH: the live program (sha256 $live_sha, $tail_nonzero non-zero bytes after the program) differs from the Docker build ($diff_vs_live bytes)"; exit 1;;
+            *) echo "::warning::the live program could not be read in this run; it was not compared";;
+          esac
       - name: Upload the verified-build .so and hashes.json
         # actions/upload-artifact v4.6.2, pinned to its commit
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
