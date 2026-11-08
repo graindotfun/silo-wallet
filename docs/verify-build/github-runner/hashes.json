@@ -1,6 +1,6 @@
 {
   "program_id": "7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS",
-  "commit": "e8684f369d1d1139b0f7f53bb89563d96543bca8",
+  "commit": "previous commit, history squashed on 2026-11-08, identical tree (see program_tree)",
   "program_tree": "75f75111781c25b612a0ac04408cb8ae8383fc07",
   "mount_path": "program",
   "container_path": "/build",

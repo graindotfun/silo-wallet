@@ -1,6 +1,7 @@
 {
   "program_id": "7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS",
-  "source_commit": "e8684f369d1d1139b0f7f53bb89563d96543bca8",
+  "source_commit": "d565b04d8ba80dee68af7546bd411a2b45738a08",
+  "source_commit_note": "commit built by the fresh run below (fresh_run_on_squashed_history). The three earlier environments built a previous commit, history squashed on 2026-11-08, identical tree: e8684f369d1d1139b0f7f53bb89563d96543bca8 (previous commit, squashed, provenance only). Acceptance binds to program_tree.",
   "program_tree": "75f75111781c25b612a0ac04408cb8ae8383fc07",
   "base_image": "solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd",
   "solana_verify": "0.5.2",
@@ -67,5 +68,19 @@
     "compared_steps": 1426,
     "divergences": 0
   },
-  "bins_note": "sha256_trailing_zeros_trimmed was computed with python (sha256 of the bytes with trailing zero bytes removed), the same convention as solana-verify get-executable-hash; it was not produced by solana-verify itself for old_live.so. the upgrade procedure still computes its value A13 two ways on the day."
+  "bins_note": "sha256_trailing_zeros_trimmed was computed with python (sha256 of the bytes with trailing zero bytes removed), the same convention as solana-verify get-executable-hash; it was not produced by solana-verify itself for old_live.so. the upgrade procedure still computes its value A13 two ways on the day.",
+  "fresh_run_on_squashed_history": {
+    "run_id": 42516876468,
+    "run_url": "https://github.com/graindotfun/silo-wallet/actions/runs/42516876468",
+    "workflow": "docker-verified-build",
+    "date": "2026-11-08",
+    "commit": "d565b04d8ba80dee68af7546bd411a2b45738a08",
+    "program_tree": "75f75111781c25b612a0ac04408cb8ae8383fc07",
+    "builds": 2,
+    "size": 215944,
+    "sha256": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
+    "solana_verify_hash": "6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39",
+    "deterministic": true,
+    "equals_earlier_environments": true
+  }
 }

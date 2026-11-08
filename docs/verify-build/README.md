@@ -15,13 +15,17 @@ public tools. Nothing here was signed or sent to a chain.
 | `c5/upgrade_equivalence.rs` | Source of the differential test between the two binaries. |
 | `c5/c5-run-full-20261108.log` | Full log of one run of that test. |
 
-All three environments built commit `e8684f369d1d1139b0f7f53bb89563d96543bca8` (`program/` tree
-`75f75111781c25b612a0ac04408cb8ae8383fc07`) with `solana-verify` 0.5.2 in the image
+The three earlier environments (github runner run 42503119763, a linux x86_64 vm, a mac under amd64 emulation) built a previous commit
+(the previous commit, squashed; its id is recorded once in `hashes.json`) whose history was squashed on 2026-11-08 with an identical tree. The immutable identity is the
+`program/` tree `75f75111781c25b612a0ac04408cb8ae8383fc07` plus the per file hashes of `program/Cargo.lock`, `Cargo.toml` and
+`src/lib.rs`, unchanged and recomputed on the current tree. A fresh run of the same workflow on the squashed commit `d565b04d8ba80dee68af7546bd411a2b45738a08` (run 42516876468,
+recorded as `fresh_run_on_squashed_history` in `hashes.json`) gave the same bytes. All environments built the tree
+`75f75111781c25b612a0ac04408cb8ae8383fc07` with `solana-verify` 0.5.2 in the image
 `solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd`, and all six
 builds gave 215,944 bytes with sha256 `4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515` (solana-verify hash
 `6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39`). The linux vm built from a source archive of that commit;
-its log prints the sha256 of `program/Cargo.toml`, `program/Cargo.lock` and `program/src/lib.rs`, which equal the files at that
-commit. All three used the same pinned image, so they show that the build repeats, not that the toolchain inside the image is
+its log prints the sha256 of `program/Cargo.toml`, `program/Cargo.lock` and `program/src/lib.rs`, which equal the files in that
+tree. All three used the same pinned image, so they show that the build repeats, not that the toolchain inside the image is
 correct.
 
 ## Check it yourself

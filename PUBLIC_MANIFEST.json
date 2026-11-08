@@ -143,7 +143,7 @@
   },
   {
    "path": "docs/UPGRADE_TO_VERIFIED_BUILD.md",
-   "sha256": "116ceeb6626e95147842c6f1ca3de464a46ec6891a644cd0c083299b75115154",
+   "sha256": "2f30d9fbaef152bb22d4b362dbec1bb66ca823ceb657740d47d9cc6f7de571a3",
    "source": null,
    "status": "new"
   },
@@ -167,7 +167,7 @@
   },
   {
    "path": "docs/verify-build/README.md",
-   "sha256": "d9e8715dd1c70b06e0a7270fbdd4cdff6555d96bb0904931aa9608819a17e776",
+   "sha256": "c48246641fffb8349625943ae446a78d7c255e9fd08dd8e33b25fcb68a0699cf",
    "source": null,
    "status": "new"
   },
@@ -215,13 +215,13 @@
   },
   {
    "path": "docs/verify-build/github-runner/hashes.json",
-   "sha256": "857ec778a4b0002a97d3fe643d5d74d325ab1b65d86cf1af1f6e522ecfd778da",
+   "sha256": "a83fca10951cb0d3ae6de2bbbe715e3c1c4eb5ab28f544a38611ce46ac6ad6af",
    "source": null,
    "status": "new"
   },
   {
    "path": "docs/verify-build/hashes.json",
-   "sha256": "5f8093ae1d42080e712797d36cfab657a3151d139b3b1e46d6c358417649b359",
+   "sha256": "8fb25e1d39f43b503dab592bdc16dfa587008ea5889ed45b9660a55206fd55df",
    "source": null,
    "status": "new"
   },
@@ -233,13 +233,13 @@
   },
   {
    "path": "docs/verify-build/linux-vm/hashes.json",
-   "sha256": "0ff1f9fd9c7101b110314222daf9b64c6385d9b3cd35bf4b41a5145203ff2a08",
+   "sha256": "7fe3341baeddf7ab6139f4fa1ed833fc439925539267db44eb7c9a8d67c3e823",
    "source": null,
    "status": "new"
   },
   {
    "path": "docs/verify-build/mac-amd64-emulation/hashes.json",
-   "sha256": "db0a912f2b02b0d78a179661d9f5b06b20cec08a61d347b13751ca07f5327850",
+   "sha256": "8b2ece42b730b2d5b0fa9fa2263d9b676daf2346d9e2ad3386ebe7102dc49b9f",
    "source": null,
    "status": "new"
   },

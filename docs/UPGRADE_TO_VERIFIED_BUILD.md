@@ -31,7 +31,7 @@ new approval.
 | A1 | Program id | `7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS` |
 | A2 | ProgramData account | `9jSbazFuWTXiC3RvnwE6Qw5ew9aBZ8wsxyTzhvY6BiwS`, data length 215,989 (45-byte header + 215,944 program bytes) |
 | A3 | Upgrade authority | `8pFUuZgzab6mwXq2UqdEc2mbkDk6Wg68KSppJ4brfF4W` (held by the Silo team, equals `SECURITY.md`) |
-| A4 | Source commit (this repository) | `e8684f369d1d1139b0f7f53bb89563d96543bca8` |
+| A4 | Source commit (this repository) | `d565b04d8ba80dee68af7546bd411a2b45738a08`, the commit built by the fresh CI run 42516876468 (`fresh_run_on_squashed_history` in `docs/verify-build/hashes.json`). The immutable identity is A5 plus A6; acceptance binds to A5. Earlier builds used a previous commit whose history was squashed on 2026-11-08 with an identical tree: the previous commit (squashed; its id is recorded once in `docs/verify-build/hashes.json`, provenance only, it no longer exists). |
 | A5 | `program/` git tree at A4 | `75f75111781c25b612a0ac04408cb8ae8383fc07` |
 | A6 | Source files at A4 (sha256) | `program/Cargo.lock` `0db6d21009b36221c77155ecc00bb6f3a69eed4125918154ee1e8e1fef978ed2`, `program/Cargo.toml` `602a58b1774043924a0ca96eb31f5d78fa14f7b14b95a852cc3e8a527b709d92`, `program/src/lib.rs` `322dccf4a0d353142381ab435df721162bee8006a4f1bbd18c5d36af23d5ebd0` |
 | A7 | Build image | `solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd` |
@@ -64,7 +64,7 @@ a direct comparison of the source, made offline on 8 Nov 2026, not on build meta
 | This repository's `program/` (A5) equals that source except comments and metadata | Proven (file diff) | `Cargo.lock` identical (A6 hash on both sides); `tests/swap.rs` identical (`d32effc4...` on both sides); `src/lib.rs` differs in three `//!` crate-doc comment lines only (line 1 and lines 13 and 14, same line count, so no code or line number moves); `Cargo.toml` differs in its `description` text only. `program/` is unchanged in this repository since its initial commit. |
 | The comment and description edits do not change the bytes | Internal evidence, one machine | The same macOS build of this repository's tree also gave A12 (see `docs/VERIFY_BUILD.md`). |
 | Dependencies are the same and locked | Proven (lockfile) | 708 dependency entries, all from the crates.io registry, each with a checksum in `Cargo.lock`; no git or path dependencies; nothing vendored. Direct pins: `anchor-lang =0.31.1`, `solana-curve25519 =2.2.7`. |
-| Linux builds of A5 give A10 | Proven (CI, same toolchain) | Two Docker jobs (run 42503119763) and one non-Docker runner build (run 42490579014) all gave A10. |
+| Linux builds of A5 give A10 | Proven (CI, same toolchain) | Two Docker jobs (run 42503119763 on the previous commit, run 42516876468 on A4) and one non-Docker runner build (run 42490579014) all gave A10. |
 | The macOS and Linux binaries behave the same | **Not proven by the build.** | No binary equivalence proof exists for the 1,672 differing bytes (instruction-level code generation and two relocation offsets). Covered by behaviour instead: section 6 runs the same tests against both binaries and rehearses old accounts under the new binary and the reverse; the differential test in `docs/verify-build/c5/` found identical behaviour on every path it covered, which is not all paths. |
 | Either compiler is correct | Not proven | Out of scope; the same trust as any Solana program build. |
 
@@ -136,7 +136,7 @@ on 8 Nov 2026: 1,097,833,720 lamports (about 1.098 SOL). Two buffers are held du
 0.1 **Approval record.** Copy section 2 and the named accounts of section 5 into the approval record (an entry in the internal
 release log). It is drafted beforehand and completed with A13 from step 0.6; only a record in which A13 is filled can be approved.
 
-0.2 **CI artifact.** Download the `docker-verified-build` artifact of run 42503119763. Check against the constants, not against
+0.2 **CI artifact.** Download the `docker-verified-build` artifact of run 42516876468 (the fresh run on A4). Check against the constants, not against
 `hashes.json`: `hashes.json` `commit` equals A4 and `program_tree` equals A5; `deterministic` is `true`; `wc -c xmr_sol_swap.so`
 equals A9; `sha256sum xmr_sol_swap.so` equals A10; `solana-verify get-executable-hash xmr_sol_swap.so` equals A11.
 
@@ -412,7 +412,7 @@ Once the repository is public (a separate decision, not part of this procedure):
 
 ```bash
 solana-verify verify-from-repo -u "$RPC" --program-id 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS \
-  <public repo https url> --commit-hash e8684f369d1d1139b0f7f53bb89563d96543bca8 --mount-path program \
+  <public repo https url> --commit-hash d565b04d8ba80dee68af7546bd411a2b45738a08 --mount-path program \
   --library-name xmr_sol_swap \
   --base-image solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
 ```
