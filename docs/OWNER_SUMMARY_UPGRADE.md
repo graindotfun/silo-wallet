@@ -35,18 +35,20 @@ and only the program upgrade authority holder can sign it.
 
 ## Residual risk to be accepted
 
-For a moment (expected under a second, at most a few seconds) the swap program will refuse transactions. Our own users are not
-affected, because we finish all our swaps before it. Someone outside Silo who uses the program directly and waits until the last
-second before a deadline could lose that swap during that moment. We cannot prevent this, because the program is open to
-everyone and has no pause button. Adding one would change the program's logic, which this upgrade does not do.
+The program is open to everyone and has no pause button. Adding one would change the program's logic, which this upgrade does
+not do. On 2026-11-08 the last two escrow scans were seconds before signing (20:30:39 and 20:30:44 UTC) and found no escrow of
+anyone; the signature landed at 20:37:25 UTC, minutes later. The risk is that someone outside Silo created an escrow in those
+minutes and sent a claim or refund near its deadline exactly as the upgrade took effect. None existed in any scan. Our own users
+were not affected: the maker was stopped and had no open swap.
 
 ## Status after the upgrade (2026-11-08)
 
 The upgrade was made on 2026-11-08 in transaction
 `5gBdxnNNfjbicy4V7ZGegCXBPP8BPXRvNHbYqcMuCvmTo8vZMXXN6kq6BBt6EFsaiVd44AsurSz8F1pZ96JXzcBx` (slot 467051728). The live program
 now equals the Docker build, so anyone can rebuild it and compare. It was done in a simpler variant than the plan above: the
-maker was stopped instead of using the "stop new swaps" switch, which was not ready, and the upgrade was signed in a wallet
-from a checked signing page instead of a typed command. The full record is section 13 of `docs/UPGRADE_TO_VERIFIED_BUILD.md`.
+maker was stopped instead of using the "stop new swaps" switch, which was not ready, and, because the authority key lives in
+a browser wallet, the upgrade was built and checked field by field in a local signing page in the authority holder's own
+browser and signed in that wallet, instead of a typed command. The full record is section 13 of `docs/UPGRADE_TO_VERIFIED_BUILD.md`.
 
 | Item | State |
 |---|---|

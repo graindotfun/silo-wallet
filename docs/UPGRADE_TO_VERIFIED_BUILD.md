@@ -5,7 +5,8 @@ internal procedure, published for transparency. tracker is our release operator 
 **Status: executed on 2026-11-08 in a variant (the maker was stopped instead of the admission gate), upgrade transaction
 `5gBdxnNNfjbicy4V7ZGegCXBPP8BPXRvNHbYqcMuCvmTo8vZMXXN6kq6BBt6EFsaiVd44AsurSz8F1pZ96JXzcBx`, slot 467051728. What was done and
 how it differs from the procedure is in section 13, "Executed". Sections 1 to 12 are revision 3 as written before the window,
-unchanged.** As written, it needed, in this order: the maker admission gate of `docs/MAKER_ADMISSION_GATE_SPEC.md` (revision 2 of
+unchanged except the plain residual risk wording of section 8.4 (updated with the facts of the window) and private commit ids
+(removed).** As written, it needed, in this order: the maker admission gate of `docs/MAKER_ADMISSION_GATE_SPEC.md` (revision 2 of
 the spec) implemented, reviewed and deployed; every row of the signing checklist (section 9) ticked; an approval record that
 includes explicit acceptance of the residual risk of section 8.4; and the tracker to run the steps that need no signature by
 the upgrade authority. Only the program upgrade authority holder signs. A plain summary is `docs/OWNER_SUMMARY_UPGRADE.md`;
@@ -61,8 +62,8 @@ a direct comparison of the source, made offline on 8 Nov 2026, not on build meta
 
 | Claim | Status | Evidence |
 |---|---|---|
-| The live program was built from private commit `cb0f0247e3006997c9588ddc39de0242edca6eb4` | Internal evidence, one machine | A local macOS build (cargo-build-sbf 4.3.0, platform-tools v1.57) of that `program/` directory gave A12, equal to the chain dump. Not reproduced by any CI. |
-| The private `program/` has not changed since `cb0f0247e` | Proven (git) | Its tree is `d72afb6814dc88d19b00ceeabf6fc5dfa74a5267` at `cb0f0247e` and on private `main` today; `cb0f0247e` is the only commit touching it. |
+| The previous live program was built from one commit of the private source | Internal evidence, one machine | A local macOS build (cargo-build-sbf 4.3.0, platform-tools v1.57) of that `program/` directory gave A12, equal to the chain dump. Not reproduced by any CI. |
+| The private `program/` has not changed since that commit | Proven (git, private) | Its `program/` tree is the same at that commit and on the private main branch today; that commit is the only one touching it. |
 | This repository's `program/` (A5) equals that source except comments and metadata | Proven (file diff) | `Cargo.lock` identical (A6 hash on both sides); `tests/swap.rs` identical (`d32effc4...` on both sides); `src/lib.rs` differs in three `//!` crate-doc comment lines only (line 1 and lines 13 and 14, same line count, so no code or line number moves); `Cargo.toml` differs in its `description` text only. `program/` is unchanged in this repository since its initial commit. |
 | The comment and description edits do not change the bytes | Internal evidence, one machine | The same macOS build of this repository's tree also gave A12 (see `docs/VERIFY_BUILD.md`). |
 | Dependencies are the same and locked | Proven (lockfile) | 708 dependency entries, all from the crates.io registry, each with a checksum in `Cargo.lock`; no git or path dependencies; nothing vendored. Direct pins: `anchor-lang =0.31.1`, `solana-curve25519 =2.2.7`. |
@@ -76,12 +77,12 @@ Source files alone do not fix a Rust build. These are every input that can chang
 source of each row. The command outputs are in `BUILD_INPUTS.txt` of the internal review packet (offline, git and file reads only; not
 published because it lists paths of the private repository).
 
-| Input | Candidate (Docker, A4) | Live (macOS, private `cb0f0247e`) | Evidence source |
+| Input | Candidate (Docker, A4) | Previous live (macOS, private source) | Evidence source |
 |---|---|---|---|
 | Workspace manifest | `program/Cargo.toml` has its own `[workspace]` table, so it is the workspace root and no parent manifest is read. No `[profile]` section: the default release profile of cargo-build-sbf applies. | Same file except `description` (section 3); same `[workspace]`, no `[profile]`. | `git show A4:program/Cargo.toml`; `SOURCE_COMPARISON.txt` diff (internal review packet) |
 | Lockfile | `program/Cargo.lock`, sha256 in A6 | identical bytes | A6; `SOURCE_COMPARISON.txt` |
 | Build scripts | no `build.rs` in `program/`; dependency build scripts are inside the 708 checksummed crates | same | `git ls-tree -r` of both commits (no `build.rs` under the program directory) |
-| Cargo config (`.cargo/config`, `.cargo/config.toml`) | none anywhere in this repository at A4. The workflow mounts only `program/` at `/build`, so the only other places Cargo reads are `/.cargo` and `$CARGO_HOME` inside image A7, fixed by its digest. | none anywhere in the private repository at `cb0f0247e` (whole tree). User level on the macOS build machine today: `~/.cargo` holds `bin`, `git`, `registry` only, no config file. Not recorded at build time. | `git ls-tree -r` of both commits; local listing 8 Nov 2026 |
+| Cargo config (`.cargo/config`, `.cargo/config.toml`) | none anywhere in this repository at A4. The workflow mounts only `program/` at `/build`, so the only other places Cargo reads are `/.cargo` and `$CARGO_HOME` inside image A7, fixed by its digest. | none anywhere in the private source at that commit (whole tree). User level on the macOS build machine today: `~/.cargo` holds `bin`, `git`, `registry` only, no config file. Not recorded at build time. | `git ls-tree -r` of both commits; local listing 8 Nov 2026 |
 | Toolchain config (`rust-toolchain`, `rust-toolchain.toml`) | none in the repository; toolchain = image A7 (host rust 1.97.1, cargo-build-sbf 4.3.0, platform-tools v1.57 whose rustc compiles the program) | none in the private repository; cargo-build-sbf 4.3.0 with platform-tools v1.57 (rustc 1.95.0-dev, target `v0`) selected by putting its `rust/bin` at the front of `PATH` (or `RUSTC` on a machine without rustup) | `git ls-tree -r`; image config history (internal review packet); `docs/VERIFY_BUILD.md` recipe |
 | Environment (`RUSTFLAGS`, `CARGO_*`) | the workflow sets none (its `env:` holds ids, hashes and versions only) | the recipe sets only `PATH` (and `RUSTC` without rustup); no `RUSTFLAGS` or `CARGO_*` in that machine's shell today; not recorded at build time | workflow file; `docs/VERIFY_BUILD.md`; local `env` check 8 Nov 2026 |
 | Features and flags | default features; `solana-verify build <repo>/program --library-name xmr_sol_swap --base-image A7` | default features; `cargo-build-sbf --tools-version v1.57 --no-rustup-override --skip-tools-install -- --locked` | section 2; `docs/VERIFY_BUILD.md` |
@@ -373,11 +374,11 @@ and sends a claim or a not-ready refund within seconds of that escrow's deadline
 that swap: its secret is exposed and its window closes before a retry can land. It cannot touch Silo users (no maker escrow is
 open) and it needs a client that already reveals at the last moment, which is unsafe without any upgrade (congestion or an RPC
 outage does the same; the program's own documentation tells clients to keep a safe reveal margin). It cannot be removed without
-a pause instruction, which is a logic change outside this same-source upgrade. Plain wording: *"For a moment
-(expected under a second, at most a few seconds) the swap program will refuse transactions. Our own users are not affected,
-because we finish all our swaps before it. Someone outside Silo who uses the program directly and waits until the last second
-before a deadline could lose that swap during that moment. We cannot prevent this, because the program is open to everyone and
-has no pause button."*
+a pause instruction, which is a logic change outside this same-source upgrade. Plain wording, with the facts of the window of 2026-11-08: *"The program is open to everyone and has no pause button. The last
+two escrow scans, seconds before signing (20:30:39 and 20:30:44 UTC), found no escrow of anyone; the signature landed at
+20:37:25 UTC, minutes later. The risk is that someone outside Silo created an escrow in those minutes and sent a claim or
+refund near its deadline exactly as the upgrade took effect. None existed in any scan. Our own users were not affected: the
+maker was stopped and had no open swap."*
 
 ## 9. Signing checklist (minimum conditions before the program upgrade authority holder signs)
 
@@ -438,14 +439,19 @@ Executed on 2026-11-08. Upgrade transaction
 ### 13.1 What was done (variant "maker stopped")
 
 - The maker process was stopped (its own service only) and was not restarted after the upgrade.
-- Escrows: finalized `getProgramAccounts` scans of A1 found zero open escrows, of the maker or of anyone else, before the
-  buffer hand-over, and again twice in the signing page immediately before signing.
+- Escrows: finalized `getProgramAccounts` scans of A1 found zero open escrows, of the maker or of anyone else: two scans five
+  minutes apart before the buffer hand-over (20:20 and 20:25 UTC), and two more in the signing page immediately before signing
+  (20:30:39 and 20:30:44 UTC). The two buffers had been written before the window.
 - The maker's 5 swap files were all final and its journal was unchanged by the window.
 - Buffers: two buffers were written and verified on mainnet before the hand-over, 252 finalized write transactions each. The
   upgrade buffer `2HUNn1Q3QXuLnR6Ndh6nCxnLbfZY7uy8JQxgBKSvhDSU` held the Docker build (A9, A10, A11); the rollback buffer
   `9BFEveajgqYcBqqK8zEFisJxy8YKytTqLc8ad7Wfv1TN` holds the previous bytes (A12). The authority of both was handed over to A3.
-- Signing: the upgrade transaction was built and checked in a local signing page (23 fields checked against the constants of
-  section 2, a simulation, and the two escrow scans above) and signed by the upgrade authority holder in a wallet.
+- Signing: the authority key lives in a browser wallet. A local signing page, in the authority holder's own browser, built the
+  single upgrade transaction, decoded every field (23 rows) against the constants of section 2, required a green check on each,
+  simulated it, ran the two escrow scans above, and refused to send if the wallet changed the message. The wallet did change it
+  once (it added two compute budget instructions): the page stopped and nothing was sent. The page was then changed to build
+  those two instructions itself, and the authority holder signed in the wallet. Nothing was handed over as an opaque
+  transaction.
 
 ### 13.2 How it differs from sections 6 to 9, and why
 
@@ -454,13 +460,14 @@ Executed on 2026-11-08. Upgrade transaction
 | Close admission with the maker admission gate (step 0.7, step 1, C8) and keep the maker running | The maker was stopped | The admission gate was not deployed (`docs/REVIEW_HISTORY.md`). Section 8.1 explains why a stop is unsafe while swaps run: it can interrupt an admission between storing a swap and locking its SOL, and a stopped maker cannot refund or sweep. Here no escrow was open and every swap file was final, so the maker had nothing in flight to interrupt or settle. |
 | Quiesce check of the spec (C9) | Finalized escrow scans (zero open escrows) and the 5 swap files checked as final | The quiesce check belongs to the admission gate, which was not deployed. |
 | Listed escrows of others kept 15 minutes away from their deadlines (step 3.1, C10) | Not needed: no escrow of anyone was open in any scan | |
-| The authority holder types the CLI upgrade command and reads the result on their own machine (step 3.3, C14) | The transaction was built in a local signing page, checked field by field (23 fields) and by simulation, and signed in a wallet | Recorded as a difference: the written procedure did not foresee a signing page. |
+| The authority holder types the CLI upgrade command and reads the result on their own machine (step 3.3, C14) | A local signing page in the authority holder's own browser built the transaction, decoded and checked all 23 fields, simulated it, refused to send if the wallet changed the message, and the authority holder signed in the wallet | The authority key lives in a browser wallet, so a CLI command cannot sign with it. Every field was decoded and shown to the authority holder; nothing was handed over as an opaque transaction. When the wallet once added two compute budget instructions the page stopped and nothing was sent; the page then built those two instructions itself. |
 
 ### 13.3 Residual risk accepted by the upgrade authority holder
 
-The program is permissionless and has no pause. Between the last escrow scan and the moment the upgrade took effect (minutes),
-someone outside Silo could have created an escrow and sent a claim or refund near its deadline exactly as the upgrade took
-effect (R-1, section 8.4). None existed in the scans. The upgrade authority holder accepted that risk before signing.
+The program is permissionless and has no pause. The last two independent scans were seconds before signing (20:30:39 and
+20:30:44 UTC); the signature landed at 20:37:25 UTC, minutes later. The risk is that someone outside Silo created an escrow in
+those minutes and sent a claim or refund near its deadline exactly as the upgrade took effect (R-1, section 8.4). None existed
+in any scan. The upgrade authority holder accepted that risk before signing.
 
 ### 13.4 After the upgrade
 

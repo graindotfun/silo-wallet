@@ -7,8 +7,9 @@ the prerequisite of step 0.7 in `docs/UPGRADE_TO_VERIFIED_BUILD.md`. Revision 2 
 blockhash rule, record preservation), replaces the "never locked" rule of the quiesce check (section 4) and adds tests T11 to
 T15. An implementation started from revision 1 must take these in before review. Implementing it is a separate change to the
 maker, whose source is private: internal review by Astra, then deploy by the tracker after approval. An implementation has
-been written; it failed its internal review once (2 high, 1 medium findings), is being fixed and has not been re-reviewed
-(see `docs/REVIEW_HISTORY.md`).
+been written; it failed its internal review once (2 high, 1 medium findings) and was fixed; its refund path fix is still under
+review (see `docs/REVIEW_HISTORY.md`). It was not used for the upgrade of 2026-11-08, which was executed with the maker stopped
+(`docs/UPGRADE_TO_VERIFIED_BUILD.md`, section 13).
 
 Target code: the maker's `maker.mjs` and `maker-core.mjs` (private source), read on 8 Nov 2026. Before implementing, the tracker
 confirms which maker release is running and that it differs from the source read here only by the per-swap `confirmations`

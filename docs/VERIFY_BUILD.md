@@ -23,6 +23,16 @@ upgrade, 42521490252, printed `FULL MATCH` (the live dump inside the run equals 
 without Docker, run 42521481281, printed `FULL MATCH` too. Both are recorded in `docs/verify-build/hashes.json`.
 How the upgrade was executed is in section 13, "Executed", of `docs/UPGRADE_TO_VERIFIED_BUILD.md`.
 
+What this does not prove, stated plainly:
+
+- The three environments that reproduced the build (GitHub's linux runner, a separate linux x86_64 vm, a Mac under amd64
+  emulation) all used the same pinned Docker image. They show that the build repeats; they do not check the toolchain inside
+  that image. A different toolchain could give different bytes.
+- The program is upgradeable by a single key, the upgrade authority `8pFUuZgzab6mwXq2UqdEc2mbkDk6Wg68KSppJ4brfF4W`. A rollback
+  buffer `9BFEveajgqYcBqqK8zEFisJxy8YKytTqLc8ad7Wfv1TN` holding the previous bytes (`76424c24...`) still exists under that
+  key until it is closed. With one signature the program could be switched back to bytes nobody outside can rebuild. Check the
+  last deploy slot (467051728) and the hash each time you rely on it.
+
 ## Earlier state (before 2026-11-08, kept unchanged)
 
 status: live program not third party verifiable. docker build is deterministic

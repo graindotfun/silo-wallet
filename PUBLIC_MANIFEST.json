@@ -1,6 +1,5 @@
 {
-  "sourceRepository": "private",
-  "sourceCommit": "4a69d41e (origin/main, 8 Nov 2026)",
+  "sourceRepository": "silo wallet source tree",
   "note": "Files marked modified differ from the source only by removed internal review notes, SPDX headers, and the two named seams in native-keyring.mjs and native-keyring-testnet.mjs.",
   "files": [
     {
@@ -59,7 +58,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "caa20cc5586fb68ffc75b589d3ee476ef9d0d0a16f85b1133c98e2660215852a",
+      "sha256": "65e178a9fca18de470bbbfb7803725229acf899653ecc456b3ef549859a20710",
       "source": null,
       "status": "new"
     },
@@ -119,13 +118,13 @@
     },
     {
       "path": "docs/MAKER_ADMISSION_GATE_SPEC.md",
-      "sha256": "f7631d6de5f564eb35484939320092ae24384a8e70e3e38f010201e0b6fd7f65",
+      "sha256": "7338981b75d64aedc62c38b238e7f8912ebbda7a74859faaaca4f08d20ff5807",
       "source": null,
       "status": "new"
     },
     {
       "path": "docs/OWNER_SUMMARY_UPGRADE.md",
-      "sha256": "ae4b6dccc273a69abf1146e8de2b086fb7e7ba632eb6b2bf3cdf8951e1199d65",
+      "sha256": "60fb62a70e834864efbb1114e830e6acd9820185a8108dcb66757c7e9286b247",
       "source": null,
       "status": "new"
     },
@@ -137,19 +136,19 @@
     },
     {
       "path": "docs/REVIEW_HISTORY.md",
-      "sha256": "0e849bd276e041ea0c5e25ffb4f1a629acc551bf90a29b93d7bb418b6587ae9a",
+      "sha256": "60fa94bfa26dd19acef310e2433d3e976a89cff54b3548144c85bcfc4f194769",
       "source": null,
       "status": "new"
     },
     {
       "path": "docs/UPGRADE_TO_VERIFIED_BUILD.md",
-      "sha256": "ea7b16c6adec3f36dd955d6fab82b1053aadccffbc53be31a42c1d96289be2f8",
+      "sha256": "2b37d66ef2d6496ffbb975718dae9a248ef03c0fcb46fc25098a170e0a807c35",
       "source": null,
       "status": "new"
     },
     {
       "path": "docs/VERIFY_BUILD.md",
-      "sha256": "e2e44a3118caba447d8adafb3ffd2873dce045b2019e25e20bf19621c74be3eb",
+      "sha256": "2ee3d3f7250dc657e9a190e936920d5c4e596c84ed7e33f10297938d28efcd1a",
       "source": null,
       "status": "new"
     },
