@@ -58,7 +58,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "65e178a9fca18de470bbbfb7803725229acf899653ecc456b3ef549859a20710",
+      "sha256": "ee2cdde03fd122de8135f819e7fea66cad98f99f00884d7f995826d36d78b48e",
       "source": null,
       "status": "new"
     },
@@ -136,13 +136,13 @@
     },
     {
       "path": "docs/REVIEW_HISTORY.md",
-      "sha256": "003dc1f53e3f906a36e3d0a65b2d5d63dd2368778edf0444dbfe6fe9ec97c288",
+      "sha256": "bff64baef5c381f3cc98f66b73484812f63fef7be7581d43544663eabde198f4",
       "source": null,
       "status": "new"
     },
     {
       "path": "docs/UPGRADE_TO_VERIFIED_BUILD.md",
-      "sha256": "5eebad8748eddbf7a4e53e3b9de94d3f3d7a1e0502e1ff26d2a20e52e1ee14d2",
+      "sha256": "568fe8d53f34fbe9fc83d427f86afd5a89dba631f0a66af4d48b96515e6f2f17",
       "source": null,
       "status": "new"
     },

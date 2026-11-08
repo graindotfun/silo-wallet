@@ -482,8 +482,8 @@ in any scan. The upgrade authority holder accepted that risk before signing.
   `docs/verify-build/hashes.json` (`post_upgrade_run`, `post_upgrade_run_without_docker`).
 - The previous live bytes (A12, last deploy slot 465229265) are kept in `docs/verify-build/bins/old_live.so`. The rollback
   buffer `9BFEveajgqYcBqqK8zEFisJxy8YKytTqLc8ad7Wfv1TN` with those bytes still exists, with authority A3, and stays for now.
-- The maker stays stopped until the refund path has been reviewed and a decision is documented. Until then Silo opens no new
-  XMR to SOL swaps, and the team test swap of step 4 has not been made.
+- The maker was stopped only for the window and restarted at 2026-11-08 21:47 UTC with the code it ran before (no admission gate,
+  no refund path fixes: those are still under review and not deployed). The team test swap of step 4 has not been made.
 
 ### 13.5 What this does not prove
 
