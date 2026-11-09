@@ -1,0 +1,1 @@
+{"name":"swapmaker","private":true,"type":"module","dependencies":{"@noble/curves":"1.9.7","@noble/hashes":"1.8.0","@solana/web3.js":"1.99.0","bs58":"6.0.0"}}

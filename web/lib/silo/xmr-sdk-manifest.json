@@ -1,0 +1,14 @@
+{
+  "package": "monero-ts",
+  "version": "0.11.20",
+  "module": {
+    "url": "/silo-sdk/monero-sdk-7b5da83603c012d3.js",
+    "sha256": "7b5da83603c012d3061a14ea9c091db9796bf4b243b431fb9ce2ab843f4a7c01",
+    "bytes": 3463547
+  },
+  "worker": {
+    "url": "/silo-sdk/monero-worker-2b5086070f76c982.js",
+    "sha256": "2b5086070f76c98261a6fb0f322c5d6e2824f970a443d0f967a267cf0ff995f8",
+    "bytes": 3161898
+  }
+}

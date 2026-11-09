@@ -1,0 +1,65 @@
+/* Public identity uses the same type and surfaces as the token workspace. */
+.profile-page{max-width:1440px;padding-bottom:80px}
+.profile-intro{padding:48px 0 32px;border-bottom:1px solid var(--line)}
+.profile-identity{display:flex;align-items:center;gap:24px}
+.profile-identity>.user-avatar{flex:none}
+.profile-name{min-width:0}
+.profile-name-line{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.profile-name-line h1{margin:0;font-size:clamp(36px,4.2vw,60px);font-weight:550;line-height:1.1;letter-spacing:-.045em;overflow-wrap:anywhere}
+.profile-x{display:inline-flex;gap:8px;align-items:center;font-size:16px;color:var(--foreground);padding:8px 12px;border:1px solid var(--line);border-radius:var(--gx-r,8px)}
+.profile-x:hover{border-color:var(--grain-orange)}
+.profile-handle{font-size:18px;color:var(--muted-foreground);margin:8px 0 0}
+.profile-joined{font-size:14px;color:var(--muted-foreground);margin:8px 0 0}
+.profile-bio{font-size:18px;line-height:1.65;white-space:pre-wrap;max-width:760px;margin:26px 0}
+.profile-bottom{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;flex-wrap:wrap;margin-top:28px}
+.profile-wallet{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.profile-wallet .address-line{font-size:14px}
+.profile-wallet button{min-height:42px;font-size:15px}
+.profile-link{font-size:15px;color:var(--muted-foreground);text-decoration:underline;text-underline-offset:4px}
+.profile-bottom .fame-panel{margin:0;max-width:340px}
+.profile-bottom .fame-note{font-size:14px;line-height:1.5}
+.profile-section{min-width:0;padding:30px 0}
+.profile-section-heading{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.profile-section-heading h2{font-size:26px;font-weight:550;line-height:1.2;letter-spacing:-.025em;margin:0;display:flex;align-items:center;gap:12px}
+.profile-section-heading h2>span{font:500 14px var(--font-code);color:var(--muted-foreground);border:1px solid var(--line);border-radius:var(--gx-r,8px);padding:4px 9px}
+.profile-tokens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.profile-token{border:1px solid var(--line);border-radius:var(--gx-r,8px);background:var(--card);overflow:hidden;transition:border-color .18s}
+.profile-token:hover{border-color:var(--grain-orange)}
+.profile-token-main{display:flex;align-items:center;gap:20px;padding:24px;min-height:150px}
+.profile-token-main>div{min-width:0}
+.profile-token h3,.profile-rooms h3{font-size:23px;line-height:1.2;font-weight:550;letter-spacing:-.02em;margin:0;overflow-wrap:anywhere}
+.profile-token p{font-size:16px;color:var(--muted-foreground);margin:7px 0 10px}
+.profile-token-main>div>span{font-size:14px;color:var(--muted-foreground)}
+.profile-token .token-avatar{border-radius:var(--gx-r,8px);flex:none;overflow:hidden}
+.profile-token .token-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-token-actions{display:flex;gap:24px;padding:16px 24px;border-top:1px solid var(--line);font-size:15px}
+.profile-token-actions a:hover,.profile-link:hover{color:var(--grain-orange)}
+.profile-columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);gap:48px;border-top:1px solid var(--line);margin-top:8px}
+.profile-rooms,.profile-timeline{list-style:none;padding:0;margin:0}
+.profile-rooms li{border:1px solid var(--line);border-radius:14px;background:var(--card);margin-bottom:14px}
+.profile-rooms li>a{display:flex;gap:16px;padding:22px;align-items:flex-start}
+.profile-rooms .token-avatar{flex:none;border-radius:12px;overflow:hidden}
+.profile-rooms h3{font-size:20px}
+.profile-rooms p{font-size:16px;line-height:1.5;margin:8px 0;overflow-wrap:anywhere}
+.profile-rooms li>a>div>span{font-size:14px;color:var(--muted-foreground)}
+.profile-timeline li{position:relative;display:flex;gap:20px;padding:0 0 26px}
+.profile-timeline li:not(:last-child)::before{content:'';position:absolute;left:6px;top:16px;bottom:0;width:1px;background:var(--line)}
+.profile-event-dot{width:13px;height:13px;border:2px solid var(--muted-foreground);border-radius:50%;flex:none;margin-top:5px;background:var(--background)}
+.profile-event-dot.is-launch{border-color:var(--grain-orange);background:var(--grain-orange)}
+.profile-event-label{font-size:14px;color:var(--muted-foreground);margin:0 0 6px}
+.profile-timeline li>div:last-child{min-width:0}
+.profile-timeline a{font-size:18px;font-weight:500;line-height:1.4;overflow-wrap:anywhere}
+.profile-timeline a:hover{color:var(--grain-orange)}
+.profile-timeline time,.profile-event-project{display:block;font-size:14px;color:var(--muted-foreground);margin-top:7px}
+.profile-empty{font-size:16px;line-height:1.6;color:var(--muted-foreground);padding:24px;border:1px dashed var(--line);border-radius:14px}
+@media(max-width:1100px){.profile-tokens{grid-template-columns:repeat(2,minmax(0,1fr))}.profile-columns{gap:28px}}
+@media(max-width:700px){.profile-intro{padding-top:30px}.profile-identity{gap:16px;align-items:flex-start}.profile-identity>.user-avatar{width:72px!important;height:72px!important}.profile-name-line{gap:12px}.profile-name-line h1{font-size:36px}.profile-x{font-size:14px}.profile-bio{font-size:17px}.profile-columns,.profile-tokens{grid-template-columns:1fr}.profile-columns{gap:0}.profile-columns>.profile-section+section{border-top:1px solid var(--line)}.profile-token-main{min-height:136px}.profile-wallet{gap:12px}.profile-section{padding:26px 0}.profile-bottom{gap:24px}.profile-bottom .fame-panel{max-width:none;width:100%}}
+
+/* A public wallet address must retain the full content column on a phone. */
+.creator-wallet-page .product-title>div{min-width:0}
+.creator-wallet-page .address-line{overflow-wrap:anywhere}
+@media(max-width:760px){
+ .creator-wallet-page .product-title{flex-direction:column;align-items:stretch;gap:16px}
+ .creator-wallet-page .product-title>.token-chip{align-self:flex-start;max-width:100%;white-space:normal}
+ .creator-wallet-page .product-title h1{overflow-wrap:normal}
+}

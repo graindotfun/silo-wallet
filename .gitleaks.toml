@@ -1,0 +1,24 @@
+# Default gitleaks rules, plus allowlist entries for exact values that are not credentials.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+[[rules.allowlists]]
+description = "Browser localStorage key names for pending Solana and swap journals in the wallet web app, not credentials"
+condition = "AND"
+regexTarget = "secret"
+regexes = ['''^grain-silo-(jupiter|solana)-pending-v1$''']
+paths = [
+  '''^web/lib/silo/jupiter-journal\.mjs$''',
+  '''^web/lib/silo/jupiter-shared-journal\.mjs$''',
+  '''^web/lib/silo/jupiter-managed-journal\.mjs$''',
+  '''^web/lib/silo/solana-transfer-journal\.mjs$''',
+  '''^web/lib/silo/sync/journal-bridge\.mjs$''',
+]
+[[rules.allowlists]]
+description = "sha256 values of public files the site serves (a file name contains the word token), not credentials"
+condition = "AND"
+regexTarget = "secret"
+regexes = ['''^[0-9a-f]{64}$''']
+paths = ['''^docs/verify-app/[a-z0-9-]+\.json$''']

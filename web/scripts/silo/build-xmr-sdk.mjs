@@ -1,0 +1,16 @@
+import {build} from 'vite';
+import {nodePolyfills} from 'vite-plugin-node-polyfills';
+import {mkdir,readFile,writeFile,copyFile,readdir} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+import {resolve} from 'node:path';
+const output='.silo-sdk-build';
+await build({configFile:false,publicDir:false,plugins:[nodePolyfills({include:['http','https','fs','stream','util','path','os','net','tls','assert','events','process','buffer']})],resolve:{alias:{'#monero-ts/monero.js':resolve('node_modules/monero-ts/dist/monero.js')}},build:{outDir:output,emptyOutDir:true,lib:{entry:resolve('lib/silo/xmr-sdk-entry.ts'),formats:['es'],fileName:()=> 'monero-sdk.js'},rollupOptions:{output:{inlineDynamicImports:true}}}});
+const dir='public/silo-sdk';await mkdir(dir,{recursive:true});
+const pin=async(path,label)=>{const bytes=await readFile(path),sha256=createHash('sha256').update(bytes).digest('hex'),name=`${label}-${sha256.slice(0,16)}.js`;await copyFile(path,`${dir}/${name}`);return {url:`/silo-sdk/${name}`,sha256,bytes:bytes.length};};
+const modulePin=await pin(`${output}/monero-sdk.js`,'monero-sdk');
+const worker=await pin('node_modules/monero-ts/dist/monero.worker.js','monero-worker');
+await copyFile('node_modules/monero-ts/LICENSE.txt',`${dir}/MONERO_TS_LICENSE.txt`);
+await copyFile('node_modules/monero-ts/dist/monero.worker.js.LICENSE.txt',`${dir}/MONERO_WORKER_LICENSE.txt`);
+await writeFile('lib/silo/xmr-sdk-manifest.json',JSON.stringify({package:'monero-ts',version:'0.11.20',module:modulePin,worker},null,2)+'\n');
+if((await readdir(output)).some(name=>name.endsWith('.js')&&name!=='monero-sdk.js'))throw Error('Expected a single isolated module.');
+console.log('Pinned isolated Monero SDK module and worker.');

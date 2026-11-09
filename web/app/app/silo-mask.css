@@ -1,0 +1,6 @@
+/* Concealed secrets use the brand asterisk (silo-ui/assets/asterisk-passphrase.svg) in the brand orange, centred on the line
+   (owner request, 15 October 2026). The glyph comes from the one-glyph Silo Mask font through unicode-range (faces declared in
+   app/globals.css next to the other fonts); the field still conceals its value natively. Kept apart from silo.css so the
+   reviewed round 2 stylesheet is untouched. Two builds because Blink and WebKit place the line box differently. */
+.silo-app input[type=password]{font-family:'Silo Mask',var(--silo-font);color:var(--grain-orange)}
+@supports (font: -apple-system-body){.silo-app input[type=password]{font-family:'Silo Mask WebKit',var(--silo-font)}}

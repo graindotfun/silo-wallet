@@ -1,0 +1,9 @@
+{
+  "name": "@grainpad/bigint-buffer-js",
+  "version": "1.1.5",
+  "private": true,
+  "description": "Auditable pure-JavaScript unsigned bigint/buffer conversion; no native loader",
+  "main": "index.cjs",
+  "types": "index.d.ts",
+  "license": "GPL-3.0-only"
+}

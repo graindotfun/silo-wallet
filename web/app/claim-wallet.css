@@ -1,0 +1,48 @@
+/* Claim onboarding: a deliberate choice replaces the initial connect action. */
+.claim-wallet-connect{margin-top:24px}
+.claim-wallet-connect>.primary-action{margin-top:0}
+.claim-wallet-picker{min-width:0}
+.claim-wallet-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:17px}
+.claim-wallet-heading h3{font-size:17px;font-weight:500;letter-spacing:-.02em;line-height:1.3;margin:0;color:#eaf0f4}
+.claim-wallet-heading p{font-size:12px;line-height:1.6;color:#91a3af;margin:7px 0 0}
+.claim-wallet-back{display:inline-flex;align-items:center;gap:6px;flex:none;min-height:32px;padding:0 4px;background:none;border:0;color:#a8b7c1;font-size:12px;cursor:pointer;transition:color .2s}
+.claim-wallet-back:hover{color:#fff}.claim-wallet-back:disabled{opacity:.45;cursor:wait}
+.claim-wallet-options{display:grid;gap:12px}
+.claim-wallet-option{width:100%;min-width:0;display:flex;align-items:center;gap:15px;padding:18px;background:#0e151a;border:1px solid #3b4b57;border-radius:7px;text-align:left;cursor:pointer;transition:background .2s,border-color .2s,transform .2s}
+.claim-wallet-option:hover:not(:disabled){background:#1a252e;border-color:#7d94a5;transform:translateY(-1px)}
+.claim-wallet-option:focus-visible{outline:2px solid var(--grain-orange);outline-offset:3px}.claim-wallet-option:disabled{cursor:wait;opacity:.7}
+.claim-wallet-icon{display:grid;place-items:center;flex:none;width:45px;height:45px;border-radius:10px;background:#283745;color:#d4e3ed}
+.claim-wallet-option[data-provider=phantom] .claim-wallet-icon{background:#292438;color:#c9b6ff}
+.claim-wallet-option[data-provider=solflare] .claim-wallet-icon{background:#34271b;color:#ffa34d}
+.claim-wallet-identity{display:flex;flex:1;min-width:0;flex-direction:column;gap:5px}
+.claim-wallet-identity strong{font-size:16px;line-height:1.2;font-weight:550;letter-spacing:-.02em;color:#edf3f7}
+.claim-wallet-identity small{font-size:12px;line-height:1.5;color:#9cabb6}
+.claim-wallet-detected{display:inline-flex;align-items:center;gap:5px;flex:none;font:12px/1.2 var(--font-code);color:#aec0bc;border:1px solid #354741;background:#17221f;border-radius:4px;padding:5px 7px}
+.claim-wallet-detected:before{content:"";width:4px;height:4px;border-radius:50%;background:#8aafa0}
+.claim-wallet-arrow{display:grid;place-items:center;flex:none;width:25px;color:#b8cad6;transition:transform .2s}
+.claim-wallet-option:hover:not(:disabled) .claim-wallet-arrow{transform:translateX(3px)}
+.claim-wallet-progress{font-size:12px;line-height:1.6;color:#b4c5d1;margin:14px 0 0}
+.claim-wallet-soon{display:flex;align-items:center;gap:12px;border-top:1px solid #2d3b44;margin-top:22px;padding-top:19px}
+.claim-wallet-soon-icon{display:grid;place-items:center;width:32px;height:32px;flex:none;border:1px dashed #485b69;border-radius:7px;color:#859ba9}
+.claim-wallet-soon p{margin:0;display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 10px;font-size:12px;line-height:1.6}
+.claim-wallet-soon strong{font-weight:500;color:#c0cdd6}.claim-wallet-soon p>span{color:#889eac}
+@media(max-width:1000px){.claim-wallet-option{padding:16px;gap:12px}.claim-wallet-detected{display:none}}
+@media(max-width:760px){.claim-wallet-detected{display:inline-flex}.claim-wallet-heading h3{font-size:16px}}
+@media(max-width:460px){.claim-wallet-option{padding:15px 13px;gap:11px}.claim-wallet-icon{width:39px;height:39px;border-radius:8px}.claim-wallet-icon svg{width:21px;height:21px}.claim-wallet-identity strong{font-size:15px}.claim-wallet-identity small{font-size:11px}.claim-wallet-detected{display:none}.claim-wallet-arrow{width:20px}.claim-wallet-heading{gap:10px}.claim-wallet-heading p{font-size:11px}.claim-wallet-soon p{display:block;font-size:11px}.claim-wallet-soon p>span{display:block;margin-top:2px}}
+@media(max-width:350px){.claim-wallet-option{padding:14px 11px;gap:9px}.claim-wallet-icon{width:34px;height:34px}.claim-wallet-identity small{font-size:12px}.claim-wallet-arrow{width:16px}.claim-wallet-back{font-size:11px}.claim-wallet-heading h3{font-size:15px}}
+@media(prefers-reduced-motion:reduce){.claim-wallet-option,.claim-wallet-arrow{transition:none}.claim-wallet-option:hover:not(:disabled),.claim-wallet-option:hover:not(:disabled) .claim-wallet-arrow{transform:none}}
+
+/* All wallet-provider choices share the same brand treatment, including Wallet Standard variants. */
+html body button[data-wallet-provider]{--wallet-bg:var(--market-inset,#263038);--wallet-ink:var(--foreground);display:flex;align-items:center;justify-content:center;width:100%;min-height:48px;height:auto;margin:12px 0;padding:13px 22px;gap:12px;border:1px solid transparent!important;border-radius:var(--gx-r,8px)!important;background:var(--wallet-bg)!important;color:var(--wallet-ink)!important;font-weight:600;white-space:normal;line-height:1.4;transition:filter .18s,transform .18s}
+html body button[data-wallet-provider*="phantom"]{--wallet-bg:#ab9ff2;--wallet-ink:#fff}
+html body button[data-wallet-provider*="metamask"]{--wallet-bg:#FF5C16;--wallet-ink:#3d065f}
+html body button[data-wallet-provider*="solflare"]{--wallet-bg:#ffef46;--wallet-ink:#000}
+html body button[data-wallet-provider]:hover:not(:disabled){transform:translateY(-1px)}
+html body button[data-wallet-provider]:focus-visible{outline:2px solid var(--foreground);outline-offset:3px}
+html body button[data-wallet-provider]:disabled{opacity:.55;cursor:wait}
+html body .claim-wallet-options button[data-wallet-provider]{margin:0;justify-content:flex-start}
+html body button[data-wallet-provider] :is(.claim-wallet-identity strong,.claim-wallet-identity small,.claim-wallet-arrow,.claim-wallet-icon,.claim-wallet-detected){color:inherit}
+html body button[data-wallet-provider] .claim-wallet-icon{background:#00000012;border-radius:50%}
+html body button[data-wallet-provider] .claim-wallet-detected{background:transparent;border-color:currentColor;border-radius:var(--gx-r,8px)}
+html body button[data-wallet-provider] .claim-wallet-detected:before{background:currentColor}
+@media(prefers-reduced-motion:reduce){html body button[data-wallet-provider]{transition:none}html body button[data-wallet-provider]:hover:not(:disabled){transform:none}}

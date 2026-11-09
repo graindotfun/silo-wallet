@@ -1,0 +1,1456 @@
+/* Silo, design round 2 (owner-approved 15 October 2026): Ledger shell with windows. Presentation only.
+   Every screen answers "where am I" (lowercase title), "what is the state" (one sentence) and "what is next" (one primary).
+   - Orange is spent three ways: the Private window or mark, the title full stop (accent-text) and the welcome field.
+     The primary action is the inverse pill (text-colour fill, as on silo.trading), never orange.
+   - Private = solid orange mark or window, Public = outline, Not yet / off = dashed, always with the word.
+   - Status is text with an icon and a word, outside selectors. A disabled action is dashed and says why and what next.
+   - Albert Sans 600 only; IBM Plex Mono 400 for addresses, hashes and amounts in columns. Text >=14px (13px mono labels),
+     targets >=44px, controls 52px. Tokens: design/silo-v2/MAPPING.md. Earlier direction: design/silo-v1/DIRECTION.md. */
+.silo-app{
+ --grain-orange:#ff6600;--silo-brand-surface:var(--grain-orange);--grain-orange-ink:#ad4400;--grain-orange-ring:color-mix(in srgb,var(--grain-orange) 30%,transparent);--grain-warning:#d9a441;
+ --silo-font:'Albert Sans Variable','Silo Albert Sans','Albert Sans',system-ui,sans-serif;--silo-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+ --silo-bg:#101010;--silo-sidebar:#101010;--silo-panel:#161616;--silo-raised:#202020;--silo-field:#101010;--silo-hover:#282828;--silo-chip:#202020;
+ --silo-line:#282828;--silo-line-strong:#3d3d3d;--silo-control-line:#6b6b6b;--silo-focus:#fff;
+ --silo-primary:#fff;--silo-on-primary:#101010;--silo-primary-ring:color-mix(in srgb,#fff 25%,transparent);
+ --silo-text:#fff;--silo-text-2:#d4d4d4;--silo-muted:#a3a3a3;--silo-faint:#a3a3a3;--silo-ink:#101010;--silo-disabled:#8f8f8f;--silo-addr-dim:#8f8f8f;
+ --silo-accent:var(--grain-orange);--silo-accent-text:var(--grain-orange);--silo-on-accent:#101010;--silo-accent-soft:color-mix(in srgb,var(--grain-orange) 8%,transparent);--silo-accent-line:var(--grain-orange-ring);
+ --silo-public:#8c9bff;--silo-public-text:#aeb8ff;--silo-on-public:#0b0d1f;--silo-public-soft:#181b2e;
+ --silo-zone:var(--silo-accent);--silo-zone-text:var(--silo-accent-text);--silo-on-zone:var(--silo-on-accent);--silo-zone-soft:var(--silo-accent-soft);
+ --silo-danger:#ff9c85;--silo-danger-bg:#2a1712;--silo-danger-line:#7a3a28;
+ --silo-warn:var(--grain-warning);--silo-warn-bg:#1f1611;--silo-warn-line:#6b3a1f;
+ --silo-ok:#7fd6a0;--silo-info-bg:#161616;--silo-info-line:#3d3d3d;
+ --silo-band-bg:#202020;--silo-band-text:#fff;
+ --silo-r-chip:4px;--silo-r-control:6px;--silo-r-card:8px;--silo-r-bar:99px;--silo-radius:var(--silo-r-card);--silo-radius-md:var(--silo-r-card);--silo-radius-sm:var(--silo-r-control);--silo-pill:var(--silo-r-chip);
+ color-scheme:dark;
+ display:grid;grid-template-columns:248px minmax(0,1fr);max-width:1480px;min-height:100vh;margin:auto;background:var(--silo-bg);color:var(--silo-text);font-family:var(--silo-font);font-weight:600;line-height:1.5;-webkit-font-smoothing:antialiased;font-size:16px;
+}
+/* Light changes only presentation tokens; privacy,balances and wallet lifecycle are independent. */
+.silo-app[data-theme=light]{
+ color-scheme:light;
+ --silo-bg:#fff;--silo-sidebar:#fff;--silo-panel:#f4f4f4;--silo-raised:#ebebeb;--silo-field:#fff;--silo-hover:#e0e0e0;--silo-chip:#ebebeb;
+ --silo-line:#e3e3e3;--silo-line-strong:#cfcfcf;--silo-control-line:#8a8a8a;--silo-focus:#101010;
+ --silo-text:#101010;--silo-text-2:#3d3d3d;--silo-muted:#666666;--silo-faint:#666666;--silo-primary:#101010;--silo-on-primary:#fff;--silo-primary-ring:color-mix(in srgb,#101010 25%,transparent);
+ --silo-accent-text:var(--grain-orange-ink);--silo-accent-soft:color-mix(in srgb,var(--grain-orange) 8%,transparent);--silo-accent-line:var(--grain-orange);
+ --silo-public:#101010;--silo-public-text:#101010;--silo-on-public:#fff;--silo-public-soft:#f4f4f4;
+ --silo-danger:#9b3527;--silo-danger-bg:#fff0ec;--silo-danger-line:#b64432;
+ --grain-warning:#94601c;--silo-warn:var(--grain-warning);--silo-warn-bg:#fff4df;--silo-warn-line:var(--grain-warning);
+ --silo-ok:#1f7a45;--silo-info-bg:#f4f4f4;--silo-info-line:#cfcfcf;
+ --silo-band-bg:#101010;--silo-band-text:#fff;--silo-disabled:#6b6b6b;--silo-addr-dim:#6b6b6b;
+}
+body:has(.silo-app){padding-bottom:0;background:#101010}
+body:has(.silo-app[data-theme=light]){background:#fff}
+.silo-app.exposure-shell{background:var(--silo-bg);color:var(--silo-text);font-family:var(--silo-font)}
+/* One Albert Sans weight for small text (SemiBold 600, the logo's); the browser may never fake a bold on top of it. Large display numbers may use Bold 700 (owner, 4 Nov 2026). */
+.silo-app{font-synthesis:none}
+.silo-app *{box-sizing:border-box}
+.silo-app button,.silo-app input,.silo-app select{font:inherit;color:inherit}
+.silo-app button{cursor:pointer}
+.silo-app button:disabled{cursor:not-allowed}
+.silo-app :focus-visible{outline:3px solid var(--silo-focus);outline-offset:3px;box-shadow:none}
+.silo-app input:focus-visible,.silo-app select:focus-visible{outline-offset:2px}
+.silo-app a{color:inherit}
+.silo-app h1,.silo-app h2,.silo-app h3,.silo-app h4,.silo-app p{margin-top:0}
+.silo-app :where(h1,h2,h3,h4,strong,b,button,input,select,label,summary,dt){font-weight:600}
+.silo-app h2{font-size:18px;letter-spacing:-.02em;line-height:1.25;margin-bottom:12px}
+.silo-app h3{font-size:16px;line-height:1.3;margin-bottom:8px;color:var(--silo-text)}
+.silo-app code{font-family:var(--silo-mono);font-weight:400}
+.silo-app ::placeholder{color:var(--silo-muted);opacity:1}
+.silo-eyebrow,.silo-label{display:block;font-family:var(--silo-mono);font-size:12px;line-height:16px;color:var(--silo-muted);font-weight:400;letter-spacing:.08em;text-transform:uppercase}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.silo-stop{color:var(--silo-accent-text)}
+
+/* Theme control */
+.silo-theme-control{position:relative;flex:none}
+.silo-page-header:has(.silo-theme-control p){align-items:flex-start;padding-bottom:100px}
+.silo-theme-control label{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--silo-text-2)}
+.silo-app .silo-theme-control select{width:auto;min-height:44px;padding:0 12px;font-size:14px;border-radius:var(--silo-pill);background:var(--silo-raised);border:1.5px solid var(--silo-control-line)}
+.silo-theme-control p{position:absolute;right:0;top:calc(100% + 8px);width:min(260px,calc(100vw - 80px));max-width:260px;margin:0;padding:10px 12px;background:var(--silo-panel);border:1.5px solid var(--silo-line-strong);border-radius:var(--silo-radius-sm);z-index:25;font-size:14px}
+
+/* ───────── Shell: sidebar (>=1100), rail (700-1099), bottom bar (<700); header; Home ───────── */
+.silo-sidebar{display:flex;flex-direction:column;gap:6px;padding:10px 12px 24px;border-right:1px solid var(--silo-line-strong);background:var(--silo-sidebar);position:sticky;top:0;height:100vh;overflow-y:auto}
+.silo-wordmark{display:flex;align-items:center;text-decoration:none;margin:0 0 4px;padding:18px;border-radius:var(--silo-radius-sm)}
+.silo-wordmark img{display:block}.silo-wordmark .silo-logo-full{min-width:104px;max-width:160px;height:auto}
+.silo-logo-compact{display:none!important}
+.silo-beta{display:inline-flex;align-items:center;align-self:flex-start;margin:0 0 18px 12px;padding:2px 10px;border-radius:var(--silo-pill);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--silo-text);border:1.5px solid var(--silo-text)}
+.silo-sidebar nav{display:grid;gap:6px}
+.silo-sidebar nav button{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 16px;background:none;border:0;border-radius:var(--silo-pill);color:var(--silo-text-2);font-size:16px;font-weight:600;text-align:left}
+.silo-sidebar nav button:hover{background:var(--silo-hover);color:var(--silo-text)}
+/* The current place is an inverted pill: the type colour becomes the fill. */
+.silo-sidebar nav button[aria-current=page]{background:var(--silo-text);color:var(--silo-bg)}
+.silo-sidebar-bottom{margin-top:auto;display:grid;gap:10px;padding-top:28px}
+.silo-sidebar-bottom>.silo-beta{justify-self:start;margin:0 0 0 12px}
+.silo-sidebar-note{margin:0;padding:0 12px;font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-sidebar-bottom>a{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 16px;font-size:14px;text-decoration:none;color:var(--silo-text-2);border-radius:var(--silo-pill)}
+.silo-sidebar-bottom>a:hover{background:var(--silo-hover);color:var(--silo-text)}
+.silo-sidebar-bottom>a>svg:last-child{margin-left:auto}
+.silo-sync-card{border-radius:var(--silo-radius-sm);border:1.5px solid var(--silo-line-strong);padding:12px 14px;display:grid;gap:2px;font-size:14px;line-height:20px}
+.silo-sync-card strong{display:flex;align-items:center;gap:8px;font-weight:600}
+.silo-sync-card small{color:var(--silo-muted);font-size:14px;padding-left:16px}
+.silo-dot{width:8px;height:8px;border-radius:50%;background:var(--silo-warn);flex:none;display:inline-block}
+.silo-dot[data-state=ok]{background:var(--silo-ok)}
+
+.silo-main{padding:32px 40px 40px;min-width:0}
+/* Network band: shown where real or test funds are decided (wallets, swap); names Monero and Solana separately and carries the exact Solana sentence. */
+.silo-network-band{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin:0 0 20px;max-width:640px;padding:10px 16px;border-radius:var(--silo-radius-sm);background:var(--silo-band-bg);color:var(--silo-band-text);font-size:14px;line-height:20px}
+.silo-network-band[data-mode=mainnet]{background:var(--silo-bg);color:var(--silo-text);border:1.5px solid var(--silo-line-strong)}
+.silo-network-band strong{font-size:14px;font-weight:600}
+.silo-band-label{display:inline-flex;align-items:center;gap:8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;font-family:var(--silo-mono);font-weight:400}
+.silo-band-label i{width:8px;height:8px;border-radius:50%;background:var(--grain-warning);display:inline-block}
+.silo-network-band[data-mode=mainnet] .silo-band-label i{background:var(--silo-ok)}
+.silo-network-band p{margin:0;font-size:14px;color:inherit;padding:3px 12px;border:1.5px solid color-mix(in srgb,currentColor 55%,transparent);border-radius:var(--silo-pill)}
+.silo-network-band[data-solana=mainnet-beta] p{border-color:var(--grain-warning)}
+
+/* Screen header: lowercase title with the full stop, then one sentence that says what is true now. */
+.silo-page-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:0 0 24px;max-width:640px}
+.silo-title{display:flex;align-items:flex-start;gap:14px;min-width:0}
+.silo-title-text{display:grid;gap:8px;min-width:0}
+.silo-page-header h1{font-size:40px;line-height:40px;letter-spacing:-.05em;margin:0;overflow-wrap:anywhere}
+.silo-state-line{margin:0;font-size:16px;line-height:24px;color:var(--silo-text-2);max-width:56ch}
+.silo-header-right{display:flex;align-items:center;gap:6px;flex:none}
+.silo-icon-button{width:48px;height:48px;border-radius:var(--silo-pill);border:1.5px solid var(--silo-control-line);background:transparent;color:var(--silo-text);display:grid;place-items:center}
+.silo-icon-button:hover{background:var(--silo-hover)}
+.silo-icon-button[aria-pressed=true]{background:var(--silo-text);color:var(--silo-bg);border-color:var(--silo-text)}
+.silo-mobile-logo{display:none}
+.silo-view-tabs{display:none}
+.silo-last-checked{margin:0;font-size:14px;line-height:20px;color:var(--silo-muted)}
+.silo-sidebar-line{margin:-2px 18px 18px;font-size:14px;line-height:20px;color:var(--silo-muted)}
+
+/* ───────── Home: header, one Private window, total and split, Public list, recent activity; context beside it ───────── */
+.silo-home{display:grid;grid-template-columns:minmax(0,640px) 320px;gap:48px;align-items:start;min-width:0}
+.silo-home-main,.silo-home-side{display:grid;gap:32px;min-width:0;align-content:start}
+.silo-home-side{gap:20px;padding-top:4px}
+/* A window holds one thing that matters. Private is solid orange; Public is an outline; not yet is dashed. */
+.silo-window{display:grid;gap:16px;min-width:0;padding:24px 20px;border-radius:var(--silo-radius)}
+.silo-window[data-zone=private]{background:var(--grain-orange);color:#101010;--silo-focus:#101010;--silo-text:#101010;--silo-text-2:#101010;--silo-muted:#101010;--silo-primary:#101010;--silo-on-primary:#fff;--silo-control-line:#101010;--silo-disabled:#101010;--silo-hover:color-mix(in srgb,#101010 12%,transparent);--silo-primary-ring:color-mix(in srgb,#101010 25%,transparent)}
+.silo-window[data-zone=public]{border:2px solid var(--silo-public)}
+.silo-window[data-zone=soon]{border:2px dashed var(--silo-control-line)}
+.silo-window-label{display:flex;align-items:center;gap:8px;font-size:16px;line-height:24px}
+.silo-window[data-zone=private] .silo-zone-mark[data-zone=private]{background:#101010}
+.silo-hero{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;margin:0;font-size:56px;line-height:56px;letter-spacing:-.04em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.silo-hero-unit{font-size:22px;line-height:28px;letter-spacing:-.02em;color:var(--silo-muted)}
+.silo-window-sub{margin:0;font-size:14px;line-height:20px;color:var(--silo-muted)}
+.silo-app h2.silo-window-name{margin:0;font-size:16px;line-height:24px;letter-spacing:0}
+.silo-state-word{color:var(--silo-muted)}
+.silo-state-word[data-state=ok]{color:var(--silo-ok)}
+.silo-state-word[data-state=held]{color:var(--silo-warn)}
+.silo-state-word[data-state=danger]{color:var(--silo-danger)}
+.silo-activity-row{cursor:default}
+/* Peer actions share one row at equal width. */
+.silo-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,132px),1fr));gap:12px}
+.silo-actions>*{min-width:0}
+.silo-actions .silo-button{width:100%;padding:0 12px}
+.silo-actions-cell{display:grid;align-content:start}
+.silo-app .silo-button[data-variant=primary]{background:var(--silo-primary);border-color:var(--silo-primary);color:var(--silo-on-primary)}
+.silo-app .silo-button[data-variant=primary]:not([aria-disabled=true]):hover{background:var(--silo-primary);box-shadow:0 0 0 4px var(--silo-primary-ring)}
+.silo-app .silo-button[data-variant=quiet]{border-color:transparent;text-decoration:underline;text-underline-offset:4px;min-height:44px;padding:0 12px;color:var(--silo-text)}
+.silo-app .silo-button[aria-disabled=true]{cursor:not-allowed}
+/* Held reasons are listed once under the row, each with its next step. */
+.silo-whynot{display:grid;gap:4px;margin:0;padding:0;list-style:none;font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-whynot li{margin:0}
+.silo-whynot strong{color:var(--silo-text)}
+.silo-whynot button,.silo-whynot a{display:inline-flex;align-items:center;min-height:44px;padding:0;border:0;background:none;color:var(--silo-text);text-decoration:underline;text-underline-offset:3px;font-size:14px}
+.silo-window[data-zone=private] .silo-whynot{padding:12px 14px;border-left:4px solid #101010}
+/* Total and the Private/Public split. */
+.silo-total{display:grid;gap:12px}
+.silo-total-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.silo-total-amt{font-size:28px;line-height:32px;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.silo-fine{font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-split{display:grid;gap:8px}
+.silo-split-bar{display:flex;gap:4px;height:14px}
+.silo-split-bar>i{display:block;min-width:14px;border-radius:4px}
+.silo-split-bar>i[data-zone=private]{background:var(--grain-orange)}
+.silo-split-bar>i[data-zone=public]{border:2px solid var(--silo-public)}
+.silo-split-legend{display:flex;flex-wrap:wrap;gap:4px 20px;margin:0;padding:0;list-style:none;font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-split-legend li{display:inline-flex;align-items:center;gap:8px;margin:0}
+.silo-split-legend b{color:var(--silo-text);font-weight:600}
+/* Section heading: a mono label over one hairline. */
+.silo-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;border-bottom:1px solid var(--silo-text)}
+.silo-section-head h2{margin:0;color:var(--silo-text)}
+.silo-section-head .silo-label{color:var(--silo-text)}
+.silo-section{display:grid;gap:12px;min-width:0}
+.silo-day{margin:0;padding:16px 8px 4px;font-family:var(--silo-mono);font-weight:400;font-size:12px;line-height:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--silo-muted)}
+.silo-account-list{display:grid}
+.silo-account{display:flex;align-items:center;gap:12px;width:100%;min-height:72px;padding:12px 8px;border:0;border-bottom:1px solid var(--silo-line);border-radius:0;background:none;color:var(--silo-text);text-align:left;font-size:16px;line-height:24px}
+.silo-account-list>.silo-account:last-child{border-bottom:0}
+button.silo-account:hover{background:var(--silo-hover);border-radius:var(--silo-radius-sm)}
+.silo-account>svg{color:var(--silo-muted);flex:none}
+.silo-account[data-off]{color:var(--silo-text-2)}
+.silo-account-token{padding-left:34px;min-height:64px}
+.silo-account-token .silo-asset-icon{width:32px;height:32px}
+.silo-account-name{flex:1 1 auto;display:grid;gap:2px;min-width:0;overflow-wrap:anywhere}
+.silo-account-name small{font-size:14px;line-height:20px;color:var(--silo-text-2);overflow-wrap:anywhere}
+.silo-account-name code{font-size:14px}
+.silo-account-value{display:grid;justify-items:end;gap:2px;flex:none;max-width:52%;font-family:var(--silo-mono);font-weight:400;font-size:16px;line-height:24px;text-align:right;font-variant-numeric:tabular-nums;min-width:0;white-space:nowrap}
+.silo-account-value small{font-family:var(--silo-font);font-weight:600;font-size:14px;line-height:20px;color:var(--silo-muted);white-space:normal;overflow-wrap:normal;text-align:right}
+.silo-account-value>.silo-state{font-family:var(--silo-font)}
+.silo-accounts .silo-last-checked{padding:6px 8px 10px 8px;border-bottom:1px solid var(--silo-line)}
+.silo-asset-icon{width:40px;height:40px;flex:none;background:var(--silo-chip);border-radius:50%;display:grid;place-items:center;overflow:hidden;font-size:14px;font-weight:600;color:var(--silo-text-2)}
+.silo-asset-icon img{width:100%;height:100%;object-fit:cover}
+/* Status is text with an icon and a word, never inside a selector or network pill. */
+.silo-state{display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:0;border:0;font:600 14px/20px var(--silo-font);color:var(--silo-text-2)}
+.silo-state>svg{flex:none}
+.silo-state[data-state=ok]{color:var(--silo-ok)}
+.silo-state[data-state=held]{color:var(--silo-warn)}
+.silo-state:is([data-state=off],[data-state=soon]){color:var(--silo-text-2)}
+.silo-state[data-state=danger]{color:var(--silo-danger)}
+.silo-state[data-state=idle] .silo-dot{background:var(--silo-control-line)}
+.silo-build-caps{display:grid;gap:4px}
+.silo-build-caps h2{margin:0;padding:0 0 8px;border-bottom:1px solid var(--silo-text)}
+.silo-build-caps h2 .silo-label{color:var(--silo-text)}
+.silo-build-caps ul{list-style:none;margin:0;padding:0;display:grid}
+.silo-build-caps li{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;gap:4px 10px;min-height:56px;padding:12px 0;border-bottom:1px solid var(--silo-line);font-size:16px;line-height:24px;margin:0}
+.silo-build-caps li>.silo-zone-mark{margin-top:5px}
+.silo-build-caps li>.silo-state{grid-column:2}
+.silo-beta-note{display:flex;gap:12px;align-items:flex-start;margin:0;padding:12px 14px;border:1.5px solid var(--silo-line-strong);border-radius:var(--silo-radius-sm);font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-beta-note .silo-beta{margin:0;flex:none}
+.silo-beta-note strong{color:var(--silo-text)}
+.silo-app .silo-textlink{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 4px;border:0;background:none;color:var(--silo-text);font-size:16px;text-decoration:underline;text-underline-offset:4px;justify-self:start}
+.silo-empty-state{display:grid;gap:8px;padding:16px 8px;font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-empty-state strong{font-size:16px;line-height:24px;color:var(--silo-text)}
+
+/* Zone grammar: chip + mark, used wherever a zone is named. */
+.silo-zone-chip{display:inline-flex;align-items:center;height:26px;padding:0 12px;border-radius:var(--silo-pill);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.silo-zone-chip[data-zone=private]{background:var(--silo-ink);color:var(--grain-orange)}
+.silo-zone-chip[data-zone=public]{border:1.5px solid var(--silo-public);color:var(--silo-public-text)}
+.silo-zone-chip[data-zone=soon]{border:1.5px dashed var(--silo-control-line);color:var(--silo-text-2)}
+.silo-zone-mark{display:inline-block;flex:none;width:14px;height:14px}
+.silo-zone-mark[data-zone=private]{border-radius:4px;background:var(--grain-orange)}
+.silo-zone-mark[data-zone=public]{border-radius:4px;border:2px solid var(--silo-public)}
+.silo-zone-mark[data-zone=soon]{border-radius:4px;border:2px dashed var(--silo-control-line)}
+.silo-soon{display:inline-flex;align-items:center;font-size:14px;font-weight:600;padding:2px 8px;border-radius:var(--silo-pill);border:1.5px dashed var(--silo-control-line);color:var(--silo-text-2);letter-spacing:.04em;white-space:nowrap}
+.silo-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border-radius:var(--silo-pill);border:1.5px solid var(--silo-line-strong);font-size:14px;color:var(--silo-text-2);white-space:nowrap}
+
+/* ───────── Controls ───────── */
+.silo-app .silo-button,.silo-app .silo-wallet-controls button,.silo-app .silo-file{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 24px;border:1.5px solid var(--silo-control-line);border-radius:var(--silo-pill);background:transparent;color:var(--silo-text);font-size:16px;line-height:20px;font-weight:600;text-decoration:none;text-align:center;transition:background .15s,border-color .15s,box-shadow .15s}
+.silo-app .silo-button:hover,.silo-app .silo-wallet-controls button:not(:disabled):hover,.silo-app .silo-file:hover{background:var(--silo-hover)}
+.silo-app .silo-button[data-variant=primary],.silo-app .silo-wallet-controls button.silo-primary,.silo-app .silo-wallet-controls .silo-quote-button{background:var(--silo-primary);border-color:var(--silo-primary);color:var(--silo-on-primary)}
+.silo-app .silo-button[data-variant=primary]:hover,.silo-app .silo-wallet-controls button.silo-primary:not(:disabled):hover,.silo-app .silo-wallet-controls .silo-quote-button:not(:disabled):hover{box-shadow:0 0 0 4px var(--silo-primary-ring)}
+.silo-app .silo-wallet-controls button:disabled,.silo-app .silo-quote-button:disabled,.silo-app .silo-button[aria-disabled=true]{background:color-mix(in srgb,var(--silo-text) 9%,transparent)!important;border:2px solid transparent!important;color:var(--silo-disabled)!important;opacity:1;box-shadow:none!important;cursor:not-allowed}
+.silo-app .silo-file{position:relative;cursor:pointer}
+.silo-app .silo-file input[type=file]{position:absolute;inset:0;opacity:0!important;cursor:pointer;width:100%;height:100%;margin:0;padding:0;border:0}
+.silo-app .silo-file:has(input:disabled){background:color-mix(in srgb,var(--silo-text) 9%,transparent);border:2px solid transparent;color:var(--silo-disabled);cursor:not-allowed}
+.silo-app .silo-file:has(input:disabled) input{cursor:not-allowed}
+.silo-app .silo-file:focus-within{outline:3px solid var(--silo-focus);outline-offset:3px}
+.exposure-actions{display:flex;flex-wrap:wrap;gap:10px;margin:0}
+.silo-app .silo-wallet-controls .silo-danger button:not(:disabled){border-color:var(--silo-danger);color:var(--silo-danger)}
+.silo-app .silo-wallet-controls .silo-danger button:not(:disabled):hover{background:var(--silo-danger-bg)}
+
+/* ───────── Wallet panels (Wallets, Settings, Swap hold the mounted zones) ───────── */
+.silo-app .silo-wallet-controls{display:grid;gap:32px;max-width:640px;min-width:0}
+.silo-app .silo-wallet-controls>.exposure-panel{background:none;border:0;border-radius:var(--silo-radius);padding:0;margin:0}
+.silo-app .silo-wallet-controls>.exposure-panel>h2{font-size:22px;line-height:26px;letter-spacing:-.02em;margin-bottom:12px}
+.silo-app .silo-wallet-controls p{font-size:16px;line-height:24px;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls ul{color:var(--silo-text-2);padding-left:20px}
+.silo-app .silo-wallet-controls li{margin:4px 0;line-height:1.55}
+.silo-app .silo-wallet-controls .exposure-note{font-size:14px;line-height:20px;color:var(--silo-muted)}
+.silo-app .silo-wallet-controls .exposure-error,.silo-app .silo-wallet-controls p[role=alert]{color:var(--silo-danger)}
+.silo-app .silo-wallet-controls p.exposure-error{background:var(--silo-danger-bg);border:1.5px solid var(--silo-danger-line);border-radius:var(--silo-radius-sm);padding:12px 14px;margin:12px 0 0}
+.silo-app .silo-wallet-controls .exposure-address{display:block;font-family:var(--silo-mono);font-size:14px;line-height:1.8;word-break:break-all;color:var(--silo-text);background:var(--silo-panel);border-radius:var(--silo-radius-sm);padding:12px 14px;margin:8px 0}
+.silo-zone{--silo-zone:var(--silo-accent);--silo-zone-text:var(--silo-accent-text);--silo-on-zone:var(--silo-on-accent);--silo-zone-soft:var(--silo-accent-soft)}
+#silo-public,#silo-evm{--silo-zone:var(--silo-public);--silo-zone-text:var(--silo-public-text);--silo-on-zone:var(--silo-on-public);--silo-zone-soft:var(--silo-public-soft)}
+/* A zone panel is a window: the header carries the zone (solid orange for Private, outline for Public). */
+.silo-app .silo-wallet-controls>.silo-zone{border-radius:0;overflow:visible;padding:0;background:none}
+.silo-app .silo-wallet-controls>.silo-zone{display:flex;flex-direction:column;gap:20px}
+.silo-app .silo-wallet-controls>.silo-zone>.silo-zone-head{order:-2}
+/* Alerts, receipts and the working notice sit directly under the header, where the person is looking, not at the foot of a long panel. */
+.silo-app .silo-wallet-controls>.silo-zone>:is(p[role=alert],p[role=status],p.silo-busy,p.exposure-error){order:-1;margin-top:0;margin-bottom:0}
+.silo-app .silo-wallet-controls>.silo-zone>*{margin-left:0;margin-right:0}
+.silo-app .silo-wallet-controls>.silo-zone>p:last-child{margin-bottom:0}
+/* The balance and the actions come first; the display-only price chart and the long disclosures follow them. */
+.silo-app .silo-wallet-controls>.silo-zone>.silo-price{order:4}
+.silo-app .silo-wallet-controls>.silo-zone>.silo-more{order:5}
+.silo-app .silo-wallet-controls>.silo-zone>.silo-zone-head{margin:0;padding:20px;border-radius:var(--silo-radius)}
+/* Off in this build: a dashed row with the reason, never a lock or an empty orange window. */
+.silo-app .silo-wallet-controls>.silo-off{display:flex;align-items:flex-start;gap:16px;padding:20px 24px!important;border:2px dashed var(--silo-control-line)!important;border-radius:var(--silo-radius-md)!important}
+.silo-app .silo-wallet-controls>.silo-off>div{flex:1 1 auto;min-width:0}
+.silo-app .silo-wallet-controls>.silo-off h2{margin:0 0 4px;font-size:22px}
+.silo-app .silo-wallet-controls>.silo-off p{margin:0;font-size:16px;line-height:24px}
+.silo-app .silo-wallet-controls>.silo-off .silo-tag{border:1.5px dashed var(--silo-control-line);color:var(--silo-text-2)}
+/* Held transfers: the heading and the reason stay; an unusable form does not. Saved recovery records are outside .silo-fields and stay. */
+.silo-send[data-held] .silo-review>:is(.silo-fields,.exposure-note){display:none}
+.silo-app .silo-wallet-controls>#silo-xmr>.silo-zone-head,.silo-app .silo-wallet-controls>#silo-zec>.silo-zone-head{background:var(--grain-orange);color:var(--silo-ink);--silo-focus:#101010}
+.silo-app .silo-wallet-controls>#silo-evm>.silo-zone-head{border:2px solid var(--silo-public)}
+.silo-zone-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px}
+.silo-zone-head>div{display:grid;gap:2px;min-width:0}
+.silo-zone-head h2{margin:0;font-size:28px;line-height:32px;letter-spacing:-.04em}
+.silo-zone-head .silo-tag{margin-left:auto}
+.silo-zone-head .silo-eyebrow,.silo-zone-network{color:inherit;opacity:1;font-size:14px;line-height:20px}
+.silo-tag{display:inline-flex;align-items:center;height:26px;padding:0 12px;border-radius:var(--silo-pill);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;border:1.5px solid var(--silo-public);color:var(--silo-public-text);background:transparent}
+.silo-native-workspace .silo-tag{background:var(--silo-ink);color:var(--grain-orange);border-color:var(--silo-ink)}
+.silo-held{background:var(--silo-warn-bg);color:var(--silo-warn)!important;border-radius:var(--silo-radius-sm);padding:12px 14px}
+.silo-hold{border:0!important;border-left:4px solid var(--silo-warn)!important;background:var(--silo-warn-bg)!important;border-radius:var(--silo-radius-md)!important;padding:20px!important}
+.silo-hint{font-size:14px!important;line-height:20px!important;color:var(--silo-muted)!important;margin:-4px 0 4px}
+
+/* Fields */
+.silo-fields{display:grid;gap:14px}
+.silo-app .silo-wallet-controls label{display:grid;gap:8px;font-size:14px;line-height:20px;color:var(--silo-text-2);font-weight:600}
+.silo-app :where(input:not([type=checkbox]):not([type=file]):not([type=range]),select,textarea){width:100%;min-height:52px;border-radius:var(--silo-radius-sm);border:1.5px solid var(--silo-control-line);background:var(--silo-field);padding:0 16px;font-size:16px;color:var(--silo-text)}
+.silo-app :where(input:not([type=checkbox]):not([type=file])):focus{border-color:var(--silo-text)}
+.silo-app input:disabled,.silo-app select:disabled{border-style:solid;background:color-mix(in srgb,var(--silo-text) 9%,transparent);color:var(--silo-disabled);opacity:1}
+.silo-app input[type=checkbox]{appearance:none;-webkit-appearance:none;display:inline-grid;place-content:center;width:24px;height:24px;margin:0;flex:none;border:2px solid var(--silo-control-line);border-radius:var(--silo-radius-sm);background:var(--silo-field)}
+.silo-app input[type=checkbox]:checked{background:var(--silo-primary);border-color:var(--silo-primary)}
+.silo-app input[type=checkbox]:checked::after{content:'';width:12px;height:7px;border-left:3px solid var(--silo-on-primary);border-bottom:3px solid var(--silo-on-primary);transform:rotate(-45deg) translate(1px,-1px)}
+.silo-app input[type=checkbox]:disabled{opacity:.6}
+.silo-app .silo-wallet-controls label:has(>input[type=checkbox]){display:flex;align-items:flex-start;gap:12px;min-height:44px;font-size:14px;line-height:1.45;font-weight:600;color:var(--silo-text-2);cursor:pointer;padding:6px 0}
+.silo-app .silo-wallet-controls label>input[type=checkbox]{margin-top:1px}
+
+/* Unlock / create */
+.silo-unlock{display:grid;gap:16px;max-width:620px;padding:0}
+.silo-unlock-title{display:grid;gap:6px}
+.silo-unlock-title h3{font-size:28px;letter-spacing:-.04em;line-height:32px;margin:0}
+.silo-unlock-title p{margin:0}
+.silo-unlock>.exposure-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.silo-unlock>.exposure-actions>:first-child{grid-column:1/-1}
+.silo-unlock>.exposure-actions>:first-child:not(:disabled){background:var(--silo-primary);border-color:var(--silo-primary);color:var(--silo-on-primary)}
+.silo-unlock-foot{display:flex;align-items:center;gap:8px;font-size:14px!important;color:var(--silo-muted)!important;margin:0}
+
+/* Disclosure rows */
+.silo-app details>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:0 4px;font-size:14px;font-weight:600;color:var(--silo-text)}
+.silo-app summary::-webkit-details-marker{display:none}
+.silo-app details>summary::after{content:'';width:8px;height:8px;border-right:2px solid var(--silo-text-2);border-bottom:2px solid var(--silo-text-2);transform:rotate(45deg) translateY(-2px);transition:transform .15s;flex:none}
+.silo-app details[open]>summary::after{transform:rotate(-135deg) translateY(-2px)}
+.silo-more{border-top:2px solid var(--silo-text);display:grid;margin-top:8px}
+.silo-more>details,.silo-more>.silo-review{border-bottom:1px solid var(--silo-line);margin:0}
+.silo-more>details[open]{padding-bottom:16px}
+.silo-more>details>:not(summary){margin-left:4px;margin-right:4px}
+.silo-more>details>p,.silo-more>details>div,.silo-more>details>label,.silo-more>details>dl{margin-bottom:12px}
+.silo-more>details.silo-review{display:block;padding:0;gap:0}
+.silo-more>details.silo-review[open]{padding:0 4px 16px}
+.silo-more>details.silo-review>summary{padding:0}
+.silo-more>details.silo-review>*:not(summary){margin-bottom:12px}
+.silo-disclosure{display:grid;gap:4px;margin:0 0 4px}
+.silo-disclosure dt{font-size:14px;color:var(--silo-muted);font-weight:600;margin-top:10px}
+.silo-disclosure dd{margin:0;font-size:14px;color:var(--silo-text-2);line-height:1.55}
+
+/* Unlocked wallet layout */
+.silo-wallet-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
+.silo-wallet-col{display:grid;gap:20px;min-width:0}
+.silo-wallet-grid>.silo-wallet-col[data-side]{order:2}
+.silo-inset{background:var(--silo-panel);border-radius:var(--silo-radius-md);padding:20px;display:grid;gap:14px;min-width:0}
+.silo-inset>h3{margin:0;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.silo-balance{margin:0;display:grid;gap:16px}
+.silo-balance>div{display:grid;gap:4px}
+.silo-balance>div:first-child dd:first-of-type{font-size:40px;line-height:44px;letter-spacing:-.03em;color:var(--silo-text);font-variant-numeric:tabular-nums}
+.silo-balance dt{font-size:14px;line-height:20px;color:var(--silo-muted);font-weight:600}
+.silo-balance dd{margin:0;font-size:16px;font-weight:600;overflow-wrap:anywhere}
+.silo-balance dd+dd{font-size:14px;line-height:20px;color:var(--silo-muted);font-weight:600}
+.silo-balance dd[data-state=unchecked]{color:var(--silo-text-2);font-size:22px}
+.silo-balance-bar{display:flex;height:8px;border-radius:var(--silo-r-bar);overflow:hidden;gap:3px}
+.silo-balance-bar>span{background:var(--silo-zone);border-radius:var(--silo-r-bar);min-width:3px}
+.silo-balance-bar>span+span{background:color-mix(in srgb,var(--silo-zone) 30%,var(--silo-hover))}
+.silo-zone-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,132px),1fr));gap:12px}
+.silo-zone-actions a{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;padding:0 12px;border-radius:var(--silo-pill);border:1.5px solid var(--silo-control-line);font-size:16px;font-weight:600;text-decoration:none;text-align:center}
+.silo-zone-actions a:first-child{background:var(--silo-primary);border-color:var(--silo-primary);color:var(--silo-on-primary)}
+.silo-zone-actions a:not(:first-child):hover{background:var(--silo-hover)}
+.silo-zone-actions a:first-child:hover{box-shadow:0 0 0 4px var(--silo-primary-ring)}
+
+/* Price and chart (display-only estimates) */
+.silo-price{gap:12px}
+.silo-zone>.silo-price{margin-bottom:18px}
+.silo-price-head{display:grid;gap:2px}
+.silo-price-value{font-size:clamp(30px,3.6vw,40px);letter-spacing:-.04em;line-height:1.1;font-variant-numeric:tabular-nums}
+.silo-price-change{font-size:14px;font-variant-numeric:tabular-nums;color:var(--silo-text-2)}
+.silo-price-change[data-trend=up]{color:var(--silo-ok)}
+.silo-price-change[data-trend=down]{color:var(--silo-danger)}
+.silo-price-change span{color:var(--silo-muted);font-weight:600}
+.silo-chart-note{margin:0;min-height:96px;display:grid;place-items:center;text-align:center;color:var(--silo-muted);font-size:14px}
+.silo-chart{position:relative;height:200px;margin:0 -4px;cursor:crosshair;touch-action:pan-y}
+.silo-chart svg{display:block;width:100%;height:100%}
+.silo-chart-label{position:absolute;font-size:14px;color:var(--silo-muted);font-variant-numeric:tabular-nums;pointer-events:none}
+.silo-chart-label[data-edge=high]{top:0;right:4px}
+.silo-chart-label[data-edge=low]{bottom:0;left:4px}
+.silo-chart-rule{position:absolute;top:6px;bottom:6px;width:1px;background:var(--silo-control-line);pointer-events:none}
+.silo-chart-dot{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:var(--silo-zone);box-shadow:0 0 0 2px var(--silo-bg),0 0 0 7px color-mix(in srgb,var(--silo-zone) 25%,transparent);pointer-events:none}
+.silo-app .silo-range-chips{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.silo-app .silo-wallet-controls .silo-range-chips button,.silo-app .silo-wallet-controls .silo-range-chips button:not(:disabled):hover{min-height:44px;padding:0;border:0;border-radius:var(--silo-pill);background:transparent;color:var(--silo-muted);font-size:14px}
+.silo-app .silo-wallet-controls .silo-range-chips button[aria-pressed=true]{background:var(--silo-text);color:var(--silo-bg)}
+.silo-price-holding{margin:0!important;font-size:14px!important}
+.silo-price-holding strong{color:var(--silo-text);font-variant-numeric:tabular-nums}
+.silo-price-note{margin:0!important;font-size:14px!important}
+
+/* A price feed that is down or off is a dashed "not available" row, not a card. */
+.silo-inset.silo-price:has(>.silo-empty){background:none;border:1.5px dashed var(--silo-control-line);padding:12px 18px;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:4px 16px}
+.silo-inset.silo-price:has(>.silo-empty) .silo-zone-network{opacity:1;color:var(--silo-text);font-weight:600}
+.silo-inset.silo-price>.silo-empty{padding:0}
+
+/* Move to private */
+.silo-move-private{gap:10px}
+.silo-move-private>h3{margin:0;display:flex;align-items:center;gap:8px}
+.silo-move-private>h3 svg{color:var(--silo-text)}
+.silo-move-private>p{margin:0}
+.silo-move-private>a{justify-self:stretch}
+.silo-move-private details ul{margin:0 4px;padding-left:18px;font-size:14px}
+.silo-private-cta{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding:16px 20px;border-radius:var(--silo-radius-md);background:var(--silo-bg);border:1.5px solid var(--silo-line-strong);text-decoration:none}
+.silo-private-cta>span:first-child{display:grid;gap:2px}
+.silo-private-cta strong{font-size:16px;color:var(--silo-text)}
+.silo-private-cta small{font-size:14px;color:var(--silo-text-2)}
+.silo-private-cta>span:last-child{font-size:22px;color:var(--silo-text)}
+
+/* GRAIN */
+.silo-grain{display:grid;gap:12px;margin-top:16px;scroll-margin-top:24px}
+.silo-grain-head{display:flex;align-items:center;gap:12px}
+.silo-grain-head>span:last-child{display:grid;gap:2px}
+.silo-grain-head strong{font-size:16px}
+.silo-grain-head small{font-size:14px;color:var(--silo-muted)}
+.silo-grain-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0}
+.silo-grain-stats>div{border:1.5px solid var(--silo-line-strong);border-radius:var(--silo-radius-sm);padding:12px 14px;margin:0;display:grid;gap:2px;justify-items:start;text-align:left}
+.silo-grain-stats dt{margin:0;padding:0;font-size:14px;color:var(--silo-muted)}
+.silo-grain-stats dd{margin:0;padding:0;font-size:14px;font-weight:600}
+.silo-grain-stats dd[data-trend=up]{color:var(--silo-ok)}
+.silo-grain-stats dd[data-trend=down]{color:var(--silo-danger)}
+.silo-grain-rewards{gap:10px}
+.silo-grain-rewards>h3{margin:0}
+.silo-grain-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;border-radius:var(--silo-pill);border:1.5px solid var(--silo-line-strong);font-size:14px;font-weight:600;text-decoration:none}
+.silo-grain-link:hover{background:var(--silo-raised)}
+
+/* Receive */
+.silo-receive{display:grid;justify-items:center;gap:12px;text-align:center;scroll-margin-top:24px}
+.silo-receive>p:first-child{margin:0;font-size:14px;color:var(--silo-muted)}
+.silo-qr-tile{background:#fff;border-radius:var(--silo-radius-md);padding:14px;display:grid;place-items:center}
+.silo-qr-tile svg{display:block;width:176px;height:176px}
+.silo-receive .exposure-address{background:none;padding:0 4px;margin:0;text-align:center;font-size:14px;color:var(--silo-text);max-width:420px}
+.silo-address-group{display:inline-block;margin-right:.55em;color:var(--silo-muted)}
+/* The opening group and the last four characters carry the check; the middle recedes (design requirement R20). */
+.silo-address-group:first-child,.silo-address-group:last-child{color:var(--silo-text);background:var(--silo-hover);border-radius:4px;padding:1px 4px}
+.silo-app .silo-wallet-controls .silo-receive>button{width:100%;max-width:320px;background:var(--silo-primary);border-color:var(--silo-primary);color:var(--silo-on-primary)}
+.silo-app .silo-wallet-controls .silo-receive>button:not(:disabled):hover{box-shadow:0 0 0 4px var(--silo-primary-ring)}
+.silo-receive .exposure-note{margin:0;max-width:420px}
+.silo-app .silo-new-address{display:flex;align-items:center;gap:12px;border:1.5px solid var(--silo-line-strong);border-radius:var(--silo-radius-sm);padding:12px 12px 12px 16px;text-align:left}
+.silo-app .silo-new-address p{margin:0;flex:1 1 auto}
+.silo-app .silo-wallet-controls .silo-new-address button,.silo-app .silo-wallet-controls .silo-new-address button:not(:disabled):hover{flex:none;min-height:44px;padding:0 16px;font-size:14px}
+
+/* Send, review, sent */
+.silo-send{scroll-margin-top:24px}
+.silo-app .silo-wallet-controls .silo-send .silo-fields>button,.silo-app .silo-wallet-controls .silo-review .exposure-actions>button:first-of-type{background:var(--silo-primary);border-color:var(--silo-primary);color:var(--silo-on-primary)}
+.silo-amount-input input{font-size:28px!important;letter-spacing:-.04em;min-height:64px!important;font-variant-numeric:tabular-nums}
+.silo-review{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.silo-review>p{overflow-wrap:anywhere}
+.silo-review>h3{margin:0}
+.silo-review-amount{display:grid;justify-items:center;gap:4px;padding:6px 0 4px;text-align:center}
+.silo-review-amount span{font-size:14px;color:var(--silo-muted)}
+.silo-review-amount strong{font-size:clamp(30px,4vw,40px);letter-spacing:-.045em;overflow-wrap:anywhere}
+.silo-rows{display:grid;margin:0}
+.silo-rows>div{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:48px;border-bottom:1px solid var(--silo-line);font-size:14px}
+.silo-rows>div:last-child{border-bottom:0}
+.silo-rows dt{color:var(--silo-text-2)}
+.silo-rows dd{margin:0;text-align:right;overflow-wrap:anywhere;font-family:var(--silo-mono);font-weight:400;font-variant-numeric:tabular-nums}
+.silo-review .exposure-actions{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr)}
+.silo-review .exposure-actions>p{grid-column:1/-1;margin:0}
+.silo-sent{justify-items:center;text-align:center;padding:8px 0}
+.silo-sent-mark{width:76px;height:76px;border-radius:50%;border:2px solid var(--silo-zone);display:grid;place-items:center}
+.silo-sent-mark span{width:52px;height:52px;border-radius:var(--silo-pill);background:var(--silo-zone);color:var(--silo-on-zone);display:grid;place-items:center}
+.silo-sent h3{font-size:22px;letter-spacing:-.04em;margin:4px 0 0}
+.silo-sent p{margin:0}
+.silo-sent .exposure-address{text-align:left;width:100%}
+.silo-ticks{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;width:100%}
+.silo-ticks span{height:8px;border-radius:var(--silo-r-bar);background:var(--silo-hover)}
+.silo-ticks span[data-on]{background:var(--silo-zone)}
+.silo-payment-status{display:grid;gap:10px}
+.silo-payment-status>div:first-of-type{display:flex;justify-content:space-between;gap:12px;font-size:14px}
+.silo-payment-status progress{position:absolute;width:1px;height:1px;opacity:0}
+.silo-confirms{display:grid;gap:12px}
+.silo-confirms h3{margin:0;font-size:14px}
+.silo-confirms-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.silo-confirms-head strong{font-size:22px;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.silo-confirms-title{display:flex;align-items:center;gap:10px;margin:0;font-size:22px;font-weight:600;letter-spacing:-.04em}
+.silo-xmr-confirms-dot{flex:none;width:10px;height:10px;border-radius:50%;background:var(--silo-text)}
+.silo-confirms[data-state="waiting"] .silo-xmr-confirms-dot,.silo-confirms[data-state="progress"] .silo-xmr-confirms-dot{animation:silo-confirms-pulse 1.8s ease-in-out infinite}
+.silo-confirms[data-state="unchecked"] .silo-xmr-confirms-dot{background:transparent;border:2px dashed currentColor}
+.silo-confirms .silo-ticks span{height:10px;transition:background .3s}
+.silo-confirms progress{position:absolute;width:1px;height:1px;opacity:0}
+@keyframes silo-confirms-pulse{50%{opacity:.35}}
+@media(prefers-reduced-motion:reduce){.silo-xmr-confirms-dot{animation:none!important}}
+
+/* Activity */
+.silo-history{display:grid;gap:4px}
+.silo-tx-list{list-style:none;margin:0!important;padding:0!important;display:grid}
+.silo-tx{display:flex;align-items:center;gap:12px;padding:10px 0;margin:0!important;border-bottom:1px solid var(--silo-line)}
+.silo-tx:last-child{border-bottom:0}
+.silo-tx-icon{width:40px;height:40px;border-radius:50%;background:var(--silo-raised);color:var(--silo-text-2);display:grid;place-items:center;flex:none}
+.silo-tx[data-kind=in] .silo-tx-icon{background:var(--silo-zone-soft);color:var(--silo-zone-text)}
+.silo-tx-main{flex:1 1 auto;display:grid;gap:2px;min-width:0}
+.silo-tx-main strong{font-size:14px;color:var(--silo-text)}
+.silo-tx-main small{font-size:14px;color:var(--silo-muted);overflow-wrap:anywhere}
+.silo-tx-main details>summary{min-height:44px;font-size:14px;font-weight:600;color:var(--silo-muted);padding:0;justify-content:flex-start}
+.silo-tx-main details>summary::after{width:6px;height:6px;border-width:0 1.5px 1.5px 0}
+.silo-tx-main details code{display:block;font-size:14px;word-break:break-all;color:var(--silo-text-2);margin:4px 0;padding:8px 10px}
+.silo-tx-main details p{margin:2px 0;font-size:14px}
+.silo-tx-amount{font-family:var(--silo-mono);font-weight:400;font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums;align-self:flex-start;padding-top:8px}
+.silo-tx[data-kind=in] .silo-tx-amount{color:var(--silo-zone-text)}
+.silo-empty{font-size:14px;color:var(--silo-muted);margin:0;padding:10px 0}
+
+/* Backup, recovery and tools */
+.silo-tools{display:grid;gap:10px}
+.silo-tools>.exposure-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.silo-saved{display:flex;gap:10px;align-items:flex-start;font-size:14px!important;margin:0!important}
+.silo-saved::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--silo-warn);margin-top:7px;flex:none}
+.silo-saved[data-state=ok]::before{background:var(--silo-ok)}
+.silo-verify-ok{color:var(--silo-ok)!important}
+.silo-verify-fail{color:var(--silo-danger)!important}
+.silo-busy{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--silo-info-line);background:var(--silo-info-bg);border-radius:var(--silo-radius-sm);padding:12px 14px;font-size:14px!important;margin:12px 0 0!important}
+.silo-busy::before{content:'';width:14px;height:14px;border-radius:50%;border:2px solid var(--silo-text);border-right-color:transparent;animation:silo-spin .8s linear infinite;flex:none;margin-top:3px}
+@keyframes silo-spin{to{transform:rotate(360deg)}}
+.silo-backup-gate h3{margin:0 0 8px}.silo-backup-gate{border:0;border-left:4px solid var(--silo-warn);border-radius:var(--silo-radius-sm);padding:16px}
+.silo-backup-gate>p{margin:0 0 12px}
+.silo-backup-steps{display:grid;gap:18px;margin:12px 0;padding:0;list-style:none;counter-reset:silo-step}.silo-backup-steps li{display:block;counter-increment:silo-step}.silo-backup-steps li>*+*{margin-top:8px}.silo-backup-steps li>strong{display:block}.silo-backup-steps li[data-done]>strong{text-decoration:line-through;opacity:.7}.silo-quiz{margin-top:10px}
+.silo-native-handoff{border-top:1px solid var(--silo-line);padding-top:14px}
+
+/* Solana account page: identity window (outline) → address and balance → actions → network and visibility → activity → holdings and receive → send. */
+.silo-app .silo-wallet-controls>#silo-public.silo-account-page{border:0;border-radius:0;padding:0;overflow:visible;background:none;gap:22px}
+.silo-app .silo-wallet-controls>#silo-public.silo-account-page>*{margin-left:0;margin-right:0}
+.silo-app .silo-wallet-controls>#silo-public.silo-account-page>p[role=alert]{order:0;margin:0}
+.silo-acct-head{order:-2;display:flex;align-items:center;gap:12px;padding:20px;border:2px solid var(--silo-public);border-radius:var(--silo-radius)}
+.silo-acct-head>div{display:grid;gap:2px;min-width:0}
+.silo-app .silo-acct-head h2{margin:0;font-size:28px;line-height:32px;letter-spacing:-.04em}
+.silo-acct-head .silo-zone-network{opacity:1;color:var(--silo-text-2)}
+.silo-acct-head .silo-tag{margin-left:auto;border:0;padding:0;height:auto;text-transform:none;letter-spacing:0;font-size:14px}
+.silo-acct-summary{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
+.silo-acct-identity{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-width:0}
+.silo-acct-status{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--silo-text)}
+.silo-acct-status::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--silo-ok)}
+.silo-app .silo-wallet-controls .silo-acct-identity .exposure-address{flex:1 1 320px;margin:0;padding:10px 14px;font-size:14px;line-height:1.6}
+.silo-app .silo-wallet-controls .silo-acct-identity .silo-acct-disconnect{min-height:44px;padding:0 16px;font-size:14px}
+.silo-acct-balance{display:grid;gap:2px;min-width:0}
+.silo-app .silo-wallet-controls .silo-acct-balance .silo-public-balance{font-size:56px!important;line-height:56px;letter-spacing:-.04em;margin:0!important;overflow-wrap:anywhere}
+.silo-app .silo-wallet-controls .silo-acct-balance .exposure-note{margin:0}
+.silo-acct-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,132px),1fr));gap:12px}
+.silo-app .silo-wallet-controls .silo-acct-actions>:is(button,a){display:inline-flex;align-items:center;justify-content:center;gap:0;min-width:0;min-height:52px;padding:0 12px;border:1.5px solid var(--silo-control-line);border-radius:var(--silo-pill);background:transparent;color:var(--silo-text);font-size:16px;font-weight:600;text-decoration:none;line-height:20px;text-align:center}
+.silo-app .silo-wallet-controls .silo-acct-actions>:first-child{background:var(--silo-primary);border-color:var(--silo-primary);color:var(--silo-on-primary)}
+.silo-app .silo-wallet-controls .silo-acct-actions>:is(button,a):not(:first-child):hover{background:var(--silo-hover)}
+.silo-app .silo-wallet-controls .silo-acct-actions>:first-child:hover{box-shadow:0 0 0 4px var(--silo-primary-ring)}
+.silo-acct-facts{display:grid;grid-template-columns:minmax(0,1fr);gap:0;margin:0;padding:4px 0;border-top:1px solid var(--silo-line);border-bottom:1px solid var(--silo-line)}
+.silo-app .silo-acct-facts>div{display:block;margin:0;padding:10px 0;min-width:0;text-align:left;font-size:14px}
+.silo-app .silo-acct-facts dt{font-size:14px;line-height:20px;font-weight:600;margin:0 0 2px}
+.silo-app .silo-acct-facts dd{margin:0;font-size:14px;line-height:20px;color:var(--silo-text-2);text-align:left}
+.silo-acct-columns{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;align-items:start}
+.silo-acct-holdings>h3{margin:0}
+#silo-sol-receive,#silo-sol-send{scroll-margin-top:24px}
+#silo-public.silo-account-page>.silo-send{order:0}
+
+/* Solana zone and network tabs */
+.silo-public-connection{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.silo-public-connection span{display:inline-flex;align-items:center;gap:8px;font-weight:600}
+.silo-public-connection span::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--silo-ok)}
+.silo-public-balance{font-size:clamp(34px,4vw,48px)!important;letter-spacing:-.05em;margin:6px 0!important;color:var(--silo-text)!important;line-height:1.05}
+.silo-network-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:0;margin-bottom:24px;max-width:640px}
+.silo-network-tabs button{display:flex;align-items:center;justify-content:flex-start;gap:10px;min-height:48px;padding:0 14px 0 8px;border:1.5px solid var(--silo-control-line);border-radius:var(--silo-pill);background:transparent;color:var(--silo-text);font-size:16px;font-weight:600;text-align:left}
+.silo-network-tabs button:hover{background:var(--silo-hover)}
+.silo-network-tabs button .silo-asset-icon{width:32px;height:32px;font-size:14px}
+.silo-network-tabs button[aria-pressed=true]{background:var(--silo-text);border-color:var(--silo-text);color:var(--silo-bg)}
+.silo-costs{width:100%;border-collapse:collapse;font-size:14px}
+.silo-costs caption{text-align:left;font-size:14px;color:var(--silo-muted);padding-bottom:6px}
+.silo-costs th,.silo-costs td{padding:10px 0;border-bottom:1px solid var(--silo-line);vertical-align:top}
+.silo-app .silo-costs th{text-align:left;font-weight:600;color:var(--silo-text-2)}
+.silo-app .silo-costs td{color:var(--silo-text)}
+.silo-app .exposure-note,.silo-app.exposure-shell .exposure-note{color:var(--silo-muted)}
+.silo-costs td{text-align:right;font-family:var(--silo-mono);font-weight:400}
+.silo-costs td small{display:block;font-family:var(--silo-font);font-weight:600;color:var(--silo-muted);font-size:14px}
+.silo-cost-total th,.silo-cost-total td{border-bottom:0;color:var(--silo-text)}
+.silo-cost-flag{color:var(--silo-warn)}
+.silo-privacy-tag,.silo-soon-label{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:var(--silo-pill);font-size:14px;font-weight:600;border:1.5px solid var(--silo-public);color:var(--silo-public-text)}
+.silo-soon-label{border:1.5px dashed var(--silo-control-line);color:var(--silo-text-2)}
+.silo-quote-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:var(--silo-pill);font-size:14px;justify-self:start;padding:0 22px}
+
+/* Token holdings: on-chain names are anyone's, so only Silo's known mints carry the check; others are marked Unverified. */
+.silo-token-list .silo-tx-main strong,.silo-token-title{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
+.silo-token-symbol{font-size:14px;font-weight:600;color:var(--silo-muted)}
+.silo-token-verified{color:var(--silo-ok);flex:none}
+.silo-unverified{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--silo-pill);background:var(--silo-warn-bg);border:1.5px solid var(--silo-warn-line);color:var(--silo-warn);font-size:14px;font-weight:600;white-space:nowrap}
+.silo-token-mint{display:flex!important;align-items:center;gap:4px}
+.silo-app .silo-token-copy,.silo-app .silo-wallet-controls .silo-token-copy{display:inline-grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:var(--silo-pill);background:transparent;color:var(--silo-muted);cursor:pointer;flex:none}
+.silo-app .silo-token-copy:hover,.silo-app .silo-token-copy:focus-visible,.silo-app .silo-wallet-controls .silo-token-copy:not(:disabled):hover{background:var(--silo-hover);color:var(--silo-text)}
+.silo-token-amount{display:grid;justify-items:end;gap:2px;text-align:right;white-space:nowrap;font-family:var(--silo-mono);font-weight:400;font-variant-numeric:tabular-nums}
+.silo-token-amount small{font-family:var(--silo-font);font-size:14px;color:var(--silo-muted);font-weight:600}
+.silo-tag svg,.silo-app .silo-new-address button svg{color:currentColor}
+
+/* Wallet picker */
+.silo-picker-backdrop{position:fixed;inset:0;background:#000000b3;display:grid;place-items:center;z-index:30;padding:16px}
+.silo-network-picker{width:min(460px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--silo-panel);color:var(--silo-text);border:1px solid var(--silo-line-strong);border-radius:var(--silo-radius);padding:20px;display:grid;gap:6px}
+.silo-network-picker .silo-section-heading{display:flex;align-items:center;justify-content:space-between}
+.silo-network-picker .silo-section-heading h2{margin:0;font-size:22px;line-height:26px;letter-spacing:-.02em}
+.silo-network-picker .silo-section-heading button{width:48px;height:48px;border-radius:var(--silo-pill);border:1.5px solid var(--silo-control-line);background:transparent;font-size:22px;line-height:1}
+.silo-network-picker>p{margin:0 0 8px;color:var(--silo-text-2);font-size:16px;line-height:24px}
+.silo-picker-choice>button{display:flex;align-items:center;gap:12px;min-height:68px;padding:10px 12px;border:0;border-bottom:1px solid var(--silo-line);border-radius:0;background:none;text-align:left}
+.silo-picker-choice>button:not(:disabled):hover{background:var(--silo-raised);border-radius:var(--silo-radius-sm)}
+.silo-picker-choice>button:disabled{opacity:1;color:var(--silo-disabled)}
+.silo-picker-choice>button>span:not(.silo-asset-icon){flex:1 1 auto;display:grid;gap:2px;font-weight:600}
+.silo-picker-choice>button small{font-weight:600;color:var(--silo-text-2);font-size:14px}
+.silo-picker-choice>button:disabled>svg{visibility:hidden}
+
+/* Footer */
+.silo-app-footer{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;justify-content:space-between;margin-top:40px;max-width:640px;padding-top:16px;border-top:1px solid var(--silo-line);font-size:14px;line-height:20px;color:var(--silo-muted)}
+.silo-app-footer a{display:inline-flex;align-items:center;gap:4px;text-decoration:none;min-height:44px}
+.silo-app-footer a:hover{color:var(--silo-text)}
+/* The site's own light-theme sheet recolours bare `dt` and `footer` (html[data-theme=light] :is(dt,footer)); the wallet keeps its own tokens. */
+.silo-app .silo-app-footer,.silo-app .silo-app-footer *{color:var(--silo-muted)!important}
+.silo-app .silo-app-footer a:hover,.silo-app .silo-app-footer a:hover *{color:var(--silo-text)!important}
+.silo-app dt{color:var(--silo-muted)!important}
+.silo-app .silo-setting .silo-disclosure dt{color:var(--silo-text)!important}
+.silo-build code{font-size:14px;word-break:break-all}
+.silo-appearance-settings .silo-theme-control{max-width:300px}.silo-appearance-settings .silo-theme-control p{position:static;margin-top:12px;width:auto}
+
+/* ───────── Settings: grouped by task, each with a purpose line and its own actions ───────── */
+.silo-app .silo-wallet-controls>.silo-setting{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start;padding:0;border:0;border-radius:0}
+.silo-app .silo-setting>header h2{margin:0 0 4px;font-size:22px;line-height:26px;letter-spacing:-.02em}
+.silo-app .silo-setting>header p{margin:0;font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-app .silo-setting-body{display:grid;gap:16px;min-width:0}
+.silo-app .silo-setting-body>p{margin:0}
+.silo-app .silo-setting-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;padding-bottom:16px;border-bottom:1px solid var(--silo-line)}
+.silo-app .silo-setting-row:last-child{border-bottom:0;padding-bottom:0}
+.silo-app .silo-setting-row>div:first-child{display:grid;gap:2px;min-width:0}
+.silo-app .silo-setting-row strong{font-size:16px;line-height:24px}
+.silo-app .silo-setting-row p{margin:0;font-size:14px;line-height:20px;color:var(--silo-text-2);max-width:52ch}
+.silo-app .silo-setting-row .silo-theme-control{flex:none}
+.silo-app .silo-setting-row button[aria-pressed=true]{background:var(--silo-text);color:var(--silo-bg);border-color:var(--silo-text)}
+.silo-app .silo-setting .silo-disclosure{margin:0;gap:0}
+.silo-app .silo-setting .silo-disclosure dt{margin:0;padding:14px 0 2px;border-top:1px solid var(--silo-line)}
+.silo-app .silo-setting .silo-disclosure dt:first-child{border-top:0;padding-top:0}
+.silo-app .silo-setting .silo-disclosure dd{padding-bottom:8px;text-align:left;justify-self:start}
+.silo-app .silo-setting .silo-disclosure dt{font-size:14px;color:var(--silo-text);font-weight:600}
+.silo-app .silo-setting-row .silo-theme-control label{font-size:0;gap:0}
+.silo-app .silo-setting-row button{white-space:normal;min-width:0}
+.silo-app .silo-setting-row .exposure-actions{flex-direction:column;align-items:stretch}
+
+/* ───────── Swap: one compact slip ───────── */
+.silo-app .silo-wallet-controls>#silo-swap{background:none;border:0;padding:0}
+.silo-app .silo-swap-panel{--silo-zone:var(--silo-public);--silo-zone-text:var(--silo-public-text);--silo-on-zone:var(--silo-on-public);--silo-zone-soft:var(--silo-public-soft);display:block;min-width:0}
+.silo-app .silo-swap-panel .silo-swap-layout{display:grid;grid-template-columns:minmax(0,620px) minmax(240px,320px);gap:48px;align-items:start}
+.silo-app .silo-swap-panel :is(.silo-swap-main,.silo-swap-managed,.silo-swap-exact-review){display:grid;gap:14px;min-width:0}
+.silo-app .silo-swap-panel .silo-swap-side{display:grid;gap:28px;min-width:0;align-content:start}
+.silo-app .silo-swap-panel p{margin:0;line-height:1.5;color:var(--silo-text-2)}
+.silo-app .silo-swap-panel :is(.silo-swap-small,.silo-swap-eyebrow){font-size:14px;line-height:1.5;color:var(--silo-muted)}
+.silo-app .silo-swap-panel .silo-swap-eyebrow{font-size:12px;letter-spacing:.08em;font-weight:600;text-transform:uppercase}
+.silo-app .silo-swap-panel .silo-swap-between{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.silo-app .silo-swap-panel .silo-swap-public{display:flex;align-items:center;gap:12px;padding:12px 16px;border:2px solid var(--silo-public);border-radius:var(--silo-radius-md);color:var(--silo-text)}
+.silo-app .silo-swap-panel .silo-swap-public svg{flex:none;color:var(--silo-public-text)}
+.silo-app .silo-swap-panel .silo-swap-public strong{font-size:14px;display:block}
+.silo-app .silo-swap-panel .silo-swap-public p{font-size:14px;margin-top:2px;color:var(--silo-text-2)}
+.silo-app .silo-swap-panel .silo-swap-chip{display:inline-flex;align-items:center;gap:6px;max-width:100%;padding:0;border:0;font-size:14px;line-height:20px;color:var(--silo-text-2);font-weight:600}
+.silo-app .silo-swap-panel .silo-swap-chip[data-state=held]{color:var(--silo-warn)}
+.silo-app .silo-swap-panel .silo-swap-chip[data-state=verified]{color:var(--silo-ok)}
+.silo-app .silo-swap-panel .silo-swap-chip[data-state=danger]{color:var(--silo-danger)}
+/* The slip: pay and receive sit in one window so the trade reads as a single object. */
+.silo-app .silo-swap-panel .silo-swap-tradeboxes{display:grid;gap:12px;min-width:0;padding:0;position:relative}
+.silo-app .silo-swap-panel .silo-swap-tradebox{display:grid;gap:10px;padding:20px;border-radius:var(--silo-radius);background:var(--silo-bg);min-width:0;border:2px solid var(--silo-public)}
+.silo-app .silo-swap-panel .silo-swap-tradebox:focus-within{outline:3px solid var(--silo-focus);outline-offset:3px}
+.silo-app .silo-swap-panel .silo-swap-tradebox>.silo-swap-between>label,.silo-app .silo-swap-panel .silo-swap-tradebox>.silo-swap-between>span:first-child{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--silo-muted)}
+.silo-app .silo-swap-panel .silo-swap-flip{width:44px;height:44px;border:4px solid var(--silo-bg);border-radius:50%;display:grid;place-items:center;background:var(--silo-text);color:var(--silo-bg);justify-self:center;margin:-28px 0;z-index:1;transform:rotate(90deg)}
+.silo-app .silo-swap-panel .silo-swap-asset-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.silo-app .silo-swap-panel :is(.silo-swap-amount,input.silo-swap-amount-input){font-family:var(--silo-font);font-weight:600;font-size:clamp(34px,4.4vw,48px);letter-spacing:-.05em;line-height:1.15;min-width:0;flex:1 1 auto;overflow-wrap:anywhere}
+.silo-app .silo-swap-panel input.silo-swap-amount-input{width:100%;border:0!important;border-radius:0!important;padding:0!important;background:none!important;min-height:56px;color:var(--silo-text)}
+.silo-app .silo-swap-panel input.silo-swap-amount-input::placeholder{color:var(--silo-muted);opacity:1}
+.silo-app .silo-swap-panel .silo-swap-amount[data-stale=true]{color:var(--silo-muted)}
+.silo-token-pick{position:relative;display:inline-flex;align-items:center;flex:none}
+.silo-token-pick>svg{position:absolute;right:14px;pointer-events:none;color:var(--silo-text)}
+.silo-app .silo-swap-panel select.silo-swap-token-select{appearance:none;-webkit-appearance:none;width:auto;min-width:112px;min-height:48px;padding:0 40px 0 18px;border-radius:var(--silo-pill);background:var(--silo-raised);border:1.5px solid var(--silo-control-line);font-size:16px;font-weight:600}
+.silo-app .silo-swap-panel :is(.silo-swap-card,.silo-swap-discovery){border:1.5px solid var(--silo-line-strong);background:none;border-radius:var(--silo-radius-md);padding:16px 18px;min-width:0;display:grid;gap:12px}
+.silo-app .silo-swap-panel .silo-swap-card h3{font-size:22px;letter-spacing:-.03em;margin:0}
+.silo-app .silo-swap-panel .silo-swap-discovery{padding:0 18px}
+.silo-app .silo-swap-panel .silo-swap-discovery>summary{display:flex;gap:10px;align-items:center;font-size:14px;min-height:52px;padding:0;list-style:none}
+.silo-app .silo-swap-panel .silo-swap-discovery>summary::after{margin-left:auto}
+.silo-app .silo-swap-panel .silo-swap-discovery[open]{padding-bottom:18px}
+.silo-app .silo-swap-panel .exposure-address{display:flex;flex-wrap:wrap;gap:0 5px;background:none;min-width:0;width:100%;max-width:100%;font-family:var(--silo-mono);font-size:12px;line-height:1.8;text-align:left;word-break:normal;overflow-wrap:anywhere;padding:0;margin:0;color:var(--silo-text)}
+.silo-app .silo-swap-panel .silo-address-group{white-space:normal;overflow-wrap:anywhere}
+.silo-app .silo-swap-panel .silo-swap-kv{margin:0;display:grid;gap:0}
+.silo-app .silo-swap-panel .silo-swap-kv>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:14px;padding:12px 0;border-bottom:1px solid var(--silo-line);align-items:baseline;min-width:0}
+.silo-app .silo-swap-panel .silo-swap-kv>div:last-child{border:0}
+.silo-app .silo-swap-panel .silo-swap-kv dt{color:var(--silo-text-2);font-size:14px;font-weight:600;line-height:1.4}
+.silo-app .silo-swap-panel .silo-swap-kv dd{margin:0;font-size:14px;line-height:1.5;min-width:0;text-align:right;overflow-wrap:anywhere}
+.silo-app .silo-swap-panel .silo-swap-kv dd small{display:block;color:var(--silo-muted);font:600 13px/1.5 var(--silo-font);margin-top:3px}
+.silo-app .silo-swap-panel .silo-swap-mono{font-family:var(--silo-mono);font-weight:400;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.silo-app .silo-swap-panel .silo-swap-notice{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border:1.5px solid var(--silo-line-strong);border-radius:var(--silo-radius-md);background:none;font-size:14px}
+.silo-app .silo-swap-panel .silo-swap-notice>svg{flex:none;margin-top:2px}
+.silo-app .silo-swap-panel .silo-swap-notice>div{flex:1 1 auto;min-width:0}
+.silo-app .silo-swap-panel .silo-swap-notice strong{display:block;margin-bottom:3px;font-size:14px}
+.silo-app .silo-swap-panel .silo-swap-notice>.silo-button{flex:none;align-self:center}
+.silo-app .silo-swap-panel .silo-swap-notice[data-tone=warn]{border-color:var(--silo-warn);background:var(--silo-warn-bg)}
+.silo-app .silo-swap-panel .silo-swap-notice[data-tone=warn]>svg{color:var(--silo-warn)}
+.silo-app .silo-swap-panel .silo-swap-notice[data-tone=danger]{border-color:var(--silo-danger);background:var(--silo-danger-bg)}
+.silo-app .silo-swap-panel .silo-swap-notice[data-tone=danger]>svg{color:var(--silo-danger)}
+.silo-app .silo-swap-panel .silo-swap-actions{display:flex;flex-wrap:wrap;gap:12px}
+.silo-app .silo-swap-panel .silo-swap-actions>*{flex:1 1 auto;min-width:0}
+.silo-app .silo-swap-panel .silo-swap-primary{width:100%;min-height:52px;font-size:16px}
+.silo-app .silo-swap-panel .silo-swap-consent{display:flex;align-items:flex-start;gap:12px;font-size:14px;line-height:1.5;color:var(--silo-text-2);font-weight:600}
+.silo-app .silo-swap-panel .silo-swap-consent input{flex:none;margin-top:1px;padding:0}
+.silo-swap-rail h3{margin:0 0 14px;padding-bottom:8px;border-bottom:2px solid var(--silo-text);font-size:16px}
+.silo-app .silo-swap-panel .silo-swap-status{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.silo-app .silo-swap-panel .silo-swap-mintline{display:flex;align-items:baseline;gap:8px;min-width:0;font-size:14px;color:var(--silo-muted)}
+.silo-app .silo-swap-panel .silo-swap-mintline>span{flex:none}
+.silo-app .silo-swap-panel .silo-swap-mintline .exposure-address{font-size:14px;line-height:1.5;padding:0;margin:0}
+.silo-app .silo-swap-panel .silo-swap-finder{display:grid;gap:8px;padding-top:6px}
+.silo-app .silo-swap-panel .silo-swap-finder>label{font-size:14px;color:var(--silo-text-2)}
+.silo-app .silo-swap-panel .silo-swap-finder-row{position:relative}
+.silo-app .silo-swap-panel .silo-swap-finder-row>svg{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--silo-muted);pointer-events:none}
+.silo-app .silo-swap-panel .silo-swap-finder-row>input{padding-left:44px;border-radius:var(--silo-pill)}
+.silo-app .silo-swap-panel .silo-swap-rate{display:grid;gap:10px;padding-top:14px;border-top:1px solid var(--silo-line)}
+.silo-app .silo-swap-panel .silo-swap-steps{list-style:none;margin:0 0 18px;padding:0;display:grid}
+.silo-app .silo-swap-panel .silo-swap-steps li{display:flex;gap:12px;margin:0;padding:0 0 16px;position:relative}
+.silo-app .silo-swap-panel .silo-swap-steps li:not(:last-child)::before{content:'';position:absolute;left:13px;top:30px;bottom:2px;width:2px;background:var(--silo-line-strong)}
+.silo-app .silo-swap-panel .silo-swap-steps li>span{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:14px;background:var(--silo-text);color:var(--silo-bg)}
+.silo-app .silo-swap-panel .silo-swap-steps li[data-step=held]>span{background:none;border:2px dashed var(--silo-control-line);color:var(--silo-text-2)}
+.silo-app .silo-swap-panel .silo-swap-steps strong{display:block;font-size:14px}
+.silo-app .silo-swap-panel .silo-swap-steps p{font-size:14px;margin-top:2px}
+.silo-app .silo-swap-panel .silo-swap-facts{list-style:none;margin:0 0 12px;padding:14px 0 0;border-top:1px solid var(--silo-line);display:grid;gap:10px}
+.silo-app .silo-swap-panel .silo-swap-facts li{display:flex;gap:10px;align-items:flex-start;margin:0}
+.silo-app .silo-swap-panel .silo-swap-facts svg{flex:none;margin-top:3px;color:var(--silo-text)}
+.silo-app .silo-swap-panel .silo-swap-facts p{font-size:14px}
+.silo-app .silo-swap-panel .silo-swap-facts strong{color:var(--silo-text)}
+.silo-swap-soon{display:grid;gap:8px;padding:18px 20px;border:2px dashed var(--silo-control-line);border-radius:var(--silo-radius-md);justify-items:start}
+.silo-swap-soon h3{margin:0;font-size:18px}
+.silo-app .silo-swap-panel .silo-swap-token-results{display:grid;gap:12px;padding:0;margin:0;list-style:none}
+.silo-app .silo-swap-panel .silo-swap-token-results li{display:grid;gap:8px;padding:14px 0;border-top:1px solid var(--silo-line);min-width:0;margin:0}
+.silo-app .silo-swap-panel .silo-swap-token-results li>div{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline}
+.silo-app .silo-swap-panel .silo-swap-token-results li>div>span{font-size:14px;color:var(--silo-muted)}
+.silo-app .silo-swap-panel .silo-swap-exact-review header h3{font-size:clamp(28px,3.4vw,36px);letter-spacing:-.045em;line-height:1.05;margin:4px 0 12px}
+.silo-app .silo-swap-panel .silo-swap-review-assets{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.silo-app .silo-swap-panel .silo-swap-review-assets .silo-swap-card strong.silo-swap-amount{font-size:clamp(26px,3vw,34px)}
+.silo-app .silo-swap-panel .silo-swap-mint-fact{display:grid;gap:6px;padding-top:12px;border-top:1px solid var(--silo-line)}
+.silo-app .silo-swap-panel .silo-swap-timeline{list-style:none;padding:0;margin:2px 0;display:grid}
+.silo-app .silo-swap-panel .silo-swap-timeline li{display:flex;gap:12px;padding-bottom:18px;position:relative;margin:0}
+.silo-app .silo-swap-panel .silo-swap-timeline li:last-child{padding-bottom:0}
+.silo-app .silo-swap-panel .silo-swap-timeline li:not(:last-child)::before{content:'';position:absolute;top:28px;bottom:0;left:13px;width:2px;background:var(--silo-line-strong)}
+.silo-app .silo-swap-panel .silo-swap-timeline li>span{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:50%;background:var(--silo-bg);border:2px dashed var(--silo-control-line);color:var(--silo-muted)}
+.silo-app .silo-swap-panel .silo-swap-timeline li[data-step=verified]>span{color:var(--silo-ok);border:2px solid var(--silo-ok)}
+.silo-app .silo-swap-panel .silo-swap-timeline li[data-step=unknown]>span{color:var(--silo-warn);border:2px solid var(--silo-warn)}
+.silo-app .silo-swap-panel .silo-swap-timeline strong{display:block;font-size:14px}
+.silo-app .silo-swap-panel .silo-swap-timeline small{display:block;font-size:14px;color:var(--silo-muted);line-height:1.5}
+.silo-app .silo-swap-panel .silo-swap-main:is(:has(.silo-swap-exact-review),:has(.silo-swap-timeline))>:is(.silo-swap-tradeboxes,.silo-swap-finder,.silo-swap-rate){display:none}
+.silo-app .silo-swap-panel button.silo-swap-edit{display:flex;background:none;border:0;min-height:44px;justify-content:flex-start;padding:0;color:var(--silo-text);font-size:14px;margin-bottom:6px;text-decoration:underline}
+.silo-app .silo-swap-panel button:is(.silo-primary,.silo-swap-primary):disabled{background:color-mix(in srgb,var(--silo-text) 9%,transparent)!important;border:2px solid transparent!important;color:var(--silo-disabled)!important}
+
+/* ───────── View switching: every zone stays mounted; the shell shows the parts of the current view ───────── */
+.silo-app[data-view=overview] .silo-wallet-controls{display:none}
+.silo-app[data-view=swap] .silo-wallet-controls>section:not(#silo-swap):not(#silo-conversion):not(#silo-atomic):not(.silo-conv-deposit){display:none}
+.silo-app[data-view=swap][data-task=swap] .silo-conv-deposit{display:none}
+.silo-app:not([data-view=swap]) .silo-conv-deposit{display:none}
+.silo-app[data-view=swap][data-task=swap] #silo-conversion{display:none}
+.silo-app[data-view=swap][data-task=cashout] #silo-swap{display:none}
+.silo-app:not([data-view=swap][data-task=atomic]) #silo-atomic{display:none}
+.silo-app[data-view=swap][data-task=atomic] #silo-swap,.silo-app[data-view=swap][data-task=atomic] #silo-conversion,.silo-app[data-view=swap][data-task=atomic] .silo-conv-deposit{display:none}
+.silo-app[data-view=swap] .silo-wallet-controls{max-width:1008px}
+.silo-app[data-view=wallets] .silo-wallet-controls>section:not(#silo-xmr):not(#silo-zec):not(#silo-public):not(#silo-evm):not(.silo-hold){display:none}
+.silo-app[data-view=wallets][data-network=xmr] #silo-zec,.silo-app[data-view=wallets][data-network=xmr] #silo-public,.silo-app[data-view=wallets][data-network=zec] #silo-xmr,.silo-app[data-view=wallets][data-network=zec] #silo-public,.silo-app[data-view=wallets][data-network=sol] #silo-xmr,.silo-app[data-view=wallets][data-network=sol] #silo-zec,.silo-app[data-view=wallets][data-network=xmr] #silo-evm,.silo-app[data-view=wallets][data-network=zec] #silo-evm,.silo-app[data-view=wallets][data-network=sol] #silo-evm,.silo-app[data-view=wallets][data-network=evm] #silo-xmr,.silo-app[data-view=wallets][data-network=evm] #silo-zec,.silo-app[data-view=wallets][data-network=evm] #silo-public{display:none}
+.silo-app[data-view=wallets] .silo-hold{display:none}
+/* Settings: an index of grouped rows; each row opens one page, and only that page's sections show. */
+.silo-app[data-view=settings] .silo-wallet-controls>section{display:none}
+.silo-app[data-view=settings][data-page=display] .silo-wallet-controls>#silo-display,
+.silo-app[data-view=settings][data-page=backup] .silo-wallet-controls>#silo-backup-settings,
+.silo-app[data-view=settings][data-page=devices] .silo-wallet-controls>#silo-account,
+.silo-app[data-view=settings][data-page=fees] .silo-wallet-controls>:is(#silo-economics,#silo-boundaries,#silo-next),
+.silo-app[data-view=settings][data-page=build] .silo-wallet-controls>.silo-hold{display:grid}
+.silo-app[data-view=settings][data-page=index] .silo-wallet-controls{display:none}
+.silo-app[data-view=settings][data-page=about] .silo-wallet-controls{display:none}
+/* Activity: the mounted zones show only their activity lists (loading stays behind the existing consent). */
+.silo-app[data-view=activity] .silo-wallet-controls>section:not(#silo-public):not(#silo-xmr){display:none}
+.silo-app[data-view=activity] #silo-public>*:not([aria-label="Solana activity"]):not([role=alert]){display:none}
+.silo-app[data-view=activity] #silo-xmr>*{display:none}
+.silo-app[data-view=activity] #silo-xmr>:has(#silo-xmr-activity){display:block}
+.silo-app[data-view=activity] #silo-xmr .silo-wallet-col:not(:has(#silo-xmr-activity)){display:none}
+.silo-app[data-view=activity] #silo-xmr .silo-wallet-col>*:not(#silo-xmr-activity){display:none}
+.silo-app:not([data-view=activity]) .silo-activity-notes{display:none}
+.silo-activity-notes{display:grid;gap:12px;margin:0 0 20px;max-width:640px}
+.silo-app[data-view=settings] .silo-wallet-controls{max-width:640px}
+/* Selector: name and icon only; its status is text outside it. */
+.silo-selector{display:flex;flex-wrap:wrap;gap:8px}
+.silo-selector button{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 16px 0 12px;border-radius:var(--silo-pill);border:1.5px solid var(--silo-control-line);background:transparent;color:var(--silo-text);font-size:16px;line-height:20px}
+.silo-selector button:hover{background:var(--silo-hover)}
+.silo-selector button[aria-checked=true]{background:var(--silo-text);color:var(--silo-bg);border-color:var(--silo-text)}
+.silo-task{display:grid;gap:8px;max-width:640px;margin:0 0 24px}
+.silo-task p{margin:0}
+/* Settings index and sub-page navigation */
+.silo-settings-groups{display:grid;gap:32px;max-width:640px}
+.silo-group{display:grid;gap:4px}
+.silo-link-row{display:flex;align-items:center;gap:12px;width:100%;min-height:72px;padding:12px 8px;border:0;border-bottom:1px solid var(--silo-line);border-radius:0;background:none;color:var(--silo-text);text-align:left;font-size:16px;line-height:24px;text-decoration:none}
+.silo-link-row:hover{background:var(--silo-hover);border-radius:var(--silo-radius-sm)}
+.silo-link-row>span{display:grid;gap:2px;flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.silo-link-row small{font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-link-row>svg{flex:none;color:var(--silo-muted)}
+.silo-back{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0;margin:0 0 8px;border:0;background:none;color:var(--silo-text);font-size:16px;text-decoration:underline;text-underline-offset:4px}
+.silo-about{display:grid;gap:20px;max-width:640px}
+.silo-about dl{display:grid;gap:0;margin:0}
+.silo-about dl>div{display:grid;gap:2px;padding:12px 0;border-bottom:1px solid var(--silo-line)}
+.silo-about dd{margin:0;color:var(--silo-text-2);font-size:16px;line-height:24px;overflow-wrap:anywhere}
+
+/* ───────── Responsive: bottom bar < 700, rail 700-1099, sidebar + context column >= 1100 ───────── */
+@media(min-width:1100px){
+ .silo-page-header h1{font-size:56px;line-height:56px}
+ .silo-main{padding:32px 40px 40px}
+}
+@media(max-width:1099px){
+ .silo-main{padding:32px 32px 40px}
+ .silo-home{grid-template-columns:minmax(0,640px);gap:32px}
+ .silo-home-side{padding-top:0}
+ .silo-app .silo-swap-panel .silo-swap-layout{grid-template-columns:minmax(0,1fr);gap:28px}
+ .silo-app .silo-swap-panel .silo-swap-main{max-width:640px}
+ .silo-app[data-view=swap] .silo-wallet-controls{max-width:640px}
+ .silo-app{grid-template-columns:88px minmax(0,1fr)}
+ .silo-sidebar{padding:16px 8px;align-items:center}
+ .silo-wordmark{padding:8px;margin:0 0 12px}
+ .silo-logo-full{display:none!important}
+ .silo-logo-compact{display:block!important}
+ .silo-beta{margin:0 0 14px}
+ .silo-sidebar-line,.silo-sidebar-bottom{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+ .silo-sidebar nav button{flex-direction:column;justify-content:center;gap:2px;width:72px;min-height:56px;padding:6px 4px;border-radius:var(--silo-radius-sm);font-size:14px;line-height:16px;text-align:center}
+}
+@media(min-width:700px){.silo-app .silo-view-tabs{display:none}}
+@media(max-width:699px){
+ .silo-app{display:block}
+ .silo-sidebar{display:none}
+ .silo-main{padding:16px 16px calc(96px + env(safe-area-inset-bottom))}
+ /* The Grainy helper sits above the bar in the bottom left corner; scrolled to the end, the last button clears both. */
+ body:has(.grainy) .silo-main{padding-bottom:calc(160px + env(safe-area-inset-bottom))}
+ /* Thumb zone: Home, Send, Swap, Activity and Settings span the full width of a fixed 64px bar, with the current place as an inverted pill. */
+ .silo-app .silo-view-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;position:fixed;left:0;right:0;bottom:0;z-index:20;padding:6px 10px calc(6px + env(safe-area-inset-bottom));background:var(--silo-bg);border-top:1px solid var(--silo-line-strong)}
+ /* iOS lifts a fixed bar above the keyboard; hide it while a text field is focused (components/silo-keyboard-guard.tsx). transform keeps its box measurable for the Grainy corner. */
+ html[data-silo-keyboard] .silo-app .silo-view-tabs{transform:translateY(110%);pointer-events:none}
+ .silo-view-tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;min-height:56px;padding:4px 0;border:0;border-radius:var(--silo-radius-sm);background:none;color:var(--silo-text-2);font-size:14px;line-height:16px;font-weight:600}
+ .silo-view-tabs button[aria-current=page]{background:var(--silo-text);color:var(--silo-bg)}
+ .silo-network-band{margin:0 0 16px;padding:8px 12px;gap:2px 12px}
+ .silo-network-band p{flex:1 1 100%;border-radius:var(--silo-radius-sm);padding:6px 10px}
+ /* Devnet and stagenet are already named in the band; the long test-funds sentence stays for assistive tech. Mainnet's real-funds sentence is always shown. */
+ .silo-network-band[data-solana=devnet] p{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;padding:0;border:0}
+ .silo-page-header{margin-bottom:20px;align-items:flex-start}
+ /* On a phone the approved symbol stands in for the wordmark (owner preference); clear space is half its height. */
+ .silo-title{flex-direction:column;gap:12px}
+ .silo-mobile-logo{display:block;flex:none;width:32px;height:34px}
+ .silo-theme-control label{font-size:0}.silo-app .silo-theme-control select{max-width:96px;font-size:14px}
+ .silo-home{gap:24px}
+ .silo-home-main{gap:24px}
+ .silo-window{padding:20px 16px}
+ .silo-hero{font-size:40px;line-height:44px}
+ .silo-account{gap:10px;padding:12px 4px}
+ .silo-account-token{padding-left:24px}
+ .silo-zone-head .silo-tag{margin-left:0}
+ .silo-app .silo-wallet-controls>.silo-off{padding:16px!important;gap:12px}
+ .silo-grain-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .silo-unlock>.exposure-actions,.silo-tools>.exposure-actions{grid-template-columns:minmax(0,1fr)}
+ .silo-app .silo-new-address{flex-direction:column;align-items:stretch;padding:14px}
+ .silo-app-footer{flex-direction:column;align-items:flex-start}
+ .silo-app .silo-swap-panel .silo-swap-tradebox{padding:16px}
+ .silo-app .silo-swap-panel .silo-swap-side,.silo-app .silo-swap-panel .silo-swap-review-assets{grid-template-columns:minmax(0,1fr)}
+ .silo-app .silo-swap-panel .silo-swap-kv>div{grid-template-columns:minmax(0,1fr);gap:4px}
+ .silo-app .silo-swap-panel .silo-swap-kv dd{text-align:left}
+ .silo-app .silo-swap-panel .silo-swap-notice{flex-wrap:wrap}
+ .silo-app .silo-swap-panel .silo-swap-notice>.silo-button{width:100%}
+ .silo-app .silo-swap-panel .silo-swap-public p{display:none}
+ /* Phones show the checking groups of a mint (first and last); the full mint is in the review and the finder. */
+ .silo-app .silo-swap-panel .silo-swap-mintline .silo-address-group:not(:first-child):not(:last-child){display:none}
+ .silo-app .silo-swap-panel .silo-swap-mintline .silo-address-group:first-child::after{content:" … ";color:var(--silo-muted)}
+ .silo-app .silo-swap-panel .silo-swap-finder-row+p{display:none}
+ .silo-app .silo-swap-panel{scroll-padding-bottom:160px}
+}
+@media(max-width:340px){
+ .silo-app .silo-view-tabs{padding-left:4px;padding-right:4px;gap:2px}
+ .silo-view-tabs button{padding:4px 0;min-width:0}
+ .silo-account{flex-wrap:wrap}
+ .silo-account>svg{display:none}
+ .silo-account-name{flex:1 1 100%}
+ .silo-account-value{max-width:100%;justify-items:start;text-align:left}
+ .silo-account-value small{text-align:left}
+ .silo-app .silo-swap-panel .silo-swap-asset-row{flex-wrap:wrap}
+ .silo-main{padding-left:12px;padding-right:12px}
+ .silo-page-header h1{font-size:28px;line-height:32px}
+ .silo-hero{font-size:40px;line-height:40px}
+ .silo-view-tabs button{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){.silo-app *{transition:none!important;animation:none!important}}
+
+/* Native project marks retain their own colours and geometry. */
+.silo-asset-icon[data-asset=xmr]{background:#fff}
+.silo-asset-icon[data-asset=sol]{background:#101010;padding:6px}
+.silo-asset-icon[data-asset=eth],.silo-asset-icon[data-asset=base]{background:#fff;padding:6px}
+.silo-asset-icon[data-asset=bnb]{background:#101010;padding:6px}
+.silo-asset-icon img{object-fit:contain}
+.silo-asset-icon.silo-evm-icons{position:relative;background:transparent;overflow:visible}
+.silo-evm-icons img{position:absolute;width:26px;height:26px;padding:4px;background:#fff;border:1.5px solid var(--silo-bg);border-radius:50%}
+.silo-evm-icons img:nth-child(1){left:0;top:0}
+.silo-evm-icons img:nth-child(2){right:0;top:0}
+.silo-evm-icons img:nth-child(3){left:7px;bottom:0;background:#101010}
+
+/* Read-only native-conversion review, separate from the public Solana swap ticket. */
+.silo-app:not([data-view=swap]) #silo-conversion{display:none}
+.silo-app #silo-conversion{margin:0;border:0;border-radius:0;padding:0;background:none}
+.silo-app #silo-conversion header h2{font-size:22px;line-height:26px;letter-spacing:-.02em}
+.silo-app #silo-conversion .silo-setting-body{max-width:640px;display:grid;gap:16px}
+.silo-app #silo-conversion .silo-window{padding:20px}
+.silo-app #silo-conversion .silo-window input{background:transparent}
+.silo-app #silo-conversion .silo-window[data-zone=private] :where(label,.silo-label){color:#101010}
+
+/* Network labels stay inside the controls; availability and read status stay outside. */
+.silo-network-choice{display:grid;grid-template-rows:auto 1fr;gap:6px;min-width:0}
+.silo-network-choice>button{width:100%;min-width:0;justify-content:center;padding-inline:12px}
+.silo-network-choice>button strong{white-space:nowrap;overflow-wrap:normal;word-break:normal}
+.silo-network-status{display:block;text-align:left;font-size:14px;line-height:20px;color:var(--silo-text-2);overflow-wrap:anywhere;padding:0 8px}
+.silo-picker-choice{min-width:0;border-bottom:1px solid var(--silo-line);padding-bottom:10px}
+.silo-picker-choice>button{width:100%;border-bottom:0}
+.silo-picker-status{margin:0;padding:0 12px 0 56px;font-size:14px;line-height:20px;color:var(--silo-text-2);overflow-wrap:anywhere}
+@media(max-width:650px){.silo-network-choice>button{padding-inline:8px;gap:6px;font-size:14px}.silo-network-choice>button .silo-asset-icon{width:24px;height:24px}}
+@media(max-width:420px){.silo-network-choice>button{flex-direction:column;gap:3px;min-height:64px;padding-block:7px}}
+/* Extremely narrow surfaces keep complete network names and full touch targets. */
+@media(max-width:280px){
+ .silo-network-tabs{grid-template-columns:minmax(0,1fr)}
+ .silo-network-choice>button{flex-direction:row}
+}
+@media(max-width:280px){
+ .silo-page-header{flex-direction:column;align-items:stretch}
+ .silo-title-text{width:100%;min-width:0}
+ .silo-header-right{order:-1;align-self:flex-end}
+ .silo-app .silo-view-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+ .silo-view-tabs button{min-height:48px}
+ .silo-main{padding-bottom:160px}
+}
+.silo-network-choice>button .silo-evm-icons{width:36px;height:36px;flex:none}
+
+/* Closed beta (owner decisions, 21 October 2026): the standing notice, the pause state and the invitation gate. */
+.silo-beta-banner{display:flex;gap:10px;align-items:flex-start;margin:0 0 16px;padding:12px 14px;border:1px solid var(--grain-warning);border-radius:var(--silo-radius-sm);background:color-mix(in srgb,var(--grain-warning) 12%,transparent);font-size:14px;line-height:1.45}
+.silo-beta-banner svg{flex:none;margin-top:1px}
+.silo-beta-banner-paused{border-color:var(--silo-danger,#b42318);background:color-mix(in srgb,var(--silo-danger,#b42318) 12%,transparent)}
+.silo-beta-gate{max-width:440px;margin:32px auto;padding:24px;border:1px solid var(--silo-border,#2a2a2a);border-radius:var(--silo-radius-sm)}
+.silo-beta-gate label{display:block;margin:16px 0 12px;font-size:14px}
+.silo-beta-gate input{display:block;width:100%;margin-top:6px;padding:10px 12px;font:inherit;border:1px solid var(--silo-border,#2a2a2a);border-radius:var(--silo-radius-sm);background:transparent;color:inherit}
+.silo-beta-line{margin:4px 0 10px;font-size:12px;color:var(--grain-warning)}
+/* Send: one summary line, compact costs, one Send button; explanations fold away. */
+.silo-send-summary{font-size:18px;line-height:26px;margin:0 0 8px}
+.silo-send-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.silo-sent,.silo-sending{display:grid;gap:4px;margin:8px 0}
+.silo-sent p,.silo-sending p{margin:0}
+.silo-sent strong::before{content:'\2713  ';color:var(--silo-ok)}
+.silo-app .silo-wallet-controls .silo-send .silo-fields>button:not(.silo-primary){background:transparent;border-color:var(--silo-control-line);color:var(--silo-text)}
+
+/* Gate and opening (owner, 23 October 2026): the silo.trading signup look. Orange field, the lockup assembling in under a
+   second, the headline, one invite field and one ink button that work from the first frame. CSS only; reduced motion
+   shows the final frame. */
+.silo-gate{position:fixed;inset:0;z-index:30;overflow:auto;display:flex;flex-direction:column;gap:clamp(20px,4vh,40px);padding:22px clamp(20px,4.4vw,64px) 28px;background:var(--silo-brand-surface,var(--grain-orange));color:#1a1714;font-family:'Albert Sans Variable','Silo Albert Sans','Albert Sans',system-ui,sans-serif;font-weight:600;-webkit-font-smoothing:antialiased}
+.silo-gate *{box-sizing:border-box}
+.silo-gate-top{display:flex;justify-content:space-between;gap:16px;font:400 12px/1.4 'IBM Plex Mono',ui-monospace,monospace;letter-spacing:.08em;text-transform:uppercase}
+.silo-opening-title i{font-style:normal;color:#fff}
+.silo-gate-form{width:min(680px,100%);margin:auto auto 0;display:grid;gap:12px}
+.silo-gate-form label{font:400 13px/1.4 'IBM Plex Mono',ui-monospace,monospace;letter-spacing:.06em;text-transform:lowercase}
+.silo-gate-form .silo-gate-terms{display:flex;gap:12px;align-items:center;font:500 15px/1.4 'Albert Sans Variable','Silo Albert Sans','Albert Sans',system-ui,sans-serif;letter-spacing:0;text-transform:none;cursor:pointer}
+.silo-gate-form .silo-gate-terms input{width:24px;height:24px;flex:none;padding:0;border-radius:var(--silo-radius-sm);accent-color:#1a1714}
+.silo-gate-form .silo-gate-terms a{color:inherit}
+.silo-gate-form input{height:60px;border-radius:var(--silo-radius-md);border:2px solid #1a1714;background:#fff;color:#1a1714;padding:0 18px;font:600 18px 'Albert Sans Variable','Silo Albert Sans','Albert Sans',system-ui,sans-serif;outline:none}
+.silo-gate-form input:focus-visible{box-shadow:0 0 0 4px rgba(26,23,20,.28)}
+.silo-gate-form button{height:58px;border:0;border-radius:var(--silo-pill);background:#1a1714;color:#fff;font:600 18px 'Albert Sans Variable','Silo Albert Sans','Albert Sans',system-ui,sans-serif;cursor:pointer;transition:transform .12s ease,box-shadow .2s ease}
+.silo-gate-form button:hover:not(:disabled){box-shadow:0 10px 28px rgba(26,23,20,.3)}
+.silo-gate-form button:active:not(:disabled){transform:scale(.985)}
+.silo-gate-form button:disabled{background:rgba(26,23,20,.45);cursor:not-allowed}
+.silo-gate-form button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.silo-gate-error{margin:0;padding:10px 14px;border-radius:var(--silo-radius-sm);background:#1a1714;color:#fff;font-size:14px}
+.silo-gate-note{margin:2px 0 0;text-align:center;font:400 12px/1.5 'IBM Plex Mono',ui-monospace,monospace;letter-spacing:.04em}
+.silo-gate-note a{color:#1a1714}
+@keyframes siloFade{from{opacity:0}to{opacity:1}}
+.silo-opening{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;border:0;padding:24px;background:var(--silo-brand-surface,var(--grain-orange));color:#1a1714;font-family:'Albert Sans Variable','Silo Albert Sans','Albert Sans',system-ui,sans-serif;font-weight:600;cursor:pointer;overflow:hidden;animation:siloOpeningOut .35s ease-in 1.05s both}
+.silo-opening-title{font-size:clamp(56px,12vw,120px);line-height:.92;letter-spacing:-.06em;animation:siloPop .5s cubic-bezier(.3,1.6,.5,1) .1s both}
+.silo-opening-line{font-size:clamp(18px,2.4vw,24px);font-weight:600;animation:siloFade .3s ease-out .3s both}
+.silo-opening-coins{display:flex;gap:14px;animation:siloPop .5s cubic-bezier(.3,1.6,.5,1) both}
+.silo-opening-coins span{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;background:#1a1714;color:var(--grain-orange)}
+.silo-opening-coins span+span{background:#e9dac6;color:#1a1714}
+.silo-opening-pt{position:absolute;left:50%;top:46%;width:14px;height:14px;border-radius:50%;background:#fff;opacity:0;animation:siloBurst 1.1s cubic-bezier(.15,.8,.3,1) both}
+.silo-opening-pt:nth-child(3n){background:#1a1714}.silo-opening-pt:nth-child(3n+1){background:#e9dac6;width:18px;height:18px}
+.silo-opening-pt[data-i="0"]{--dx:-160px;--dy:-200px}.silo-opening-pt[data-i="1"]{--dx:150px;--dy:-220px}.silo-opening-pt[data-i="2"]{--dx:-190px;--dy:40px}.silo-opening-pt[data-i="3"]{--dx:180px;--dy:70px}.silo-opening-pt[data-i="4"]{--dx:-60px;--dy:-270px}.silo-opening-pt[data-i="5"]{--dx:80px;--dy:-130px}.silo-opening-pt[data-i="6"]{--dx:-120px;--dy:180px}.silo-opening-pt[data-i="7"]{--dx:130px;--dy:210px}.silo-opening-pt[data-i="8"]{--dx:10px;--dy:260px}.silo-opening-pt[data-i="9"]{--dx:-220px;--dy:-70px}.silo-opening-pt[data-i="10"]{--dx:220px;--dy:-40px}.silo-opening-pt[data-i="11"]{--dx:30px;--dy:-310px}.silo-opening-pt[data-i="12"]{--dx:-250px;--dy:150px}.silo-opening-pt[data-i="13"]{--dx:250px;--dy:160px}
+@keyframes siloBurst{0%{transform:translate(-50%,-50%) scale(.2);opacity:0}15%{opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(1);opacity:0}}
+@keyframes siloPop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
+@keyframes siloOpeningOut{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion:reduce){.silo-opening,.silo-opening *{animation:none!important}}
+
+/* Home (owner, 23 October 2026): one wide column; Monero first in orange, Solana second in ink; 56 px actions; disabled
+   states are solid grey with their reason, never dashed. */
+.silo-home{grid-template-columns:minmax(0,680px)}
+.silo-home-side{display:none}
+.silo-window{padding:26px 22px;gap:18px}
+.silo-window-public[data-zone=public]{border:0;background:#101010;color:#fff;--silo-text:#fff;--silo-text-2:#f4ead9;--silo-muted:#e9dac6;--silo-primary:#fff;--silo-on-primary:#101010;--silo-primary-ring:color-mix(in srgb,#fff 30%,transparent);--silo-control-line:rgba(255,255,255,.45);--silo-hover:rgba(255,255,255,.12);--silo-focus:#fff}
+.silo-app:not([data-theme=light]) .silo-window-public[data-zone=public]{background:#202020;box-shadow:inset 0 0 0 1.5px #3d3d3d}
+.silo-window-public .silo-zone-mark[data-zone=public]{background:var(--grain-orange);border-color:var(--grain-orange);border-radius:50%}
+.silo-actions .silo-button,.silo-app .silo-gate-form button{min-height:56px;font-size:16px}
+.silo-app .silo-button[data-variant=secondary]{border-width:2px}
+.silo-app .silo-wallet-controls button:disabled,.silo-app .silo-quote-button:disabled,.silo-app .silo-button[aria-disabled=true]{border:2px solid transparent!important;background:color-mix(in srgb,var(--silo-text) 10%,transparent)!important}
+.silo-hero{font-variant-numeric:tabular-nums}
+.silo-beta-banner{display:block;border-radius:var(--silo-radius-md);padding:12px 16px}
+.silo-beta-banner svg{display:inline-block;vertical-align:-3px;margin-right:6px}
+.silo-beta-banner strong{margin-right:4px}
+/* Creation facts instead of a tick; one-time automatic-balances choice; first-time recipient check (Sol, 23 Oct). */
+.silo-custody{margin:4px 0 12px;padding:14px 16px;border-radius:var(--silo-radius-md);background:var(--silo-panel);font-size:14px;line-height:1.45}
+.silo-custody ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.silo-custody details{margin-top:8px}
+.silo-custody summary{font-size:14px;min-height:44px!important}
+.silo-choice{display:grid;gap:10px;padding:18px;border-radius:var(--silo-radius-md);border:2px solid var(--silo-text);margin:8px 0}
+.silo-choice h3{margin:0;font-size:18px}
+.silo-choice p{margin:0;font-size:14px;line-height:1.45}
+.silo-new-recipient{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:var(--silo-radius-sm);background:var(--silo-accent-soft);border:1.5px solid var(--grain-orange)}
+.silo-acct-details>summary{font-size:14px}
+.silo-app .silo-textlink{background:transparent!important;border-color:transparent!important;text-decoration:underline;text-underline-offset:4px}
+
+/* The signup page's hero inside the gate (owner, 23 October 2026): silo.trading's styles.css, hero part, scoped here. The
+   motion is lib/silo/brand-motion/gate-hero.mjs; the window (.win) is the dark rectangle that drifts and inverts. */
+.silo-gate .silo-hero{position:relative;flex:1 0 auto;display:flex;align-items:center;justify-content:center;--ink:#1a1714;--wallet:#1a1714;--gap:var(--grain-orange);--coin:#e9dac6;--rim:#a89d8e;--rim-hi:#f4ead9;--word:#1a1714;--dot:#fff;--pd:#fff;--ball:#fff;--track:-0.06em;--g:clamp(20px,4.4vw,64px)}
+.silo-gate .stage{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:clamp(22px,4.2vh,46px);padding:12px 0 20px}
+.silo-gate .lockup-wrap{position:relative;width:min(620px,76vw);cursor:pointer}
+.silo-gate .lockup{display:block;width:100%;height:auto;overflow:visible}
+.silo-gate .w-fill{fill:var(--wallet)}.silo-gate .w-gap{fill:var(--gap)}
+.silo-gate .coin-gap *{fill:var(--gap);stroke:var(--gap);stroke-width:42;stroke-linejoin:round}
+.silo-gate .coin-body .face{fill:var(--coin)}.silo-gate .coin-body .rim{fill:var(--rim)}
+.silo-gate .coin-body .hi{fill:none;stroke:var(--rim-hi);stroke-width:4.5;stroke-linecap:round}
+.silo-gate .coin-body .shade{fill:#000}
+.silo-gate .ink{fill:var(--word)}.silo-gate .dot{fill:var(--dot)}
+.silo-gate .tag{margin:0;font-size:min(calc((100vw - 2 * var(--g)) / 6.9),8.4rem);line-height:.94;font-weight:600}
+.silo-gate .tag,.silo-gate .tag *{letter-spacing:var(--track)}
+.silo-gate .tag .line{display:block;white-space:nowrap}
+.silo-gate .tag .w{display:inline-block}
+.silo-gate .pd{color:var(--pd)}
+.silo-gate .bl{display:inline-block;width:0;height:0;vertical-align:baseline}
+.silo-hero-js .tag .w{opacity:0;transform:translateY(.16em)}
+.silo-hero-js .tag .w.on{opacity:1;transform:none;transition:opacity .14s ease-out,transform .18s ease-out}
+.silo-hero-js .tag .pd{visibility:hidden}
+.silo-hero-js .tag .pd.on{visibility:visible}
+.silo-hero-js [data-silo-part=wallet],.silo-hero-js [data-silo-part=word],.silo-hero-js [data-silo-part=dot]{visibility:hidden}
+.silo-hero-js.started [data-silo-part=wallet],.silo-hero-js.started [data-silo-part=word],.silo-hero-js.started [data-silo-part=dot]{visibility:visible}
+.silo-gate .ball{position:absolute;left:0;top:0;border-radius:50%;background:var(--ball);pointer-events:none;transform-origin:50% 100%;will-change:transform;z-index:4}
+.silo-gate .win{position:absolute;left:calc(var(--m) * -1);top:calc(var(--m) * -1);width:calc(100% + var(--m) * 2);height:calc(100% + var(--m) * 2);background:var(--ink);color:#fff;--wallet:#fff;--gap:var(--ink);--coin:var(--grain-orange);--rim:rgb(from var(--grain-orange) calc(r*184/255) calc(g*67/102) 0);--rim-hi:rgb(from var(--grain-orange) r calc(g*143/102) 77);--word:#fff;--dot:var(--grain-orange);--pd:var(--grain-orange);--ball:var(--grain-orange);pointer-events:none;user-select:none;overflow:hidden;z-index:3;clip-path:inset(50% 50% 50% 50%);will-change:clip-path}
+.silo-gate .win-in{position:absolute;left:var(--m);right:var(--m);top:var(--m);bottom:var(--m)}
+.silo-gate .win h1{color:#fff}
+.silo-gate .win .pd{color:var(--grain-orange);visibility:visible}
+.silo-gate .win .w{opacity:1;transform:none}
+.silo-gate .win .lockup-wrap{cursor:default}
+@media (prefers-reduced-motion:reduce){.silo-hero-js .tag .w{opacity:1;transform:none;transition:none}.silo-hero-js .tag .pd{visibility:visible}.silo-hero-js [data-silo-part]{visibility:visible}}
+/* The opening, unhurried (owner, 23 October 2026: "not so fast; stylish"). */
+.silo-opening{animation:siloOpeningOut .6s cubic-bezier(.4,0,.2,1) 2.2s both}
+.silo-opening-coins{animation:siloPop .9s cubic-bezier(.22,1.2,.36,1) .1s both}
+.silo-opening-title{animation:siloRiseIn .9s cubic-bezier(.2,.8,.2,1) .35s both}
+.silo-opening-line{animation:siloRiseIn .9s cubic-bezier(.2,.8,.2,1) .6s both}
+.silo-opening-pt{animation:siloBurst 2s cubic-bezier(.12,.7,.25,1) .25s both}
+@keyframes siloRiseIn{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+/* The gate also fits by height: the logo and tagline shrink on short windows so the invite form keeps its room. */
+.silo-gate .lockup-wrap{width:min(560px,76vw,64vh)}
+.silo-gate .tag{font-size:min(calc((100vw - 2 * var(--g)) / 6.9),6.6rem,9vh)}
+/* Private acceptance environment only (owner, 29 Oct 2026): unmistakable, not a quiet badge -- this is mainnet and
+   real money, never the public beta. Set only via SILO_ACCEPTANCE_ENVIRONMENT on grain-silo-acceptance. */
+.silo-acceptance-banner{position:sticky;top:0;z-index:50;background:#b00020;color:#fff;font-weight:600;text-align:center;padding:.6rem 1rem;letter-spacing:.01em}
+
+/* One-screen conversion (components/silo-conversion-panel.tsx): From card, flip, To card, one button, one confirm sheet. */
+.silo-app #silo-conversion .silo-convert{max-width:480px;gap:12px}
+.silo-convert-card{gap:8px}
+.silo-convert-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.silo-convert-card input{font-size:28px;line-height:40px;min-height:48px;width:100%}
+.silo-convert .silo-hero{font-size:40px;line-height:44px}
+.silo-app #silo-conversion .silo-chip{width:auto;min-height:44px;min-width:96px;padding:0 14px;border-radius:var(--silo-pill);font-weight:600;font-size:16px;background:var(--silo-primary);border:2px solid var(--silo-primary);color:var(--silo-on-primary);opacity:1}
+.silo-app #silo-conversion .silo-convert-flip{position:relative;z-index:2;display:grid;place-items:center;width:44px;height:44px;min-width:44px;min-height:44px;margin:0 auto;padding:0;border:0;border-radius:50%;background:var(--silo-primary);color:var(--silo-on-primary);cursor:pointer}
+.silo-app #silo-conversion .silo-convert-flip:not(:disabled):hover{box-shadow:0 0 0 4px var(--silo-primary-ring)}
+.silo-app #silo-conversion .silo-convert-flip:focus-visible{outline:3px solid var(--silo-text);outline-offset:3px}
+.silo-app #silo-conversion .silo-convert-flip:disabled{opacity:.4;cursor:default}
+/* One rule for both cards: the frame takes the colour of ITS OWN coin (Monero orange, Solana and USDC the public colour), same width and fill. Focus is a separate text-colour ring, never a coin colour. */
+.silo-app #silo-conversion .silo-convert-card{border:2px solid var(--silo-control-line);background:transparent}
+.silo-app #silo-conversion .silo-convert-card[data-coin=xmr]{border-color:var(--grain-orange)}
+.silo-app #silo-conversion .silo-convert-card[data-coin=sol],.silo-app #silo-conversion .silo-convert-card[data-coin=usdc]{border-color:var(--silo-public)}
+.silo-app #silo-conversion .silo-convert-card:focus-within{outline:2px solid var(--silo-text);outline-offset:3px}
+.silo-app #silo-conversion .silo-convert-limit{margin:-4px 0 0}
+.silo-coin-picker{position:relative;flex:none}
+.silo-app #silo-conversion .silo-coin-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}
+.silo-coin-logo{display:block;width:24px;height:24px;flex:none;border-radius:50%}
+.silo-coin-chevron{flex:none}
+.silo-coin-list{position:absolute;right:0;top:calc(100% + 6px);z-index:20;min-width:148px;margin:0;padding:6px;list-style:none;background:var(--silo-pop-bg);color:var(--silo-pop-text);border:1.5px solid var(--silo-pop-line);border-radius:var(--silo-radius-md)}
+.silo-coin-list li{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:var(--silo-radius-sm);font-size:16px;font-weight:600;cursor:pointer}
+.silo-coin-list li[data-active]{background:var(--silo-pop-hover)}
+.silo-coin-list li[aria-selected=true]::after{content:"\2713";margin-left:auto}
+.silo-app #silo-conversion .silo-convert-primary{min-height:60px;width:100%;font-size:18px;font-weight:600;border-radius:var(--silo-pill);background:var(--silo-primary);border:2px solid var(--silo-primary);color:var(--silo-on-primary)}
+.silo-app #silo-conversion .silo-convert-primary:not(:disabled):hover{box-shadow:0 0 0 4px var(--silo-primary-ring)}
+.silo-app #silo-conversion .silo-convert-primary:disabled{opacity:.4;background:var(--silo-primary);border:2px solid var(--silo-primary);color:var(--silo-on-primary)}
+.silo-app #silo-conversion .silo-convert-sheet .silo-textlink{justify-self:center;background:none;border:0;min-height:44px;padding:0 16px;color:var(--silo-text-2);text-decoration:none}
+.silo-convert-sheet{position:fixed;inset:0;z-index:50;display:flex;align-items:flex-end;justify-content:center;background:color-mix(in srgb,#000 45%,transparent)}
+.silo-convert-sheet-body{display:grid;gap:12px;width:100%;max-width:480px;padding:24px 16px calc(24px + env(safe-area-inset-bottom));background:var(--silo-pop-bg);color:var(--silo-pop-text);border-radius:var(--silo-radius-md) var(--silo-radius-md) 0 0}
+.silo-convert-progress ol{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.silo-convert-progress ol{gap:0}
+.silo-convert-progress li{display:flex;align-items:center;gap:12px;padding:10px 0;border:0;color:var(--silo-text)}
+.silo-convert-tick{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--silo-control-line);display:grid;place-items:center;font-size:14px;line-height:1;font-weight:600}
+.silo-convert-progress li[data-state=done] .silo-convert-tick{background:var(--silo-primary);border-color:var(--silo-primary);color:var(--silo-on-primary)}
+.silo-convert-progress li[data-state=done] .silo-convert-tick::before{content:"\2713"}
+.silo-convert-progress li[data-state=now]{font-weight:600}
+.silo-convert-progress li[data-state=now] .silo-convert-tick{border-color:var(--silo-text);box-shadow:0 0 0 4px var(--silo-primary-ring)}
+.silo-convert-progress li[data-state=now] .silo-convert-tick::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--silo-text)}
+.silo-convert-progress li[data-state=next]{opacity:.45}
+
+/* Mobile: no zoom anywhere in the wallet. iOS zooms into any field under 16px, so fields are 16px; double-tap zoom is off. */
+.silo-app{touch-action:manipulation;-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:clip}
+.silo-app input:not([type=checkbox]):not([type=radio]):not([type=file]),.silo-app select,.silo-app textarea{font-size:16px}
+/* Passphrase field: the supplied asterisk in brand orange over a transparent password input, plus a Show / Hide toggle. */
+.silo-secret{position:relative;display:block;width:100%}
+.silo-secret>input{width:100%;box-sizing:border-box;padding-right:72px}
+.silo-secret:not([data-shown])>input{color:transparent;-webkit-text-fill-color:transparent;caret-color:transparent}
+.silo-secret:not([data-shown])>input::placeholder{-webkit-text-fill-color:var(--silo-text-2);color:var(--silo-text-2)}
+.silo-secret-stars{position:absolute;inset:0 72px 0 var(--silo-secret-inset,16px);display:flex;flex-direction:row;justify-content:flex-start;direction:ltr;align-items:center;gap:.28em;overflow:hidden;pointer-events:none;color:var(--grain-orange)}
+.silo-secret-stars svg{flex:none;width:.72em;height:.8em;fill:currentColor}
+.silo-secret-caret{flex:none;width:2px;height:1.1em;background:transparent;border-radius:1px}
+.silo-secret[data-focused] .silo-secret-caret{background:var(--grain-orange);animation:silo-caret 1s steps(1) infinite}
+@keyframes silo-caret{50%{opacity:0}}
+.silo-app .silo-secret>.silo-secret-toggle{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:auto;min-width:56px;height:32px;min-height:0;margin:0;padding:0 10px;border:0;border-radius:var(--silo-radius-sm);box-shadow:none;background:transparent;line-height:32px;color:var(--silo-text-2);font-size:14px;font-weight:600;cursor:pointer}
+.silo-app .silo-secret-toggle::before{content:'Show'}.silo-secret-toggle[aria-pressed=true]::before{content:'Hide'}
+.silo-secret-toggle[aria-pressed=true]{color:var(--silo-text)}
+/* Money animation (components/silo-money-animation.tsx). Flat colours only: no glow, blur, filter or shadow. Fixed and out of
+   flow, so nothing behind it moves. z-index 60 sits above the bottom bar (20), the opening (40) and the convert sheet (50). */
+/* No-bridge XMR to SOL swap: same look as Convert */
+.silo-app #silo-atomic{margin:0;border:0;border-radius:0;padding:0;background:none}
+
+/* No-bridge XMR -> SOL swap, round-3 design + delta 1 (owner-approved for the PR, 4 Nov 2026; HANDOFF-SPEC.md, HANDOFF-SPEC-DELTA-1.md). Token radii only. */
+/* ── shell proposals (SiloOverview), swap view only ─────────────────────────────────────────── */
+/* the task selector: one row, two equal segments, the product radius (was two stacked 48px pills, 104px tall) */
+.silo-app[data-view=swap] .silo-task{margin:0 0 20px;max-width:560px}
+.silo-app[data-view=swap] .silo-selector{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:0;padding:3px;border:1.5px solid var(--silo-control-line);border-radius:var(--silo-radius-sm)}
+.silo-app[data-view=swap] .silo-selector button{justify-content:center;min-height:44px;padding:0 8px;border:0;border-radius:4px;font-size:16px;white-space:nowrap}
+.silo-app[data-view=swap] .silo-selector button svg{flex:none}
+/* while a swap is active or finished the selector steps back; the swap summary line keeps orientation */
+.silo-app[data-sx-active] .silo-task{display:none}
+/* on the no-bridge task the selector's note repeats the route and makes an unverified promise */
+.silo-app[data-task=atomic] .silo-task>.silo-fine{display:none}
+/* phones: the state line repeats what the selector (or the swap summary) already says, so it goes; that buys the offer its first screen */
+@media(max-width:699px){
+ .silo-app[data-view=swap][data-task=atomic] .silo-state-line{display:none}
+ .silo-app[data-view=swap][data-task=atomic] .silo-page-header{margin-bottom:12px}
+ .silo-app[data-view=swap][data-task=atomic] .silo-network-band{margin-bottom:12px}
+ .silo-app[data-view=swap] .silo-task{margin-bottom:12px}
+}
+
+.silo-app .silo-wallet-controls .sx{display:grid;gap:16px;max-width:none}
+.silo-app .silo-wallet-controls .sx-vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.silo-app .silo-wallet-controls .sx-sep{color:var(--silo-muted)}
+.silo-app .silo-wallet-controls .sx-id{font-family:var(--silo-mono);font-weight:400;font-size:13px;letter-spacing:0;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls .sx-mute{color:var(--silo-text-2)}
+/* one column aligned with the page title (560px); on wide screens a 300px rail takes the secondary parts */
+.silo-app .silo-wallet-controls .sx-main{display:grid;gap:12px;max-width:560px;min-width:0}
+@media(min-width:1100px){
+ .silo-app .silo-wallet-controls .sx-main{grid-template-columns:minmax(0,560px) 300px;max-width:none;column-gap:40px;grid-auto-flow:row dense;align-items:start}
+ .silo-app .silo-wallet-controls .sx-main>*{grid-column:1}
+ .silo-app .silo-wallet-controls .sx-main>.sx-terms,.silo-app .silo-wallet-controls .sx-main>.sx-steps,.silo-app .silo-wallet-controls .sx-main>.sx-help{grid-column:2}
+ .silo-app .silo-wallet-controls .sx-main>.sx-steps{grid-row:1/span 4}
+ .silo-app .silo-wallet-controls .sx-main>.sx-terms{grid-row:1/span 6}
+ .silo-app .silo-wallet-controls .sx-main>.sx-terms.sx-costs{grid-column:1;grid-row:auto}
+}
+
+/* ── the pair: XMR in its private (orange) window, SOL in a public window, the rate on the seam ── */
+.silo-app .silo-wallet-controls .sx-pair{display:grid;gap:0}
+.silo-app .silo-wallet-controls .sx-leg,.silo-app .silo-wallet-controls .silo-window.sx-leg{display:grid;gap:4px;padding:14px 18px 16px;border-radius:var(--silo-radius-md)}
+.silo-app .silo-wallet-controls .sx-leg-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:14px;line-height:20px}
+.silo-app .silo-wallet-controls .sx-leg-head>span+span{text-align:right;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls .sx-leg[data-zone=private] .sx-leg-head>span+span{color:#101010}
+.silo-app .silo-wallet-controls .sx-leg-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.silo-app .silo-wallet-controls .sx-leg-row .silo-asset-icon{flex:none;width:32px;height:32px}
+.silo-app .silo-wallet-controls .sx-leg[data-zone=private] .sx-leg-head{color:#101010}
+.silo-app .silo-wallet-controls label.sx-amount{display:flex;align-items:baseline;gap:8px;font-size:0;line-height:0;color:#101010}
+.silo-app .silo-wallet-controls label.sx-amount input{flex:0 1 auto;field-sizing:content;width:auto!important;min-width:2.5ch;max-width:100%;min-height:60px!important;padding:0!important;border:0!important;border-radius:0;background:transparent!important;color:#101010;font-size:52px!important;line-height:60px;letter-spacing:-.04em;font-variant-numeric:tabular-nums;outline:0;box-shadow:none}
+.silo-app .silo-wallet-controls label.sx-amount input::placeholder{color:#101010;opacity:.4}
+.silo-app .silo-wallet-controls .sx-leg[data-zone=private]:focus-within{outline:3px solid var(--silo-text);outline-offset:3px}
+.silo-app .silo-wallet-controls .sx-unit{font-size:22px;line-height:28px;letter-spacing:-.02em;margin-left:6px}
+.silo-app .silo-wallet-controls label.sx-amount .sx-unit{color:#101010}
+.silo-app .silo-wallet-controls p.sx-fine{margin:0;font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls .sx-leg[data-zone=private] p.sx-fine{color:#101010}
+.silo-app .silo-wallet-controls .sx-get{background:var(--silo-panel);border:1.5px dashed var(--silo-control-line)}
+.silo-app .silo-wallet-controls .sx-get.sx-quoted{border-style:solid;border-color:var(--silo-line-strong)}
+.silo-app .silo-wallet-controls p.sx-big{display:flex;align-items:baseline;margin:0;font-size:52px;line-height:60px;letter-spacing:-.04em;font-variant-numeric:tabular-nums;white-space:nowrap;min-height:60px;color:var(--silo-text)}
+.silo-app .silo-wallet-controls p.sx-big.sx-none{color:var(--silo-muted)}
+.silo-app .silo-wallet-controls .sx-approx{font-size:.62em;margin-right:.18em;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls .sx-get .sx-unit{color:var(--silo-text-2)}
+/* the rate chip also carries the offer's countdown: the rate is what expires */
+.silo-app .silo-wallet-controls p.sx-rate{justify-self:center;margin:-12px 0;position:relative;z-index:1;display:inline-flex;align-items:center;gap:12px;min-height:36px;padding:0 6px 0 14px;border-radius:var(--silo-radius-sm);background:var(--silo-bg);border:1.5px solid var(--silo-line-strong);font-size:16px;line-height:20px;color:var(--silo-text);font-variant-numeric:tabular-nums}
+.silo-app .silo-wallet-controls p.sx-rate b{font-weight:600}
+.silo-app .silo-wallet-controls .sx-rate-t{display:inline-flex;align-items:center;min-height:26px;padding:0 8px;border-radius:4px;background:var(--silo-panel);font-family:var(--silo-mono);font-weight:400;font-size:13px;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls p.sx-rate.sx-rate-empty{color:var(--silo-text-2);border-style:dashed;padding-right:14px}
+/* actions: product buttons, full width, product radius */
+.silo-app .silo-wallet-controls button.sx-go{width:100%;min-height:56px;font-size:18px}
+.silo-app .silo-wallet-controls button.sx-text{justify-self:center;min-height:44px;border:0;background:none;color:var(--silo-text-2);text-decoration:underline;text-underline-offset:4px;padding:0 12px}
+.silo-app .silo-wallet-controls ul.sx-brief{list-style:none;margin:0;padding:12px 14px;display:grid;gap:8px;border-radius:var(--silo-radius-sm);background:var(--silo-panel);border:1px solid var(--silo-line);font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls .sx-brief li{text-wrap:pretty}
+.silo-app .silo-wallet-controls .sx-brief b{font-weight:600;color:var(--silo-text)}
+.silo-app .silo-wallet-controls p.sx-cond{margin:-2px 0 0;font-size:14px;line-height:20px;color:var(--silo-text-2);text-align:center}
+.silo-app .silo-wallet-controls p.sx-notice{display:flex;gap:10px;align-items:flex-start;margin:0;padding:12px 14px;border-left:4px solid var(--silo-warn);background:var(--silo-warn-bg);border-radius:var(--silo-radius-sm);color:var(--silo-text)}
+/* the conditions, open (not folded): they bind the user */
+.silo-app .silo-wallet-controls .sx-terms{display:grid;gap:10px;margin-top:8px;padding-top:16px;border-top:1px solid var(--silo-line)}
+.silo-app .silo-wallet-controls .sx-terms h3{margin:0;font-size:16px;line-height:22px;font-weight:600;color:var(--silo-text)}
+.silo-app .silo-wallet-controls .sx-terms dl{display:grid;gap:12px;margin:0}
+.silo-app .silo-wallet-controls .sx-terms dl dt{font-size:16px;line-height:20px;color:var(--silo-text)}
+.silo-app .silo-wallet-controls .sx-terms dl dd{margin:2px 0 0;font-size:14px;line-height:20px;color:var(--silo-text-2)}
+@media(min-width:1100px){.silo-app .silo-wallet-controls .sx-terms{margin-top:0;padding:16px;border:1px solid var(--silo-line);border-radius:var(--silo-radius-sm)}}
+
+/* ── during the swap ─────────────────────────────────────────────────────────────────────────── */
+/* summary: which swap, and its amounts, once */
+.silo-app .silo-wallet-controls p.sx-sum{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;margin:0;font-size:17px;line-height:24px;font-variant-numeric:tabular-nums;color:var(--silo-text)}
+.silo-app .silo-wallet-controls .sx-flow{display:inline-flex;align-items:center;gap:8px;color:var(--silo-muted)}
+.silo-app .silo-wallet-controls .sx-x{color:var(--silo-accent-text)}
+.silo-app .silo-wallet-controls .sx-s{color:var(--silo-public-text)}
+/* progress as five segments; the current one is hatched, a stop is the warning colour */
+.silo-app .silo-wallet-controls .sx-strip{display:flex;align-items:center;gap:12px}
+.silo-app .silo-wallet-controls .sx-segs{flex:1;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px}
+.silo-app .silo-wallet-controls .sx-segs i{height:6px;border-radius:1px;background:var(--silo-line-strong)}
+.silo-app .silo-wallet-controls .sx-segs i[data-state=done]{background:var(--silo-text)}
+.silo-app .silo-wallet-controls .sx-segs i[data-state=now]{background:repeating-linear-gradient(90deg,var(--silo-text) 0 4px,transparent 4px 7px)}
+.silo-app .silo-wallet-controls .sx-segs i[data-state=stop]{background:var(--silo-warn)}
+.silo-app .silo-wallet-controls .sx-strip-t{font-size:13px;line-height:18px;color:var(--silo-text-2);white-space:nowrap}
+/* the now card leads: one kicker, one title, the number that moves, one sentence, then the facts that bind */
+.silo-app .silo-wallet-controls .sx-now{display:grid;gap:8px;padding:18px 18px 16px;border-radius:var(--silo-radius-md)}
+.silo-app .silo-wallet-controls .sx-now p{margin:0}
+.silo-app .silo-wallet-controls p.sx-now-k{font-size:13px;line-height:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls p.sx-now-t{font-size:28px;line-height:32px;letter-spacing:-.04em;color:var(--silo-text);text-wrap:balance}
+.silo-app .silo-wallet-controls p.sx-now-b,.silo-app .silo-wallet-controls .sx-terms dd,.silo-app .silo-wallet-controls p.sx-done-t{text-wrap:pretty}
+.silo-app .silo-wallet-controls p.sx-done-k{margin:0;font-size:13px;line-height:18px;letter-spacing:.06em;text-transform:uppercase;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls p.sx-now-b{font-size:16px;line-height:22px;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls p.sx-now-n{font-size:14px;line-height:20px;color:var(--silo-text);padding:8px 10px;border-radius:var(--silo-radius-sm);background:var(--silo-panel)}
+.silo-app .silo-wallet-controls .sx-now[data-tone=act] p{color:#101010}
+.silo-app .silo-wallet-controls .sx-now[data-tone=act] p.sx-now-t{font-size:34px;line-height:38px}
+.silo-app .silo-wallet-controls .sx-now[data-tone=act] button.silo-primary{margin-top:4px;background:#101010;border-color:#101010;color:#fff}
+.silo-app .silo-wallet-controls .sx-now[data-tone=warn]{box-shadow:inset 4px 0 0 var(--silo-warn)}
+.silo-app .silo-wallet-controls .sx-now[data-tone=warn] p.sx-now-k{color:var(--silo-text)}
+.silo-app .silo-wallet-controls dl.sx-facts{display:grid;gap:0;margin:6px 0 0;border-top:1px solid var(--silo-line)}
+.silo-app .silo-wallet-controls .sx-now[data-tone=act] dl.sx-facts{border-top-color:rgba(16,16,16,.25)}
+.silo-app .silo-wallet-controls .sx-facts>div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0 0;font-size:16px;line-height:20px}
+.silo-app .silo-wallet-controls dl.sx-facts dt{color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls dl.sx-facts dd{margin:0;color:var(--silo-text);text-align:right;font-variant-numeric:tabular-nums}
+.silo-app .silo-wallet-controls .sx-now[data-tone=act] .sx-facts dt,.silo-app .silo-wallet-controls .sx-now[data-tone=act] .sx-facts dd{color:#101010}
+/* confirmations: ten cells, the count the network reports */
+.silo-app .silo-wallet-controls .sx-meter{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;margin:2px 0}
+.silo-app .silo-wallet-controls .sx-meter i{height:12px;border-radius:1px;background:var(--silo-line-strong)}
+.silo-app .silo-wallet-controls .sx-meter i[data-on]{background:var(--silo-text)}
+.silo-app .silo-wallet-controls .sx-meter i[data-now]{background:repeating-linear-gradient(90deg,var(--silo-text) 0 3px,transparent 3px 6px)}
+.silo-app .silo-wallet-controls p.sx-next{margin:0;font-size:16px;line-height:22px;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls p.sx-next b{color:var(--silo-text);font-weight:600;margin-right:6px}
+/* secondary, folded (on desktop the steps open in the rail) */
+.silo-app .silo-wallet-controls .sx-more{border-top:1px solid var(--silo-line);padding-top:2px}
+.silo-app .silo-wallet-controls .sx-more>summary{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:4px 12px;min-height:52px;cursor:pointer;list-style:none;font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls .sx-more>summary::-webkit-details-marker{display:none}
+.silo-app .silo-wallet-controls .sx-more-k{color:var(--silo-text);text-decoration:underline;text-underline-offset:4px}
+@media(min-width:1100px){.silo-app .silo-wallet-controls .sx-main>.sx-steps{border:1px solid var(--silo-line);border-radius:var(--silo-radius-sm);padding:2px 16px 16px}}
+/* the step list (inside All steps) */
+.silo-app .silo-wallet-controls ol.sx-line{list-style:none;margin:4px 0 8px;padding:0;display:grid}
+.silo-app .silo-wallet-controls .sx-line li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:12px;position:relative;padding:0 0 16px}
+.silo-app .silo-wallet-controls .sx-line li:last-child{padding-bottom:0}
+.silo-app .silo-wallet-controls .sx-line li::before{content:"";position:absolute;left:11px;top:26px;bottom:2px;border-left:2px solid var(--silo-line-strong)}
+.silo-app .silo-wallet-controls .sx-line li:last-child::before{display:none}
+.silo-app .silo-wallet-controls .sx-line li[data-state=done]::before{border-left-color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls .sx-line li[data-state=next]::before,.silo-app .silo-wallet-controls .sx-line li[data-state=now]::before{border-left-style:dashed}
+.silo-app .silo-wallet-controls .sx-dot{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--silo-control-line);background:var(--silo-panel);color:var(--silo-bg)}
+.silo-app .silo-wallet-controls .sx-line li[data-state=done] .sx-dot{background:var(--silo-text);border-color:var(--silo-text)}
+.silo-app .silo-wallet-controls .sx-line li[data-state=now] .sx-dot{border:2px dashed var(--silo-text)}
+.silo-app .silo-wallet-controls .sx-line li[data-state=stop] .sx-dot{border-color:var(--silo-warn);background:var(--silo-warn);color:#101010}
+.silo-app .silo-wallet-controls .sx-step{display:grid;gap:2px;padding-top:1px;min-width:0}
+.silo-app .silo-wallet-controls .sx-label{font-size:16px;line-height:22px;color:var(--silo-muted)}
+.silo-app .silo-wallet-controls .sx-line li[data-state=done] .sx-label{color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls .sx-line li[data-state=now] .sx-label,.silo-app .silo-wallet-controls .sx-line li[data-state=stop] .sx-label{color:var(--silo-text)}
+.silo-app .silo-wallet-controls .sx-detail{font-size:14px;line-height:20px;color:var(--silo-text-2)}
+/* help: closed by default, keys only after a second tap */
+.silo-app .silo-wallet-controls .sx-help-body{display:grid;gap:12px;padding:4px 0 12px;font-size:14px;line-height:20px}
+.silo-app .silo-wallet-controls dl.sx-keys{display:grid;gap:4px;margin:0}
+.silo-app .silo-wallet-controls .sx-keys dt{font-size:13px;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls .sx-keys dd{margin:0 0 6px}
+
+/* ── endings: the same success mark Send uses; the amount is the hero ───────────────────────────── */
+.silo-app .silo-wallet-controls .sx-done{justify-items:center;text-align:center;gap:8px;padding:28px 20px 24px}
+.silo-app .silo-wallet-controls .sx-done .silo-sent-mark{--silo-zone:var(--silo-text);--silo-on-zone:var(--silo-bg)}
+.silo-app .silo-wallet-controls p.sx-word{margin:0;font-size:28px;line-height:32px;letter-spacing:-.04em;color:var(--silo-text)}
+.silo-app .silo-wallet-controls p.sx-done-amt{display:flex;align-items:baseline;justify-content:center;margin:0;font-size:56px;line-height:60px;letter-spacing:-.04em;font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--silo-text)}
+.silo-app .silo-wallet-controls p.sx-done-amt .sx-unit{color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls .sx-ended p.sx-done-amt.sx-x .sx-unit{color:var(--silo-accent-text)}
+.silo-app .silo-wallet-controls p.sx-done-t{margin:0;font-size:16px;line-height:22px;color:var(--silo-text-2);max-width:36ch}
+.silo-app .silo-wallet-controls .sx-done p.sx-fine{max-width:40ch}
+.silo-app .silo-wallet-controls .sx-lockedbox{gap:10px}
+
+/* ── short phones (390x667 and the like): the decision keeps its first screen ──────────────────── */
+@media(max-width:699px){
+ .silo-app .silo-wallet-controls .sx-leg,.silo-app .silo-wallet-controls .silo-window.sx-leg{padding:12px 16px 12px;gap:2px}
+ .silo-app .silo-wallet-controls label.sx-amount input{font-size:44px!important;line-height:52px;min-height:52px!important}
+ .silo-app .silo-wallet-controls p.sx-big{font-size:44px;line-height:52px;min-height:52px}
+ .silo-app .silo-wallet-controls .sx-unit{font-size:20px}
+ .silo-app .silo-wallet-controls p.sx-now-t{font-size:26px;line-height:30px}
+ .silo-app .silo-wallet-controls .sx-now{padding:16px 16px 14px}
+ .silo-app .silo-wallet-controls p.sx-done-amt{font-size:48px;line-height:52px}
+}
+
+/* short screens (667 tall and the like): a little tighter so the first condition shows under the action */
+@media(max-width:699px) and (max-height:700px){
+ .silo-app .silo-wallet-controls .sx-leg,.silo-app .silo-wallet-controls .silo-window.sx-leg{padding:10px 16px 10px}
+ .silo-app .silo-wallet-controls label.sx-amount input{font-size:40px!important;line-height:48px;min-height:48px!important}
+ .silo-app .silo-wallet-controls p.sx-big{font-size:40px;line-height:48px;min-height:48px}
+ .silo-app .silo-wallet-controls .sx-done{padding:20px 16px 18px;gap:6px}
+ .silo-app .silo-wallet-controls p.sx-done-amt{font-size:44px;line-height:48px}
+}
+.silo-app .silo-wallet-controls p.sx-sum{flex-direction:column;align-items:flex-start;gap:2px}
+.silo-app .silo-wallet-controls .sx-amounts{white-space:nowrap}
+/* Grainy's floating button covers the Keep row and the result buttons while a swap runs or shows its result; the panel has its own help. */
+body:has(.silo-app[data-view=swap][data-task=atomic] #silo-atomic [data-now-card]) .grainy-fab{display:none}
+.silo-money{--money-ink:#1a1714;--money-cream:#e9dac6;--money-edge:#b8a68b;position:fixed;inset:0;z-index:60;overflow:hidden;background:var(--grain-orange);color:var(--money-ink);font-family:'Albert Sans Variable','Silo Albert Sans','Albert Sans',system-ui,sans-serif;font-weight:600;-webkit-font-smoothing:antialiased;animation:silo-money-in .25s ease-out both}
+.silo-money-coins{position:absolute;inset:0;overflow:hidden;perspective:900px;pointer-events:none;z-index:1}
+.silo-money-coin{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin-left:calc(var(--s) / -2);transform-style:preserve-3d;animation:silo-money-fall var(--fall) linear var(--delay) infinite both}
+.silo-money-disc{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateZ(var(--tilt)) rotateY(-28deg);animation:silo-money-spin var(--spin) linear infinite}
+.silo-money-rim{position:absolute;inset:0;border-radius:50%;background:var(--money-edge);transform:translateZ(calc(var(--k) * var(--s) * .027))}
+.silo-money-face{position:absolute;inset:0;display:grid;place-items:center;border-radius:50%;background:var(--money-cream);border:2px solid var(--money-edge);box-sizing:border-box;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.silo-money-front{transform:translateZ(calc(var(--s) * .09))}
+.silo-money-back{transform:rotateY(180deg) translateZ(calc(var(--s) * .09))}
+.silo-money-face img{display:block;width:68%;height:68%;object-fit:contain;user-select:none}
+.silo-money-coins[data-layer=front],.silo-money-coins[data-layer=hit]{z-index:4}
+.silo-money-coin-phys{left:0;top:0;margin-left:0;animation:none;will-change:transform}
+.silo-money-word{transition:translate .11s ease-out}
+.silo-money-text{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;margin:0;padding:24px;text-align:center;pointer-events:none}
+.silo-money-word{font-size:clamp(48px,16vw,120px);line-height:.92;letter-spacing:-.06em;animation:silo-money-rise .5s cubic-bezier(.2,.8,.2,1) both}
+.silo-money-last{white-space:nowrap}
+.silo-money-word{font-kerning:normal;font-feature-settings:'kern' 1;text-rendering:optimizeLegibility}
+.silo-money-apos{margin-right:-.1em}
+.silo-money[data-kind=entry] .silo-money-word{letter-spacing:-.07em}
+.silo-money-bang{display:inline-block;height:.74em;width:.19em;margin-left:.07em;vertical-align:baseline}
+.silo-money-bang svg{display:block;width:100%;height:100%;overflow:visible}
+.silo-money-stem{fill:var(--money-ink)}
+.silo-money-bang-dot{fill:var(--money-cream)}
+.silo-money-dot{font-style:normal;color:var(--money-cream);display:inline-block}
+.silo-money-wait{display:inline-block;white-space:nowrap}
+.silo-money-wait-dot{margin-left:.01em}
+/* Three cream dots that appear one after another while the screen waits (space is reserved, so nothing jumps), then reset and loop calmly. Reduced motion shows all three static. */
+.silo-money[data-phase=pending] .silo-money-wait-dot{animation:2.8s steps(1,end) infinite}
+.silo-money[data-phase=pending] .silo-money-wait-dot[data-n="0"]{animation-name:silo-money-dot-0}
+.silo-money[data-phase=pending] .silo-money-wait-dot[data-n="1"]{animation-name:silo-money-dot-1}
+.silo-money[data-phase=pending] .silo-money-wait-dot[data-n="2"]{animation-name:silo-money-dot-2}
+@keyframes silo-money-dot-0{0%{visibility:hidden}8%,78%{visibility:visible}79%,100%{visibility:hidden}}
+@keyframes silo-money-dot-1{0%,25%{visibility:hidden}26%,78%{visibility:visible}79%,100%{visibility:hidden}}
+@keyframes silo-money-dot-2{0%,42%{visibility:hidden}43%,78%{visibility:visible}79%,100%{visibility:hidden}}
+.silo-money-hint{font-size:18px;line-height:1.3;letter-spacing:0;animation:silo-money-rise .5s cubic-bezier(.2,.8,.2,1) .15s both}
+.silo-money-dismiss{position:absolute;inset:0;z-index:3;width:100%;height:100%;border:0;padding:0;margin:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent}
+/* Root-cause guard: the wallet shell restyles every button inside .silo-wallet-controls (padding, 1.5px border, radius 999px, hover fill #282828). On a phone the sticky tap-hover turned this full-screen button into a dark stadium over the coins. The overlay's own button must stay invisible in every state. */
+.silo-money .silo-money-dismiss,.silo-app .silo-money button.silo-money-dismiss,.silo-app .silo-money button.silo-money-dismiss:hover,.silo-app .silo-money button.silo-money-dismiss:active,.silo-app .silo-money button.silo-money-dismiss:focus,.silo-app .silo-money button.silo-money-dismiss:not(:disabled):hover{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;min-height:0!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;color:inherit!important;transition:none!important;-webkit-appearance:none;appearance:none}
+.silo-app .silo-money p.silo-money-text{color:var(--money-ink);font-size:inherit;line-height:normal}
+.silo-money-dismiss:focus-visible{outline:3px solid var(--money-ink);outline-offset:-12px}
+@keyframes silo-money-in{from{opacity:0}to{opacity:1}}
+@keyframes silo-money-fall{from{transform:translateY(calc(var(--y) * -1 - 30vh))}to{transform:translateY(calc(130vh - var(--y)))}}
+@keyframes silo-money-spin{from{transform:rotateZ(var(--tilt)) rotateY(0deg)}to{transform:rotateZ(var(--tilt)) rotateY(360deg)}}
+@keyframes silo-money-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes silo-money-hop{0%,100%{transform:translateY(0)}45%{transform:translateY(-.14em)}}
+@media (prefers-reduced-motion:reduce){.silo-money,.silo-money *{animation:none!important}.silo-money-coin{transform:none}.silo-money-coin-phys{opacity:0!important}}
+
+/* Persistent banner at the top of the wallet while an open wallet has no verified backup. It informs; the receive and send gates are unchanged. */
+.silo-app .silo-backup-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 16px;padding:16px 18px;border:2px solid var(--grain-orange);border-radius:var(--silo-radius);background:var(--silo-panel);color:var(--silo-text)}
+.silo-app .silo-backup-banner>div{display:grid;gap:4px;min-width:0}
+.silo-app .silo-backup-banner strong{font-size:18px;line-height:24px;font-weight:600}
+.silo-app .silo-backup-banner span{font-size:14px;line-height:20px;color:var(--silo-text-2)}
+.silo-app .silo-backup-banner button{flex:none;min-height:52px;padding:0 22px;border:0;border-radius:var(--silo-pill);background:var(--grain-orange);color:#101010;font-size:16px;font-weight:600;cursor:pointer}
+@media (max-width:520px){.silo-app .silo-backup-banner{flex-direction:column;align-items:stretch}.silo-app .silo-backup-banner button{width:100%}}
+.silo-hero-saved{opacity:.55}
+/* Request XMR */
+.silo-requests-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.silo-requests-head h3{margin:0}
+.silo-request-list{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.silo-request{border:1.5px solid var(--silo-line-strong);border-radius:var(--silo-radius-sm);overflow:hidden}
+.silo-app .silo-request .silo-request-head{border:0;border-radius:0;box-shadow:none;background:none;color:inherit;width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:10px 14px;text-align:left;background:none;border:0;color:inherit;font:inherit;cursor:pointer}
+.silo-request-main{display:grid;gap:2px;min-width:0}.silo-request-main small{color:var(--silo-muted);overflow-wrap:anywhere}
+.silo-request-status{flex:none;font-size:14px;font-weight:600}
+.silo-request[data-state=paid] .silo-request-status{color:var(--silo-primary)}
+.silo-request-body{padding:4px 14px 14px;display:grid;gap:12px}
+.silo-request-buttons{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.silo-app .silo-request-buttons button,.silo-app .silo-request-payments button{min-height:44px;display:inline-flex;align-items:center;gap:8px;padding:0 16px}
+.silo-request-payments{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.silo-request-payments li{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px}
+.silo-request-receipt pre{margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.5;padding:12px;border-radius:var(--silo-radius-sm);background:var(--silo-surface-2,rgba(127,127,127,.12))}
+@media (max-width:640px){.silo-request-head{flex-direction:column;align-items:flex-start}}
+
+/* ===== Round 8 (art direction): colour means a thing exists; orange is never a state; one meaning per mark. Display only. ===== */
+/* Current place in the navigation: solid cream (ink on Oat Milk), never orange. */
+.silo-app :is(.silo-sidebar nav button,.silo-view-tabs button)[aria-current=page]{background:var(--silo-primary);color:var(--silo-on-primary)}
+/* Header logo on a phone: the official horizontal logo on a fixed cream tile, so the orange circle always shows. */
+.silo-mobile-logo{align-items:center;height:40px;padding:0 10px;border-radius:var(--silo-radius-sm);background:#f3ebde}
+.silo-mobile-logo img{display:block;width:auto;height:24px}
+@media(max-width:699px){.silo-app .silo-mobile-logo{display:inline-flex;width:auto}}
+/* Test band: a quiet hairline line with a hollow ring, not a filled panel and not an orange dot. */
+.silo-network-band{background:none;color:var(--silo-text-2);border:1px solid var(--silo-line-strong)}
+.silo-network-band[data-mode=mainnet]{border-width:1px}
+.silo-band-label{color:var(--silo-text)}
+.silo-band-label i{width:10px;height:10px;background:none;border:2px solid currentColor}
+.silo-network-band[data-mode=mainnet] .silo-band-label i{background:currentColor}
+.silo-network-band p{border:0;padding:0;border-radius:0}
+.silo-network-band[data-solana=mainnet-beta] p{border-color:transparent}
+/* Solana is an asset: its own gradient field with ink text (4.5:1 or better), in every skin. */
+.silo-window-public[data-zone=public],.silo-app:not([data-theme=light]) .silo-window-public[data-zone=public],html[data-skin] .silo-app .silo-window-public[data-zone=public]{border:0;box-shadow:none;background:linear-gradient(120deg,#dc1fff,#00ffa3);color:#14110e;--silo-text:#14110e;--silo-text-2:#14110e;--silo-muted:#14110e;--silo-primary:#14110e;--silo-on-primary:#f3ebde;--silo-primary-ring:color-mix(in srgb,#14110e 30%,transparent);--silo-control-line:#14110e;--silo-hover:color-mix(in srgb,#14110e 12%,transparent);--silo-focus:#14110e}
+.silo-window-public .silo-zone-mark[data-zone=public]{background:#14110e;border-color:#14110e;border-radius:50%}
+/* Passphrase field: stars and caret are ink, not orange; the Show/Hide button is a full 44px target. */
+.silo-secret-stars{color:var(--silo-text)}
+.silo-secret[data-focused] .silo-secret-caret{background:var(--silo-text)}
+.silo-app .silo-secret>.silo-secret-toggle{height:44px;min-width:60px;right:4px}
+/* Wallet page header for Solana: the asset's own gradient field, ink text (same field as the Home card). */
+.silo-app #silo-public>.silo-acct-head{background:linear-gradient(120deg,#dc1fff,#00ffa3);border:0;color:#14110e;--silo-focus:#14110e;--silo-text:#14110e;--silo-text-2:#14110e;--silo-muted:#14110e;--silo-public-text:#14110e}
+.silo-app #silo-public>.silo-acct-head :is(.silo-zone-network,.silo-tag){color:#14110e}
+/* Backup banner is a notice: a solid 4px ink rule on the left, one cream primary action. Orange stays for the one primary action only where it is the XMR field. */
+.silo-app .silo-backup-banner{border:0;border-left:4px solid var(--silo-text);border-radius:var(--silo-radius-sm)}
+.silo-app .silo-backup-banner button{background:var(--silo-primary);color:var(--silo-on-primary)}
+/* Round 8 review: the devnet signing note is one quiet line (the TEST band already says it is a test network); no amber box. */
+.silo-app .silo-held.silo-quiet-note{padding:0;border:0;background:none;color:var(--silo-text-2)!important;font-size:14px;line-height:20px}
+/* Phones: logo and title first, then the backup notice, then the TEST band, then the screen. */
+@media(max-width:699px){
+ .silo-app .silo-main>*{order:3}
+ .silo-app .silo-main>.silo-page-header{order:0}
+ .silo-app .silo-main>.silo-backup-banner{order:1}
+ .silo-app .silo-main>.silo-network-band{order:2}
+ .silo-app .silo-main{display:flex;flex-direction:column}
+}
+/* BETA badge (5 Nov 2026): the r8 .tag, sized for a tab or a heading. Outlined in the text's own colour so it reads on every skin, on the
+ * selected tab and on 390px. No orange: orange stays for the Private window, the mark and the headline stop. */
+.silo-beta-badge{display:inline-flex;align-items:center;margin-left:2px;padding:1px 5px;border:1px solid currentColor;border-radius:4px;font-family:'Albert Sans Variable','Silo Albert Sans','Albert Sans',system-ui,sans-serif;font-size:12px;font-weight:600;line-height:14px;letter-spacing:.06em;text-transform:uppercase;font-synthesis:none;white-space:nowrap;vertical-align:1px;flex:none}
+/* Convert, when quotes are off or the provider is not answering: a calm card instead of a red error and a Convert button that cannot work. */
+.silo-convert-soon{display:grid;gap:10px;padding:20px;border:1.5px solid var(--silo-line-strong);border-radius:var(--silo-radius);background:var(--silo-panel);color:var(--silo-text)}
+.silo-convert-soon h3{margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.02em}
+.silo-convert-soon p{margin:0;color:var(--silo-text-2);font-size:16px;line-height:24px}
+.silo-convert-soon button{justify-self:start;min-height:44px}
+
+/* Leave and return (5 Nov 2026): pending no-bridge swap card on Home and Activity (components/silo-atomic-pending-card.tsx). */
+.silo-swap-pending-row{flex-wrap:wrap;align-items:flex-start}
+.silo-swap-pending-row>.silo-fine{flex:1 0 100%;margin:0}
+.silo-app[data-view=activity] .silo-swap-pending{margin:0 0 16px}
+
+/* Popovers and sheets (6 Nov 2026): a colour field redefines --silo-text and friends for ink on orange or on the Solana gradient, so a list that
+   opens inside that field inherited near-black text on its dark panel (the Convert coin list). These tokens resolve once, here, on .silo-app,
+   from the skin values, and child fields cannot change them. Every popover, menu and sheet reads them. */
+.silo-app{--silo-pop-bg:var(--silo-panel);--silo-pop-text:var(--silo-text);--silo-pop-text-2:var(--silo-text-2);--silo-pop-line:var(--silo-control-line);--silo-pop-hover:color-mix(in srgb,var(--silo-text) 12%,transparent)}
+
+/* Network badge and quiet footnotes (6 Nov 2026, owner): the top of a screen is the work, not copy. The network is one small badge beside the logo;
+   the real-funds fact is its label and the review step. Facts that stay sit below the action as small muted lines. */
+.silo-brand-row{display:flex;align-items:center;gap:10px;min-height:40px}
+.silo-app .silo-net-badge{display:inline-flex;align-items:center;gap:6px;min-height:24px;padding:0 10px;border:1px solid var(--silo-line-strong);border-radius:var(--silo-radius-sm);font-size:12px;line-height:16px;font-weight:600;color:var(--silo-text-2);background:none}
+.silo-app .silo-net-badge i{width:8px;height:8px;border-radius:50%;background:var(--silo-ok);flex:none}
+.silo-app .silo-net-badge[data-mode=test] i{background:none;border:1.5px solid currentColor;width:8px;height:8px;box-sizing:border-box}
+.silo-app .silo-foot-notes{display:grid;gap:4px;margin:16px 0 0;max-width:640px}
+.silo-app .silo-foot-notes .silo-fine{margin:0;font-size:14px;line-height:20px;color:var(--silo-text-2)}
+@media(min-width:700px){.silo-app .silo-title{gap:8px}}
+
+/* r8 Send and Convert outcome cards: motion lives here, not in the theme layer (tests/theme-tokens.test.mjs); off under reduced motion. */
+.silo-send8-ok{transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.silo-send8-track .bar::after{transition:transform .5s ease}
+.silo-send8-track .seg.now .bar{animation:silo-send8-crawl .8s linear infinite}
+@keyframes silo-send8-crawl{to{background-position:20px 0}}
+@media (prefers-reduced-motion:reduce){.silo-send8-track .seg.now .bar{animation:none}.silo-send8-ok{transition:none}}
+.silo-convert8-ok{transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.silo-convert8-track .bar::after{transition:transform .5s ease}
+.silo-convert8-track .seg.now .bar{animation:silo-convert8-crawl .8s linear infinite}
+@keyframes silo-convert8-crawl{to{background-position:20px 0}}
+@media (prefers-reduced-motion:reduce){.silo-convert8-track .seg.now .bar{animation:none}.silo-convert8-ok{transition:none}}
+
+/* Bitcoin wallet (design review, 8 Nov 2026): money first, wrapped addresses, stacked actions, unresolved notice with a rule and an icon, grey mark on test networks. */
+.silo-btc-amount{display:grid;gap:4px;margin:0 0 8px}
+.silo-btc-amount strong{font-size:1.75rem;line-height:1.15;font-variant-numeric:tabular-nums}
+.silo-btc-net{font-size:.8125rem;opacity:.8}
+.silo-btc-review code,.silo-btc-unresolved code{overflow-wrap:anywhere;word-break:break-all}
+.silo-btc-actions{display:grid;gap:8px;margin:12px 0 4px}
+.silo-btc-actions button,.silo-btc-wide{width:100%;min-height:44px;border-radius:var(--silo-radius-sm)}
+.silo-btc-unresolved{display:flex;gap:10px;align-items:flex-start;border-left:3px solid var(--silo-danger,#d4766a);padding:8px 0 8px 12px;margin:0 0 12px}
+.silo-btc-unresolved svg{flex:none;margin-top:2px}
+.silo-btc-danger{min-height:44px;border-radius:var(--silo-radius-sm);margin-top:24px;border:1px solid var(--silo-danger,#d4766a);background:transparent;color:var(--silo-danger,#d4766a)}
+.silo-btc-danger:disabled{opacity:.45}
+/* Audit pass A (visual only): the unlock deck stands alone, Activity has a designed empty state. */
+.silo-asset-stack[data-deck-shown]{display:none}
+.silo-activity-empty{display:grid;justify-items:start;gap:8px;padding:24px 0}
+.silo-activity-empty strong{font-size:22px;line-height:28px;letter-spacing:-.02em}
+.silo-activity-empty p{margin:0;color:var(--silo-text-2);font-size:16px;line-height:22px}
+.silo-app .silo-activity-empty-go{min-height:44px;margin-top:8px;padding:0 18px;border-radius:var(--silo-radius-sm);border:2px solid var(--silo-text);background:none;color:var(--silo-text);font-size:16px;font-weight:600}
+/* No bridge: costs and steps (owner). Stacked, left aligned, label on top in small muted text; the three numbers that matter come first and larger. */
+.silo-app .silo-wallet-controls dl.sx-kv{display:grid;gap:0;margin:0}
+.silo-app .silo-wallet-controls dl.sx-kv>div{display:grid;gap:2px;padding:12px 0;border-top:1px solid var(--silo-line)}
+.silo-app .silo-wallet-controls dl.sx-kv>div:first-child{border-top:0;padding-top:4px}
+.silo-app .silo-wallet-controls dl.sx-kv dt{margin:0;font-size:13px;line-height:18px;font-weight:600;text-align:left}
+.silo-app .silo-wallet-controls dl.sx-kv dd{margin:0;font-size:16px;line-height:21px;color:var(--silo-text);text-align:left;overflow-wrap:anywhere}
+.silo-app .silo-wallet-controls dl.sx-kv .is-key dd{font-size:22px;line-height:28px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.silo-app .silo-wallet-controls dl.sx-kv dd small{display:block;margin-top:2px;font-size:14px;line-height:20px;letter-spacing:0;color:var(--silo-text-2);text-wrap:pretty}
+.silo-app .silo-wallet-controls ol.sx-steplist{list-style:none;counter-reset:sx;display:grid;gap:12px;margin:0;padding:0}
+.silo-app .silo-wallet-controls ol.sx-steplist li{counter-increment:sx;position:relative;padding-left:36px;font-size:16px;line-height:21px;color:var(--silo-text-2);text-wrap:pretty}
+.silo-app .silo-wallet-controls ol.sx-steplist li::before{content:counter(sx);position:absolute;left:0;top:0;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--silo-text);color:var(--silo-bg);font-size:13px;line-height:1;font-weight:600}
+.silo-app .silo-wallet-controls ol.sx-steplist b{display:block;font-weight:600;color:var(--silo-text)}
+.silo-app .silo-wallet-controls p.sx-beta{margin:4px 0 0;font-size:14px;line-height:20px;font-weight:600;color:var(--silo-text)}
+.silo-app .silo-wallet-controls details.sx-more{border-top:1px solid var(--silo-line);padding-top:8px}

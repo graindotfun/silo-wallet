@@ -1,0 +1,49 @@
+{
+  "project": "Grain Silo ZEC core (vendor/silo/zec-core)",
+  "version": "0.1.0",
+  "engine": "lrz-sqlite",
+  "upstream": {
+    "zcash_client_backend": "0.25.0-pre.1",
+    "zcash_client_sqlite": "0.23.0-pre.1",
+    "zcash_protocol": "0.11.0-pre.0",
+    "orchard": "0.16.0"
+  },
+  "module": {
+    "url": "/silo-sdk/zec-core-2970769c14b1f264/silo-zec-core-bundle.js",
+    "sha256": "f94f67f97873b1a379f43a14d4d5c621c76e4bf78040d02c3b3f11fc4bb826d5",
+    "bytes": 60358
+  },
+  "wasm": {
+    "sha256": "592e1b4327d30a4cb40c329ecd49902b92d90084f45281c9b0d71bd09c05cfd6",
+    "bytes": 13794641,
+    "chunks": [
+      {
+        "url": "/silo-sdk/zec-core-2970769c14b1f264/wasm-part-0.bin",
+        "sha256": "9f3c1a579af12740e322592b55f7ee71c093aa10df7f157812072e0867322c0b",
+        "bytes": 8388608
+      },
+      {
+        "url": "/silo-sdk/zec-core-2970769c14b1f264/wasm-part-1.bin",
+        "sha256": "72a5a6253bae5997d3e10cd15ed6796520ef2fb710a5e7d425c5a8a7c6e47a61",
+        "bytes": 5406033
+      }
+    ]
+  },
+  "assets": [
+    {
+      "url": "/silo-sdk/zec-core-2970769c14b1f264/silo-zec-core-bundle.js",
+      "sha256": "f94f67f97873b1a379f43a14d4d5c621c76e4bf78040d02c3b3f11fc4bb826d5",
+      "bytes": 60358
+    },
+    {
+      "url": "/silo-sdk/zec-core-2970769c14b1f264/wasm-part-0.bin",
+      "sha256": "9f3c1a579af12740e322592b55f7ee71c093aa10df7f157812072e0867322c0b",
+      "bytes": 8388608
+    },
+    {
+      "url": "/silo-sdk/zec-core-2970769c14b1f264/wasm-part-1.bin",
+      "sha256": "72a5a6253bae5997d3e10cd15ed6796520ef2fb710a5e7d425c5a8a7c6e47a61",
+      "bytes": 5406033
+    }
+  ]
+}

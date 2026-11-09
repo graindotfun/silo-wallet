@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {siloAddressGroups} from '../lib/silo/address-groups.mjs';
+test('address grouping from the end preserves raw Solana, EVM and Monero address text',()=>{for(const length of [42,43,44,95,106,512]){const address='4AbC'.repeat(128).slice(0,length),groups=siloAddressGroups(address);assert.equal(groups.join(''),address);assert.equal(groups[0].length,length%4||4);assert.equal(groups.at(-1).length,4);assert.ok(groups.slice(1).every(x=>x.length===4));}});
+test('presentation never trims, normalizes or truncates unfamiliar address text',()=>{for(const address of ['', ' address ', 'abc\nxyz', 'a'.repeat(4097)])assert.equal(siloAddressGroups(address).join(''),address);});
