@@ -1,0 +1,35 @@
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -227,9 +227,11 @@
+ default-features = false
+ 
+ [dependencies.rusqlite]
+-version = "0.37"
++version = "0.40"
+ features = [
+     "bundled",
++    "fallible_uint",
++    "serialize",
+     "time",
+     "array",
+     "uuid",
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -471,7 +471,7 @@
+ 
+ impl Drop for AuthorizerGuard<'_> {
+     fn drop(&mut self) {
+-        self.conn.authorizer(
++        let _ = self.conn.authorizer(
+             None::<fn(rusqlite::hooks::AuthContext<'_>) -> rusqlite::hooks::Authorization>,
+         );
+     }
+@@ -512,7 +512,7 @@
+         &self,
+         f: impl FnOnce() -> Result<T, rusqlite::Error>,
+     ) -> Result<T, rusqlite::Error> {
+-        self.conn.authorizer(Some(extension_authorizer));
++        self.conn.authorizer(Some(extension_authorizer))?;
+         let _guard = AuthorizerGuard { conn: self.conn };
+         f()
+     }

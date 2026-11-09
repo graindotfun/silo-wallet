@@ -1,0 +1,91 @@
+/* Grainpad system primitives: record surface, corner-label panels, lowercase display titles,
+   masking tape (lifecycle and verification states only), segmented controls and stale values. */
+:root{
+ --record-paper:#f3ecdf;--record-ink:#23211c;--record-muted:#6d6556;--record-line:#dccfb6;--record-rule:#e8dfcd;
+ --tape-paper:#e9dcbf;--tape-ink:#4b4232;
+ --chart-grid:#ffffff1c;--chart-tick:#8d979b;--chart-surface:#15191b;
+ --buy:#4fbf8b;--sell:#ef6a5b;
+}
+html[data-theme="light"]{--chart-grid:#23211c1f;--chart-tick:#7b7261;--chart-surface:#fff;--buy:#2f7a55;--sell:#b43d33;--record-paper:#fbf6ec}
+
+/* Cream record: public, finalized information reads like paper in both themes. */
+.record-surface{background:var(--record-paper);color:var(--record-ink);border-color:var(--record-line)}
+.record-surface :is(a){color:inherit}
+
+/* Corner-label panel header: small mono labels pinned to the panel's top corners. */
+.corner-head{display:flex;align-items:center;gap:10px;margin:-4px 0 14px;min-height:20px}
+.corner-label{font:500 10.5px/1 var(--font-code);letter-spacing:.09em;text-transform:uppercase;color:var(--market-muted,var(--brand-muted))}
+.corner-label:first-child::before{content:"";display:inline-block;width:6px;height:6px;margin:0 7px 1px 0;background:var(--xmr-orange);vertical-align:middle}
+.corner-label.is-right{margin-left:auto;text-align:right}
+.record-surface .corner-label{color:var(--record-muted)}
+
+/* Lowercase display headline with the orange period of the wordmark. */
+.display-title{margin:0;font-size:clamp(30px,3.2vw,44px);line-height:.95;font-weight:500;letter-spacing:-.045em;text-transform:lowercase}
+.display-title>span{color:var(--xmr-orange)}
+
+/* Masking tape. Reserved for lifecycle and verification states. */
+.record-tape{display:inline-flex;align-items:center;gap:5px;padding:3px 9px 3px 10px;background:var(--tape-paper);color:var(--tape-ink);font:500 10px/1.4 var(--font-code);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;transform:rotate(-1.2deg);box-shadow:0 1px 0 #0000001a;clip-path:polygon(0 8%,4% 0,96% 6%,100% 0,98% 50%,100% 94%,95% 100%,4% 92%,0 100%,2% 50%);opacity:.95;vertical-align:middle;margin-left:10px}
+
+/* Segmented control shared by source, interval and filter switches. */
+.segmented{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--market-border,var(--brand-line));border-radius:9px;background:var(--market-inset,var(--secondary))}
+.segmented button{min-height:30px;min-width:38px;padding:0 10px;border:0;border-radius:6px;background:transparent;color:var(--market-muted,var(--brand-muted));font:500 11px/1 var(--font-code);letter-spacing:.03em;cursor:pointer}
+.segmented button:hover{color:var(--foreground)}
+.segmented button[aria-pressed=true]{background:var(--market-panel,var(--card));color:var(--foreground);box-shadow:0 0 0 1px var(--market-border,var(--brand-line))}
+.segmented button:focus-visible{outline:2px solid var(--xmr-orange);outline-offset:1px}
+.record-surface .segmented{background:#0000000a;border-color:var(--record-line)}
+.record-surface .segmented button{color:var(--record-muted)}
+.record-surface .segmented button[aria-pressed=true]{background:var(--gx-card,#fff);color:var(--record-ink);box-shadow:0 0 0 1px var(--record-line)}
+
+/* Stale data: values dim; one chip next to the headline explains why. */
+[data-stale] .stale-value{opacity:.5;transition:opacity .2s}
+.delay-chip{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border:1px dashed currentColor;border-radius:var(--gx-r,8px);color:var(--grain-warning);font:500 10.5px/1 var(--font-code);letter-spacing:.03em;white-space:nowrap}
+.delay-chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+html[data-theme="light"] .delay-chip{color:var(--grain-warning)}
+
+/* Tabular numerals wherever figures line up. */
+:is(.market-module,.public-tape,.discovery-card,.token-swap,.reality-check) :is(dd,strong,output,.ledger-amount,.ledger-seq){font-variant-numeric:tabular-nums}
+
+/* Footer: between phone and desktop the link list becomes a left-aligned grid instead of a right-flush run. */
+@media(min-width:701px) and (max-width:1180px){
+ .footer-top{flex-wrap:wrap;row-gap:24px}
+ .footer-top nav{flex-basis:100%;max-width:none;margin-left:0;display:grid;grid-template-columns:repeat(4,minmax(0,max-content));justify-content:start;gap:12px 32px}
+}
+
+/* /lab: the specification panel and the stats band share the panel inset (32px, 25px at ≤1000px, 23px at ≤430px),
+   so headings and copy line up with the panels above instead of sitting on the card edge. */
+.limitations>h2{margin-top:0}
+.lab-stats{padding-left:32px;padding-right:32px}
+@media(max-width:1000px){.lab-stats{padding-left:25px;padding-right:25px}.lab-stats article,.lab-stats article:first-child{padding:23px 18px}.lab-stats article:first-child{padding-left:0}}
+@media(max-width:700px){.lab-stats article,.lab-stats article:first-child{padding:22px 0}}
+@media(max-width:430px){.lab-stats{padding-left:23px;padding-right:23px}}
+
+/* Grainpad Select: one trigger and menu for every product select (Radix listbox underneath). */
+:root{--grain-control-bg:#141a1e;--grain-control-border:#39434a;--grain-control-border-hover:#7b8b97;--grain-menu-bg:#171d21;--grain-menu-border:#343e44;--grain-menu-hover:#232c31;--grain-menu-shadow:0 18px 40px -12px #000000b3,0 2px 8px #00000059}
+html[data-theme="light"]{--grain-control-bg:#fff;--grain-control-border:#d8cdb9;--grain-control-border-hover:#928774;--grain-menu-bg:#fffdf8;--grain-menu-border:#e2d8c6;--grain-menu-hover:color-mix(in srgb,var(--grain-orange) 7%,transparent);--grain-menu-shadow:0 18px 40px -14px #403b3340,0 2px 8px #403b331a}
+.grain-select{display:inline-flex;align-items:center;gap:10px;min-width:0}
+.grain-select-label{flex:none;color:var(--muted-foreground);font:500 12px/1 var(--font-body);white-space:nowrap}
+.grain-select-trigger{display:inline-flex;align-items:center;justify-content:space-between;gap:12px;min-width:168px;height:38px;margin:0;padding:0 11px 0 13px;border:1px solid var(--grain-control-border);border-radius:8px;background:var(--grain-control-bg);color:var(--foreground);font:500 12.5px/1 var(--font-body);letter-spacing:0;text-align:left;cursor:pointer;box-shadow:none;transition:border-color .15s,background .15s;-webkit-tap-highlight-color:transparent}
+.grain-select-trigger>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grain-select-trigger:hover{border-color:var(--grain-control-border-hover)}
+.grain-select-trigger:focus{outline:none}
+.grain-select-trigger:focus-visible{outline:2px solid var(--grain-orange);outline-offset:2px}
+.grain-select-trigger[data-state=open]{border-color:var(--grain-orange)}
+.grain-select-trigger[data-placeholder]{color:var(--muted-foreground)}
+.grain-select-trigger:disabled{opacity:.5;cursor:not-allowed}
+.grain-select-chevron{display:grid;place-items:center;flex:none;color:var(--muted-foreground);transition:transform .18s var(--ease)}
+.grain-select-trigger[data-state=open] .grain-select-chevron{transform:rotate(180deg);color:var(--grain-orange)}
+.grain-select-menu{z-index:120;min-width:var(--radix-select-trigger-width);max-height:min(340px,var(--radix-select-content-available-height));overflow:hidden;padding:5px;border:1px solid var(--grain-menu-border);border-radius:10px;background:var(--grain-menu-bg);color:var(--foreground);box-shadow:var(--grain-menu-shadow);font:500 12.5px/1.3 var(--font-body);transform-origin:var(--radix-select-content-transform-origin)}
+.grain-select-menu[data-state=open]{animation:grain-menu-in .14s var(--ease)}
+@keyframes grain-menu-in{from{opacity:0;transform:translateY(-3px) scale(.985)}}
+.grain-select-viewport{padding:0}
+.grain-select-item{position:relative;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:34px;padding:8px 10px 8px 12px;border-radius:6px;color:var(--muted-foreground);cursor:pointer;user-select:none;outline:none}
+.grain-select-item[data-highlighted]{background:var(--grain-menu-hover);color:var(--foreground)}
+.grain-select-item[data-highlighted]::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:2px;border-radius:2px;background:var(--grain-orange)}
+.grain-select-item[data-state=checked]{color:var(--foreground);font-weight:600}
+.grain-select-item[data-disabled]{opacity:.45;cursor:not-allowed}
+.grain-select-check{display:grid;place-items:center;color:var(--grain-orange)}
+@media(prefers-reduced-motion:reduce){.grain-select-menu[data-state=open]{animation:none}.grain-select-chevron{transition:none}}
+/* Form-sized: full width, the height of the surrounding inputs. An outer <label> keeps its stacked layout. */
+.grain-select.is-field{display:flex;width:100%;margin-top:8px}
+.grain-select.is-field .grain-select-trigger{width:100%;height:44px;min-width:0;font-size:14px;padding:0 14px}
+.form-panel .grain-select.is-field .grain-select-trigger,.claim-panel .grain-select.is-field .grain-select-trigger{height:52px;font-size:15px}

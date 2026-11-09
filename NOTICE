@@ -7,6 +7,13 @@ Licences that apply to parts of this repository (full texts in LICENSES/):
 - program/ (the Solana escrow program): MIT (LICENSES/MIT.txt), as declared in program/Cargo.toml.
 - vendor/bigint-buffer-js/: GNU General Public License v3.0 only (LICENSES/GPL-3.0-only.txt), as declared in its package.json.
   GPL-3.0 code may be combined with AGPL-3.0 code; the combined work as distributed is governed by the AGPL-3.0 section 13 terms.
+- web/ (the wallet web app): AGPL-3.0-only like the rest, except the parts listed here. web/package.json is recorded
+  unchanged from the source tree; its name, licence and repository fields describe that tree and do not set the licence of
+  the files in this repository.
+- web/vendor/bigint-buffer-js/: GNU General Public License v3.0 only, as declared in its package.json (see above).
+- web/vendor/shadcn-tailwind-4.13.0.css: MIT, see web/vendor/shadcn-tailwind-4.13.0.LICENSE.md.
+- web/public/silo-sdk/*.txt: licence and notice texts of the third-party code bundled into the Monero and Zcash engines
+  that the app serves. They apply to those bundles.
 
 Third-party packages installed through npm and Cargo keep their own licences; they are not copied into this repository.
 The name Silo and the Silo logo are not licensed (see TRADEMARK.md).

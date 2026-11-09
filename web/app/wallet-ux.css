@@ -1,0 +1,185 @@
+/* Shared wallet and transaction flows stay inside the viewport on every screen. */
+.site-header .site-wallet-trigger{display:inline-flex!important;border-radius:var(--gx-r,8px);white-space:nowrap;gap:7px;min-height:40px;padding:10px 16px;font-size:12px;flex-shrink:0}
+/* A restrained orbit of light: the label stays readable while only the rim moves. */
+@property --wallet-rim-angle{syntax:"<angle>";inherits:false;initial-value:0deg}
+html body .site-header .site-wallet-trigger{
+ position:relative;isolation:isolate;overflow:visible;
+ color:var(--foreground)!important;background:var(--card)!important;
+ border:1px solid color-mix(in srgb,var(--foreground) 22%,transparent);
+ box-shadow:0 0 16px -8px color-mix(in srgb,var(--grain-orange) 45%,transparent),inset 0 1px 0 color-mix(in srgb,var(--foreground) 5%,transparent);
+ transition:box-shadow .25s ease,border-color .25s ease,background .25s ease,transform .25s ease;
+}
+html body .site-header .site-wallet-trigger::before{
+ content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1.5px;pointer-events:none;
+ background:conic-gradient(from var(--wallet-rim-angle),transparent 0deg 85deg,var(--grain-orange) 140deg,var(--foreground) 155deg,var(--grain-orange) 170deg,transparent 225deg 360deg);
+ -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+ mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+ -webkit-mask-composite:xor;mask-composite:exclude;
+ opacity:.65;animation:wallet-rim-orbit 7s linear infinite;transition:opacity .25s ease;
+}
+html body .site-header .site-wallet-trigger:is(:hover,:focus-visible){
+ color:var(--foreground)!important;
+ background:color-mix(in srgb,var(--grain-orange) 7%,var(--card))!important;
+ border-color:color-mix(in srgb,var(--grain-orange) 50%,transparent);
+ box-shadow:0 0 0 3px var(--grain-orange-ring),0 0 24px -6px color-mix(in srgb,var(--grain-orange) 40%,transparent),inset 0 1px 0 color-mix(in srgb,var(--foreground) 8%,transparent);
+ transform:translateY(-1px);
+}
+html body .site-header .site-wallet-trigger:is(:hover,:focus-visible)::before{opacity:1}
+html body .site-header .site-wallet-trigger:focus-visible{outline:2px solid var(--foreground);outline-offset:4px}
+html body .site-header .site-wallet-trigger:active{transform:translateY(0) scale(.98)}
+@keyframes wallet-rim-orbit{to{--wallet-rim-angle:360deg}}
+@media(prefers-reduced-motion:reduce){
+ html body .site-header .site-wallet-trigger{transition:none;transform:none}
+ html body .site-header .site-wallet-trigger::before{animation:none;transition:none;--wallet-rim-angle:35deg}
+ html body .site-header .site-wallet-trigger:is(:hover,:focus-visible,:active){transform:none}
+}
+@media(forced-colors:active){
+ html body .site-header .site-wallet-trigger,html body .site-header .site-wallet-trigger:is(:hover,:focus-visible,:active){color:ButtonText!important;background:ButtonFace!important;border:1px solid ButtonText;box-shadow:none}
+ html body .site-header .site-wallet-trigger::before{display:none}
+}
+.wallet-status-dot{width:6px;height:6px;border-radius:50%;background:#57c695}
+.wallet-session-dialog,.trade-flow-dialog{z-index:140!important;max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain;border-radius:var(--gx-r,8px)!important;background:var(--card,#151a1c);color:var(--foreground,#eef1f2);width:min(440px,calc(100vw - 24px));padding:24px!important}
+body:has(.wallet-session-dialog) [data-slot="dialog-overlay"],body:has(.trade-flow-dialog) [data-slot="dialog-overlay"]{z-index:130!important}
+.wallet-session-dialog .token-wallet-options{display:grid;gap:12px;margin:8px 0}
+.wallet-session-dialog button[data-wallet-provider]{border-radius:var(--gx-r,8px);min-height:48px}
+.trade-flow-dialog dl{display:grid;gap:14px;font-size:14px}
+.trade-flow-dialog dl>div{display:flex;justify-content:space-between;gap:20px}
+.trade-flow-dialog dd{text-align:right;overflow-wrap:anywhere}
+.trade-flow-dialog dt{color:var(--muted-foreground,#a0b2bb)}
+.trade-flow-dialog .feedback{overflow-wrap:anywhere;font-size:14px}
+.trade-flow-dialog>button:not([data-slot="dialog-close"]){border-radius:var(--gx-r,8px)}
+.earnings-balances{display:grid;gap:16px}
+.earnings-currency{border:1px solid var(--line,rgba(143,159,168,.22));border-radius:var(--gx-r,8px);padding:20px}
+.earnings-currency-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.earnings-currency-heading h3{margin:0;font-size:17px}.earnings-currency-heading span{font-size:12px;color:var(--muted-foreground,#a0b2bb)}
+.earnings-currency .earnings-amount{font-size:clamp(22px,4vw,30px);line-height:1.3;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin:20px 0}
+.earnings-amount small{font-size:14px}.earnings-currency .primary-action{width:100%;border-radius:var(--gx-r,8px)}
+.platform-earnings{border-top:1px solid var(--line,rgba(143,159,168,.22));margin-top:16px;padding-top:12px}
+.claim-cost-settings,.claim-disclosures{margin-top:16px;font-size:14px}.claim-cost-settings label{display:block;margin-top:12px}
+.swap-cost-limit{font-size:11px!important;line-height:1.5!important;margin:8px 0 12px!important}
+.token-swap .swap-asset{padding:14px}.token-swap .swap-asset small{line-height:1.4}.token-swap .primary-action{border-radius:var(--gx-r,8px)}
+@media(min-width:768px){.token-side .token-swap{position:relative;top:auto;max-height:calc(100dvh - 120px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}}
+@media(max-width:767px){.site-header .site-brand{font-size:22px!important;gap:6px}.site-header .site-brand img{width:27px;height:27px}.site-header .site-header-actions{gap:6px}.site-header .site-header-actions>a:has(svg){display:none}.site-header .site-wallet-trigger{font-size:11px;padding:8px 10px}.wallet-session-dialog,.trade-flow-dialog{padding:22px 18px!important}.token-swap.is-open{max-height:calc(100dvh - 16px)}.earnings-currency{padding:16px}}
+
+/* Earnings: currency, balance, action, then delivery details in a consistent rhythm. */
+.earnings-panel>h2{margin:0}
+.earnings-panel>h2+p{margin:8px 0 24px;line-height:1.65}
+.earnings-panel .earnings-balances{gap:20px}
+.earnings-panel .earnings-currency{position:relative;isolation:isolate;display:flex;flex-direction:column;gap:16px;padding:24px;background:var(--card);border-color:var(--line);transition:border-color .25s,box-shadow .25s}
+.earnings-panel .earnings-currency[data-claimable]{border-color:color-mix(in srgb,var(--grain-orange) 36%,var(--line));background:linear-gradient(135deg,color-mix(in srgb,var(--grain-orange) 4%,var(--card)),var(--card) 60%);box-shadow:0 6px 24px -18px color-mix(in srgb,var(--grain-orange) 36%,transparent)}
+.earnings-currency[data-claimable]::before{content:"";position:absolute;inset:-1px;border-radius:inherit;padding:1px;pointer-events:none;background:conic-gradient(from var(--wallet-rim-angle),transparent 0deg 110deg,var(--grain-orange) 165deg,transparent 220deg 360deg);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.5;animation:wallet-rim-orbit 12s linear infinite}
+.earnings-panel .earnings-currency-heading{gap:12px;flex-wrap:wrap}
+.earnings-panel .earnings-currency-heading h3{font-size:16px}
+.earnings-panel .earnings-status{display:inline-flex;align-items:center;gap:6px;font-size:11px;line-height:1.3}
+.earnings-currency[data-claimable] .earnings-status{color:var(--foreground)}
+.earnings-status-dot{width:5px;height:5px;flex:none;border-radius:50%;background:var(--grain-orange);box-shadow:0 0 0 3px var(--grain-orange-ring)}
+.earnings-panel .earnings-balance-label{margin:4px 0 -10px;font-size:11px;line-height:1.4;color:var(--muted-foreground)}
+.earnings-panel .earnings-amount{display:flex;align-items:baseline;flex-wrap:wrap;gap:7px;margin:0 0 4px;line-height:1.35;font-size:clamp(22px,3vw,32px);color:var(--foreground);letter-spacing:-.025em}
+.earnings-panel .earnings-amount small{font-size:12px;letter-spacing:0;color:var(--muted-foreground)}
+html body .earnings-panel .earnings-claim-button{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;justify-content:center!important;gap:8px;width:100%;min-height:50px;height:auto!important;margin:0!important;padding:14px 18px!important;font-size:14px!important;font-weight:550;line-height:1.4;text-align:center;border-radius:var(--gx-r,8px);white-space:normal;color:#121212!important;background:var(--grain-orange)!important;transition:box-shadow .25s,transform .25s}
+.earnings-claim-button>span,.earnings-claim-button>svg{position:relative;z-index:1}
+html body .earnings-panel .earnings-claim-button svg{width:17px!important;height:17px!important;flex:none}
+.earnings-claim-button:not(:disabled)::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 30%,#ffffff36 48%,transparent 65%);transform:translateX(-140%);animation:earnings-claim-sheen 7s ease-in-out infinite}
+html body .earnings-panel .earnings-claim-button:hover:not(:disabled){box-shadow:0 0 0 4px var(--grain-orange-ring),0 8px 18px -10px color-mix(in srgb,var(--grain-orange) 60%,transparent);transform:translateY(-1px)}
+html body .earnings-panel .earnings-claim-button[data-empty]{background:var(--secondary)!important;color:var(--muted-foreground)!important;border:1px solid var(--line);opacity:1;box-shadow:none}
+.earnings-panel .earnings-delivery-note{margin:0;font-size:12px;line-height:1.65;color:var(--muted-foreground)}
+.earnings-panel .platform-earnings{display:grid;gap:12px;margin:2px 0 0;padding:18px 0 0;border-top:1px solid var(--line)}
+.platform-earnings-summary{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;font-size:12px;line-height:1.6;color:var(--muted-foreground)}
+.platform-earnings-summary strong{font-weight:500;color:var(--foreground);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.platform-earnings-summary small{font-size:11px;color:var(--muted-foreground)}
+html body .earnings-panel .platform-claim-button{display:flex;align-items:center;justify-content:center;gap:7px;min-height:42px;height:auto;width:100%;padding:10px 16px;margin:0;border-radius:var(--gx-r,8px);font-size:12px;line-height:1.4;white-space:normal;border:1px solid var(--line);color:var(--foreground);background:transparent}
+html body .earnings-panel .platform-claim-button:hover:not(:disabled){border-color:var(--grain-orange);background:var(--grain-orange-tint)}
+.earnings-panel .earnings-cost-note{margin:22px 0 0;font-size:12px;line-height:1.7;color:var(--muted-foreground)}.earnings-cost-note strong{font-weight:500;color:var(--foreground);white-space:nowrap}
+.earnings-panel .claim-cost-settings,.earnings-panel .claim-disclosures{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;line-height:1.7}
+.earnings-panel .claim-cost-settings summary,.earnings-panel .claim-disclosures summary{cursor:pointer;min-height:28px}
+.earnings-panel .earnings-receipt{margin:22px 0 0;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--secondary);font-size:12px;line-height:1.7}
+.earnings-receipt p{display:flex;align-items:flex-start;gap:8px;margin:0}.earnings-receipt p svg{flex:none;margin-top:3px}
+.earnings-panel .earnings-receipt .text-link{margin-top:9px;font-size:12px}
+@keyframes earnings-claim-sheen{0%,65%{transform:translateX(-140%)}90%,100%{transform:translateX(140%)}}
+@media(max-width:600px){.earnings-panel .earnings-currency{padding:18px;gap:14px}.earnings-panel .earnings-amount{font-size:24px}.earnings-panel .earnings-balances{gap:16px}.earnings-panel .platform-earnings{padding-top:16px;gap:12px}.platform-earnings-summary{flex-direction:column;gap:4px}}
+@media(prefers-reduced-motion:reduce){.earnings-currency[data-claimable]::before{animation:none;--wallet-rim-angle:35deg}.earnings-claim-button:not(:disabled)::after{animation:none;display:none}html body .earnings-panel .earnings-claim-button{transition:none;transform:none!important}.earnings-panel .earnings-currency{transition:none}}
+@media(forced-colors:active){.earnings-currency[data-claimable]::before,.earnings-claim-button::after{display:none}html body .earnings-panel .earnings-claim-button,html body .earnings-panel .earnings-claim-button[data-empty]{color:ButtonText!important;background:ButtonFace!important;border:1px solid ButtonText}}
+
+/* Creator Desk overview shares the earnings cards' surfaces and spacing. */
+html body .creator-desk{border-radius:var(--gx-r,8px);padding:28px!important;margin:0 0 32px!important;overflow:hidden;background:var(--card);border:1px solid var(--line)}
+.creator-desk .product-section-heading{gap:20px;margin:0 0 24px;align-items:center}
+.creator-desk .product-section-heading h2{font-size:22px;line-height:1.3;letter-spacing:-.025em}
+.creator-desk .product-section-heading p{font-size:14px;line-height:1.6;margin:8px 0 0;color:var(--muted-foreground);max-width:560px}
+.creator-desk .product-section-heading .eyebrow{font-size:10px;letter-spacing:.12em;margin:0 0 10px;color:var(--muted-foreground)}
+.creator-desk .product-section-heading button,.creator-desk .product-section-heading .token-chip{flex:none;display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:10px 16px;font-size:12px;line-height:1.3;border:1px solid var(--line);border-radius:var(--gx-r,8px);color:var(--foreground);background:transparent}
+.creator-desk .product-section-heading :is(button,.token-chip):hover{border-color:var(--grain-orange);background:var(--grain-orange-tint)}
+.creator-desk .product-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;background:transparent;border:0;margin:0 0 24px}
+.creator-desk .product-metrics>div{display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:12px;min-width:0;padding:18px;border:1px solid var(--line);border-radius:12px;background:var(--secondary)}
+.creator-desk .product-metrics span{font-size:11px;line-height:1.5;color:var(--muted-foreground);margin:0}
+.creator-desk .product-metrics strong{font-size:27px;line-height:1.1;font-weight:500;color:var(--foreground)}
+.creator-desk .product-metrics a{font-size:13px;line-height:1.5;color:var(--foreground);text-decoration:underline;text-underline-offset:4px;text-decoration-color:color-mix(in srgb,var(--grain-orange) 55%,transparent)}
+.creator-desk .creator-projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;margin:0 0 32px}
+.creator-desk .creator-project{display:grid;grid-template-columns:48px minmax(0,1fr);gap:16px;padding:20px;border:1px solid var(--line);border-radius:var(--gx-r,8px);background:var(--card)}
+.creator-desk .creator-project .token-avatar{border-radius:12px;overflow:hidden;align-self:start}
+.creator-project-identity{min-width:0}.creator-desk .creator-project h3{font-size:17px;line-height:1.3;margin:0 0 5px;overflow-wrap:anywhere}
+.creator-desk .creator-project p{margin:0;font-size:12px;line-height:1.7;color:var(--muted-foreground)}
+.creator-desk .creator-project .creator-project-date{font-size:11px;margin-top:3px}
+.creator-desk .creator-project .product-actions{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0;padding-top:14px;border-top:1px solid var(--line)}
+.creator-desk .creator-project .token-chip{display:flex;align-items:center;justify-content:center;min-height:38px;border:1px solid var(--line);border-radius:var(--gx-r,8px);background:transparent;padding:8px 12px;font-size:12px;color:var(--foreground)}
+.creator-desk .creator-project .creator-market-link{border-color:color-mix(in srgb,var(--grain-orange) 40%,var(--line));background:var(--grain-orange-tint)}
+.creator-desk .creator-project .token-chip:hover{border-color:var(--grain-orange)}
+.creator-desk .creator-history-heading{margin:0 0 12px;padding-top:26px;border-top:1px solid var(--line)}
+.creator-desk .creator-history-coverage{font-size:12px;line-height:1.7;color:var(--muted-foreground);margin:0 0 20px;max-width:780px}
+.creator-desk .product-table-wrap{border:1px solid var(--line);border-radius:12px;overflow:auto;margin:0}
+.creator-desk .product-table{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.creator-desk .product-table th,.creator-desk .product-table td{padding:15px 16px;line-height:1.6;border-bottom:1px solid var(--line);text-align:left;white-space:normal;font-weight:400}
+.creator-desk .product-table thead th{font-size:11px;color:var(--muted-foreground);background:var(--secondary)}
+.creator-desk .product-table tbody th{font-weight:500;color:var(--foreground)}
+.creator-desk .product-table tbody tr:last-child>*{border-bottom:0}
+.creator-desk .product-table td a{display:inline-block;color:var(--foreground);text-decoration:underline;text-underline-offset:4px;text-decoration-color:var(--grain-orange)}
+.creator-desk .creator-fee-notes{margin-top:20px;padding-top:16px;border-top:1px solid var(--line);font-size:12px;line-height:1.7}
+.creator-desk .creator-fee-notes summary{cursor:pointer;min-height:28px;color:var(--muted-foreground)}
+.creator-desk .creator-fee-notes p{font-size:12px;line-height:1.7;margin:12px 0 0;color:var(--muted-foreground);max-width:780px}
+@media(max-width:900px){.creator-desk .product-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){
+ html body .creator-desk{padding:20px!important;border-radius:var(--gx-r,8px);margin-bottom:24px!important}
+ .creator-desk .product-section-heading{flex-direction:row;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:20px}
+ .creator-desk .product-section-heading h2{font-size:20px}.creator-desk .product-section-heading p{font-size:13px}
+ .creator-desk .product-metrics{gap:10px;margin-bottom:20px}.creator-desk .product-metrics>div{padding:14px;gap:12px}.creator-desk .product-metrics a{font-size:12px}
+ .creator-desk .creator-projects{margin-bottom:24px}.creator-desk .creator-project{padding:16px;gap:12px}
+ .creator-desk .creator-history-heading{padding-top:22px;margin-bottom:12px}
+ .creator-desk .creator-history-coverage{margin-bottom:16px}
+ html body .creator-desk .product-table-wrap{overflow:visible;border:0;border-radius:0}
+ html body .creator-desk .product-table{display:block;width:100%;min-width:0}
+ .creator-desk .product-table thead{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+ .creator-desk .product-table tbody{display:grid;gap:12px}
+ .creator-desk .product-table tbody tr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:16px;border:1px solid var(--line);border-radius:12px;background:var(--secondary)}
+ .creator-desk .product-table tbody th,.creator-desk .product-table tbody td{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;margin:0;padding:0;border:0;overflow-wrap:anywhere;font-size:12px}
+ .creator-desk .product-table tbody th{grid-column:1/-1;font-size:14px;font-weight:500}
+ .creator-desk .product-table td::before{content:attr(data-label);font-size:10px;line-height:1.5;color:var(--muted-foreground)}
+ .creator-desk .product-table td:last-child{grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px;flex-direction:row;align-items:center;justify-content:space-between;gap:12px}
+ .creator-desk .product-table td a{font-size:12px;line-height:1.5;text-align:right}
+}
+
+/* Both wallet families use one chooser and the same purchase controls. */
+.wallet-network-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.wallet-network-tabs button,.wallet-session-dialog [data-slot="button"],.trade-flow-dialog [data-slot="button"]{border-radius:var(--gx-r,8px)}
+.wallet-network-badge{font:600 10px var(--font-code);letter-spacing:.04em;border:1px solid currentColor;border-radius:var(--gx-r,8px);padding:3px 5px}
+.trade-wallet-context{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--market-muted);overflow-wrap:anywhere;margin:8px 0 16px}
+.trade-wallet-mismatch{border:1px solid var(--market-border);border-radius:var(--gx-r,8px);padding:14px;margin:12px 0;font-size:12px;line-height:1.5}
+.trade-wallet-mismatch p{margin:8px 0 12px;color:var(--market-muted)}
+.token-market-page .token-swap [data-slot="button"],.token-market-page .rh-creator-tools [data-slot="button"]{border-radius:var(--gx-r,8px)!important}
+.swap-funding{margin:12px 0 16px}.swap-funding p{margin-bottom:8px}
+.trade-recovery{margin-top:18px;border-top:1px solid var(--market-border);padding-top:14px;font-size:12px}
+.trade-recovery summary,.rh-creator-tools>summary{cursor:pointer;font-weight:600}
+.trade-recovery label{display:grid;gap:8px;margin:12px 0}
+.rh-creator-tools{margin-top:20px;overflow-wrap:anywhere}
+.rh-creator-tools[open]>summary{margin-bottom:14px}
+.rh-creator-tools [data-slot="button"]{margin:6px 4px 6px 0}
+.rh-creator-tools .receipt{font-size:12px}.rh-creator-tools .product-facts{margin:16px 0}
+@media(max-width:760px){.rh-creator-tools{position:static;margin:20px 0 0}.wallet-network-tabs button{padding:8px;font-size:12px}}
+.token-market-page .mobile-trade-bar [data-slot="button"],.wallet-session-dialog .wallet-row{border-radius:var(--gx-r,8px)!important}
+
+/* Trade confirmation stays inside the swap card; hidden reviews never create an overlay. */
+.token-swap .swap-review[hidden],.token-swap .primary-action[hidden]{display:none}
+.token-swap .swap-review{margin-top:20px;padding:20px 0 0;border-top:1px solid var(--gx-rule,var(--charcoal));display:grid;gap:14px;min-width:0}
+.token-swap .swap-review h3,.token-swap .swap-review p{margin:0}
+.token-swap .swap-review dl{display:grid;gap:12px;font-size:14px;margin:0}
+.token-swap .swap-review dl>div{margin:0;display:flex;justify-content:space-between;gap:16px;align-items:baseline}
+.token-swap .swap-review dt{color:var(--gx-mute,var(--muted-foreground))}
+.token-swap .swap-review dd{margin:0;text-align:right;overflow-wrap:anywhere;min-width:0}
+.token-swap .swap-review button{border-radius:var(--gx-r,8px);min-height:44px;width:100%}

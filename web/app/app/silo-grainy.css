@@ -1,0 +1,49 @@
+/* Grainy, the Silo helper. Sits beside the wallet, never over a money flow: hidden behind any open dialog, one tap to close. */
+.grainy{--grainy-gap:16px;--g-panel:#161616;--g-field:#101010;--g-line:#3d3d3d;--g-control:#6b6b6b;--g-text:#fff;--g-text-2:#d4d4d4;--g-ink:#101010;--g-orange:var(--grain-orange);--g-warn-bg:#1f1611;--g-warn-line:#6b3a1f;--g-danger:#ff9c85;font-family:'Albert Sans Variable','Silo Albert Sans','Albert Sans',system-ui,sans-serif;color:var(--g-text);font-weight:600}
+.grainy *,.grainy-fab{box-sizing:border-box}
+.grainy-stage{position:fixed;inset:0;z-index:25;pointer-events:none}
+.grainy-fab{position:absolute;pointer-events:auto;z-index:25;width:60px;height:45px;padding:0;border:0;background:transparent;display:grid;place-items:center;cursor:pointer;filter:drop-shadow(0 3px 6px #0006)}
+.grainy-fab:focus-visible,.grainy-sheet button:focus-visible,.grainy-sheet a:focus-visible,.grainy-sheet textarea:focus-visible,.grainy-sheet input:focus-visible{outline:3px solid var(--g-text);outline-offset:2px}
+.grainy-fab[data-covering]{opacity:0;pointer-events:none}
+.grainy-fab{transition:opacity .15s}
+.grainy-face{display:block;flex:none}
+.grainy-hop{display:block;transform-origin:50% 62%}
+.grainy-fab[data-go]{transition:left .48s ease-in-out,top .48s ease-in-out}
+.grainy-fab[data-go] .grainy-hop{transition:transform .48s ease-in-out}
+.grainy .grainy-fine{margin:0;font-size:13px;color:var(--g-text-2)}
+/* Behind any open dialog the whole helper goes, including an open tour or help panel, so it never sits over a send, convert, backup or unlock step. */
+body:has([aria-modal="true"]) .grainy,body:has(dialog[open]) .grainy,body:has(.silo-gate) .grainy,body:has(.silo-opening) .grainy{display:none}
+.grainy-sheet{position:fixed;left:var(--grainy-gap);bottom:calc(var(--grainy-lift,16px) + 68px);z-index:26;width:min(380px,calc(100vw - 32px));max-height:min(70vh,560px);overflow:auto;overscroll-behavior:contain;display:grid;gap:12px;padding:16px;border:1px solid var(--g-line);border-radius:var(--silo-radius,8px);background:var(--g-panel);color:var(--g-text);font-size:15px;line-height:1.45;box-shadow:0 8px 32px #0006}
+@media(max-width:699px){.grainy-sheet{left:var(--grainy-gap);right:var(--grainy-gap);width:auto;bottom:calc(var(--grainy-lift,76px) + 68px);max-height:min(66vh,560px)}}
+.grainy-sheet:focus{outline:none}
+.grainy-head{display:flex;align-items:center;gap:10px;position:sticky;top:-16px;margin:-16px -16px 0;padding:16px 16px 4px;background:var(--g-panel);z-index:1}
+.grainy-head strong{flex:1;font-size:18px;letter-spacing:-.04em}
+.grainy-dot{color:var(--g-orange);font-style:normal}
+.grainy .grainy-x{width:44px;height:44px;border:0;border-radius:var(--silo-radius-sm,6px);background:transparent;color:inherit;font-size:26px;line-height:1;cursor:pointer}
+.grainy .grainy-body h3{margin:0 0 6px;font-size:16px}
+.grainy .grainy-body p{margin:0 0 8px;color:var(--g-text-2)}
+.grainy-dots{display:flex;gap:6px}
+.grainy-dots span{width:8px;height:8px;border-radius:50%;background:var(--g-line)}
+.grainy-dots span[data-on]{background:var(--g-orange)}
+.grainy .grainy-chips{display:flex;flex-wrap:wrap;gap:6px}
+.grainy .grainy-chip{min-height:44px;padding:0 14px;border:1px solid var(--g-line);border-radius:var(--silo-pill,4px);background:transparent;color:inherit;font:inherit;cursor:pointer}
+.grainy .grainy-chip[aria-selected=true]{background:var(--g-primary,var(--g-text));color:var(--g-ink);border-color:var(--g-text)}
+.grainy-actions{position:sticky;bottom:-16px;margin:0 -16px -16px;padding:8px 16px 16px;background:var(--g-panel);display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px}
+.grainy .grainy-primary{min-height:48px;padding:0 20px;border:0;border-radius:var(--silo-radius-sm,6px);background:var(--g-primary,var(--g-text));color:var(--g-ink);font:inherit;font-weight:600;cursor:pointer}
+.grainy .grainy-primary:disabled{opacity:.6;cursor:default}
+.grainy .grainy-link{min-height:44px;padding:0 10px;border:0;background:transparent;color:var(--g-text-2);font:inherit;text-decoration:underline;cursor:pointer}
+.grainy .grainy-form{display:grid;gap:8px}
+.grainy .grainy-form label{font-weight:600}
+.grainy .grainy-form textarea,.grainy .grainy-form input{width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--g-control);border-radius:var(--silo-radius-sm,6px);background:var(--g-field);color:var(--g-text);font:inherit}
+.grainy .grainy-warning{margin:0;padding:10px 12px;border:1px solid var(--g-warn-line);border-radius:var(--silo-radius,8px);background:var(--g-warn-bg)}
+.grainy .grainy-error{margin:0;color:var(--g-danger)}
+.grainy-fallback{margin:0}.grainy-fallback a,.grainy-ok{color:inherit}
+@media(prefers-reduced-motion:no-preference){.grainy-fab:hover .grainy-face{transform:scale(1.06)}}
+@media(prefers-reduced-motion:reduce){.grainy-fab,.grainy-fab[data-go],.grainy-fab[data-go] .grainy-hop{transition:none}}
+
+/* Resting corner (owner): fixed to the bottom right of the viewport by CSS, above the tab bar and the iPhone inset, small, with a hide button. Nothing is measured, so a collapsing Safari toolbar never leaves it mid-page. */
+.grainy-fab[data-corner]{left:auto;top:auto;right:12px;bottom:16px}
+.grainy-fab-x{position:absolute;z-index:26;pointer-events:auto;right:60px;bottom:48px;width:28px;height:28px;padding:0;border:0;border-radius:50%;background:var(--g-panel);color:var(--g-text);font:inherit;font-size:18px;line-height:28px;cursor:pointer;box-shadow:0 0 0 1px var(--g-line)}
+.grainy-fab-x::before{content:"";position:absolute;inset:-8px}
+.grainy-fab[data-covering]+.grainy-fab-x{opacity:0;pointer-events:none}
+@media(max-width:699px){.grainy-fab[data-corner]{bottom:calc(env(safe-area-inset-bottom,0px) + 77px)}.grainy-fab-x{bottom:calc(env(safe-area-inset-bottom,0px) + 77px + 36px)}}

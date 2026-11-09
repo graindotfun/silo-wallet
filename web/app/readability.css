@@ -1,0 +1,12 @@
+/* Shared controls and supporting text stay readable across the product. */
+body{font-size:16px;line-height:1.5}
+.small,.fame-note,.address-line{font-size:14px}
+.site-header .desktop-nav{font-size:15px;gap:22px}
+.site-header .site-wallet-trigger{font-size:14px!important}
+.grain-select-label,.grain-select-trigger,.grain-select-menu{font-size:14px}
+.room-event time,.room-reply time,.product-tag{font-size:14px}
+.product-page .product-text-button,.product-page .token-chip{font-size:15px}
+.product-page .eyebrow{font-size:14px}
+.form-panel label,.room-composer label,.identity-claim label{font-size:15px}
+.product-page input,.product-page textarea,.product-page select{font-size:16px}
+@media(min-width:761px) and (max-width:1200px){.site-header .desktop-nav{gap:14px;font-size:14px}}

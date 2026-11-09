@@ -8,13 +8,15 @@ reproduced in three independent environments. upgraded on 2026-11-08 in transact
 bytes (`76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d`) differed by 1,672 bytes of compiler output and are
 kept in `docs/verify-build/bins/` with a differential test. verify it yourself: `docs/VERIFY_IN_10_MINUTES.md`.
 the hosted xmr to sol swap is open again: the maker was stopped only for the upgrade window and restarted at 2026-11-08 21:47 UTC, running the same maker code as before the upgrade (caps 0.05 xmr per swap and 0.3 xmr per day, maker policy). the refund path fixes under review are not deployed yet.
+the wallet web app is published too: `web/` holds the browser code of https://silo.trading/app at commit `6dd7023c`, the commit the live site runs. a clean rebuild of that commit gave the same sha256 for all 143 files the page loads, and the monero engine rebuilds from `web/` alone to the served bytes. you cannot rebuild the rest of the app from this repository alone yet. what you can and cannot check: `docs/VERIFY_APP.md`.
 
 swap caps and maker quotas are maker policy, not program code, so do not rely on them (see `docs/WHAT_THE_MAKER_CAN_DO.md`).
 
 Repository: https://github.com/graindotfun/silo-wallet
 
-Source for the parts of Silo that hold your keys and move your money. Silo is a self-custody wallet: wallet seeds
-and spend keys are made and kept on your device, and the wallet code in this repository does not send them to a server.
+Source for the parts of Silo that hold your keys and move your money, and in `web/` the source of the whole wallet web
+app. Silo is a self-custody wallet: wallet seeds and spend keys are made and kept on your device, and the wallet code in
+this repository does not send them to a server.
 
 ## What an XMR to SOL swap shares with the swap maker
 
@@ -41,8 +43,9 @@ claim that the maker deletes the swap keys.
 Planned improvement: a future protocol version could split the view key so that the maker cannot watch the address on its
 own. There is no date for it.
 
-This is a deliberately small cut. It lets you read, build and check the code that matters most.
-It is not the whole product.
+The top-level `lib/`, `components/` and `tests/` are a small cut of the wallet core that you can read, build and test on
+its own. `web/` is the whole browser app at the commit the live site runs. Neither is the whole product: the server side is
+not here (see "What is not here").
 
 ## What is here
 
@@ -59,6 +62,8 @@ It is not the whole product.
 | `program/` | The Solana escrow program used by the atomic swap, with its tests |
 | `components/` | The screens for unlock, backup and the atomic swap |
 | `tests/` | Tests that run on their own, with no network |
+| `web/` | The wallet web app at commit `6dd7023c`, the one https://silo.trading/app serves: screens, styles, browser code and 83 test files, the Monero and Zcash engine build scripts, and the swap maker code at the same commit. Files are unchanged from that commit except two comments (see `docs/VERIFY_APP.md`) |
+| `scripts/verify-app.mjs`, `docs/verify-app/` | Fetches the files the live site serves and compares their sha256 with the recorded build of that commit |
 
 ## What this code can still do
 
@@ -73,11 +78,21 @@ and the test-network signing are held off. Still present:
 - `revealSecretKey` in `native-keyring.mjs` returns a Solana secret key after the passphrase is entered (export, so nobody
   is locked in).
 
+`web/` is the live code, so there nothing is held off beyond what production holds off: `signReviewedTransfer` and
+`signReviewedManaged` in `web/lib/silo/native-keyring.mjs` sign after the client consumes a release ticket
+(`solana-transfer-client-flow.mjs`, `jupiter-managed-client-flow.mjs`), and the EVM and Bitcoin send paths are present.
+Test-network signing stays out of production builds: `web/vite.config.ts` replaces `native-keyring-testnet.mjs` with
+`native-keyring-testnet.held.mjs`.
+
 ## What is not here
 
-The hosted service (accounts, sync, the swap maker, conversion providers, operations) is not part of this repository.
-The wallet client talks to Silo's hosted session and RPC endpoints for chain reads; those endpoints are not published here.
-Solana send and swap signing needs a release-ticket flow that is not in this cut, so in this repository
+The hosted service (accounts, sync, conversion providers, operations) is not part of this repository. That includes the
+server side of the Worker that serves https://silo.trading (its API routes and server modules), its configuration and its
+secrets, and the deploy scripts. The wallet client talks to Silo's hosted session and RPC endpoints for chain reads; the
+code behind those endpoints is not published here.
+The swap maker code as it is at the live app commit is in `web/prototypes/xmr-sol-atomic-swap/maker/`. The maker runs as a
+separate service and is deployed on its own; this repository does not claim the running process is identical to that code.
+In the top-level cut, Solana send and swap signing needs a release-ticket flow that is not in the cut, so there
 `signReviewedTransfer` and `signReviewedManaged` refuse to sign. Test-network signing is held off, the same as in the
 production build.
 
@@ -90,6 +105,7 @@ statement that the software is safe.
 
 ## More documents
 
+- `docs/VERIFY_APP.md`: compare the wallet web app the site serves with `web/`, the build recipe, and what you cannot check yet.
 - `docs/VERIFY_IN_10_MINUTES.md`: a few commands to check the live program, rebuild it, and check this repository.
 - `docs/PROTOCOL.md`: the XMR to SOL swap protocol (beta version).
 - `docs/WHAT_THE_MAKER_CAN_DO.md`: what the swap maker can and cannot do.
