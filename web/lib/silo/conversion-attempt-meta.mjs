@@ -22,7 +22,15 @@ async function update(handle, patch, storage) {
     const key = await handleKey(handle), all = load(storage);
     all[key] = { ...(all[key] ?? {}), ...patch };
     const keys = Object.keys(all);
-    if (keys.length > MAX_ENTRIES) for (const old of keys.slice(0, keys.length - MAX_ENTRIES)) delete all[old];
+    // Eviction is fail-closed: a row that says "deposit review was opened" or "hidden from the screen" is never the first to go,
+    // because a missing row reads as "never opened" (see readConversionAttemptMeta). Only plain window-only rows are evicted first;
+    // protected rows go only past a hard ceiling of 4x the normal limit, oldest first.
+    if (keys.length > MAX_ENTRIES) {
+      const plain = keys.filter(k => all[k]?.depositOpened !== true && all[k]?.hidden !== true);
+      for (const old of plain.slice(0, keys.length - MAX_ENTRIES)) delete all[old];
+      const left = Object.keys(all);
+      if (left.length > MAX_ENTRIES * 4) for (const old of left.slice(0, left.length - MAX_ENTRIES * 4)) delete all[old];
+    }
     storage.setItem(KEY, JSON.stringify(all));
     return true;
   } catch { return false; }
@@ -34,6 +42,17 @@ export function recordConversionWindow(handle, windowEndsAt, storage = defaultSt
 }
 /** Must succeed BEFORE the wallet deposit review is opened. Resolves false when it could not be saved. */
 export function markConversionDepositOpened(handle, storage = defaultStorage()) { return update(handle, { depositOpened: true }, storage); }
+/** Move an expired, still-waiting order off the main screen. Display only: it never retires the recovery handle. Resolves false when not saved. */
+export function setConversionAttemptHidden(handle, hidden, storage = defaultStorage()) { return update(handle, { hidden: hidden === true }, storage); }
+/** Which of these handles were hidden from the main screen. Unreadable storage hides nothing (fail-closed: everything stays on screen). */
+export async function readHiddenConversionAttempts(handles, storage = defaultStorage()) {
+  try {
+    if (!storage) return [];
+    const all = load(storage), out = [];
+    for (const handle of handles) if (all[await handleKey(handle)]?.hidden === true) out.push(handle);
+    return out;
+  } catch { return []; }
+}
 /** @returns {Promise<{readable:boolean,depositOpened:boolean,windowEndsAt:number|null}>} unreadable => depositOpened true. */
 export async function readConversionAttemptMeta(handle, storage = defaultStorage()) {
   try {

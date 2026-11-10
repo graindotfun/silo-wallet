@@ -1,5 +1,5 @@
 'use client';
-import {useId,useState,type FormEvent} from 'react';
+import {useId,useState,type FormEvent,type ReactNode} from 'react';
 import {AlertTriangle,ArrowRight,Eye,EyeOff,LockKeyhole} from 'lucide-react';
 import {SiloAssetIcon} from './silo-asset-icon';
 import {siloLookStyle} from './silo-asset-card';
@@ -35,7 +35,7 @@ function Secret({id,label,value,onChange,disabled,autoFocus=false}:{id:string;la
  </div></div>;
 }
 
-export function SiloLockedDeck({state,onUnlock,onOpenWallet,onCreate}:{state:SiloUnlockState;onUnlock:(passphrase:string)=>void;onOpenWallet:(id:SiloUnlockRow['id'])=>void;onCreate?:()=>void}){
+export function SiloLockedDeck({state,onUnlock,onOpenWallet,onCreate,deviceAction}:{deviceAction?:ReactNode;state:SiloUnlockState;onUnlock:(passphrase:string)=>void;onOpenWallet:(id:SiloUnlockRow['id'])=>void;onCreate?:()=>void}){
  const id=useId(),[passphrase,setPassphrase]=useState('');
  const submit=(event:FormEvent)=>{event.preventDefault();if(state.busy||passphrase.length<12)return;const value=passphrase;setPassphrase('');onUnlock(value);};
  const many=state.rows.length>1;
@@ -46,7 +46,7 @@ export function SiloLockedDeck({state,onUnlock,onOpenWallet,onCreate}:{state:Sil
   <form className="silo-locked-form" onSubmit={submit} noValidate>
    <Secret id={`${id}-pass`} label="Passphrase (12 to 256 characters)" value={passphrase} onChange={setPassphrase} disabled={state.busy}/>
    {state.wrong&&<p className="silo-locked-error" role="alert"><AlertTriangle size={18} aria-hidden="true"/>{SILO_UNLOCK_WRONG}</p>}
-   <button type="submit" className="silo-locked-go" disabled={state.busy||passphrase.length<12}>{state.busy?'Unlocking…':'Unlock'}</button>
+   <div className="silo-unlock-actions"><button type="submit" className="silo-locked-go" disabled={state.busy||passphrase.length<12}>{state.busy?'Unlocking…':'Unlock'}</button>{deviceAction}</div>
   </form>
   {state.rows.length>0&&<ul className="silo-locked-rows" aria-label="Wallets on this device">{state.rows.map(row=><li key={row.id} className="silo-locked-row" data-status={row.status} style={siloLookStyle(lookOf(row))}>
    <div className="silo-locked-row-head"><SiloAssetIcon asset={row.asset}/><span><strong>{row.name}</strong><small>{zoneOf(row)}</small></span><em aria-live="polite" data-state={row.status==='open'?'on':row.status==='opening'?'busy':undefined}>{row.status==='locked'&&<LockKeyhole size={12} aria-hidden="true"/>}{statusWord(row)}</em></div>

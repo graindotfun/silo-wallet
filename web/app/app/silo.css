@@ -720,12 +720,15 @@ button.silo-account:hover{background:var(--silo-hover);border-radius:var(--silo-
 
 /* ───────── View switching: every zone stays mounted; the shell shows the parts of the current view ───────── */
 .silo-app[data-view=overview] .silo-wallet-controls{display:none}
-.silo-app[data-view=swap] .silo-wallet-controls>section:not(#silo-swap):not(#silo-conversion):not(#silo-atomic):not(.silo-conv-deposit){display:none}
+.silo-app[data-view=swap] .silo-wallet-controls>section:not(#silo-swap):not(#silo-conversion):not(#silo-atomic):not(#silo-atomic-reverse):not(#silo-atomic-dir):not(.silo-conv-deposit){display:none}
 .silo-app[data-view=swap][data-task=swap] .silo-conv-deposit{display:none}
 .silo-app:not([data-view=swap]) .silo-conv-deposit{display:none}
 .silo-app[data-view=swap][data-task=swap] #silo-conversion{display:none}
 .silo-app[data-view=swap][data-task=cashout] #silo-swap{display:none}
 .silo-app:not([data-view=swap][data-task=atomic]) #silo-atomic{display:none}
+.silo-app:not([data-view=swap][data-task=atomic]) #silo-atomic-reverse,.silo-app:not([data-view=swap][data-task=atomic]) #silo-atomic-dir{display:none}
+/* SOL -> XMR: one direction at a time (SiloAtomicDirectionSwitch sets data-sx-dir). */
+.silo-app[data-sx-dir=sol-xmr] #silo-atomic,.silo-app:not([data-sx-dir=sol-xmr]) #silo-atomic-reverse{display:none}
 .silo-app[data-view=swap][data-task=atomic] #silo-swap,.silo-app[data-view=swap][data-task=atomic] #silo-conversion,.silo-app[data-view=swap][data-task=atomic] .silo-conv-deposit{display:none}
 .silo-app[data-view=swap] .silo-wallet-controls{max-width:1008px}
 .silo-app[data-view=wallets] .silo-wallet-controls>section:not(#silo-xmr):not(#silo-zec):not(#silo-public):not(#silo-evm):not(.silo-hold){display:none}
@@ -1088,7 +1091,13 @@ button.silo-account:hover{background:var(--silo-hover);border-radius:var(--silo-
 /* Money animation (components/silo-money-animation.tsx). Flat colours only: no glow, blur, filter or shadow. Fixed and out of
    flow, so nothing behind it moves. z-index 60 sits above the bottom bar (20), the opening (40) and the convert sheet (50). */
 /* No-bridge XMR to SOL swap: same look as Convert */
-.silo-app #silo-atomic{margin:0;border:0;border-radius:0;padding:0;background:none}
+.silo-app #silo-atomic,.silo-app #silo-atomic-reverse{margin:0;border:0;border-radius:0;padding:0;background:none}
+.silo-app .silo-wallet-controls .sx-dir{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:4px;padding:4px;margin:0 0 12px;border-radius:var(--silo-radius-sm);background:var(--silo-panel);border:1px solid var(--silo-line)}
+.silo-app .silo-wallet-controls .sx-dir button{display:flex;align-items:center;justify-content:center;gap:5px;min-width:0;min-height:44px;padding:0 4px;white-space:nowrap;border:0;border-radius:var(--silo-radius-sm);background:none;font:inherit;font-size:14px;font-weight:600;color:var(--silo-text-2)}
+.silo-app .silo-wallet-controls .sx-dir button[data-on]{background:var(--silo-bg);color:var(--silo-text);border:1px solid var(--silo-line-strong)}
+/* 390px: both segments fit (E22 shot 5 had the SOL -> XMR segment cut off by 40px icons) */
+.silo-app .silo-wallet-controls .sx-dir .silo-asset-icon{width:22px;height:22px;flex:none}
+.silo-app .silo-wallet-controls .sx-dir .silo-asset-icon[data-asset=sol]{padding:3px}
 
 /* No-bridge XMR -> SOL swap, round-3 design + delta 1 (owner-approved for the PR, 4 Nov 2026; HANDOFF-SPEC.md, HANDOFF-SPEC-DELTA-1.md). Token radii only. */
 /* ── shell proposals (SiloOverview), swap view only ─────────────────────────────────────────── */
@@ -1272,7 +1281,7 @@ button.silo-account:hover{background:var(--silo-hover);border-radius:var(--silo-
 .silo-app .silo-wallet-controls p.sx-sum{flex-direction:column;align-items:flex-start;gap:2px}
 .silo-app .silo-wallet-controls .sx-amounts{white-space:nowrap}
 /* Grainy's floating button covers the Keep row and the result buttons while a swap runs or shows its result; the panel has its own help. */
-body:has(.silo-app[data-view=swap][data-task=atomic] #silo-atomic [data-now-card]) .grainy-fab{display:none}
+body:has(.silo-app[data-view=swap][data-task=atomic] #silo-atomic [data-now-card]) .grainy-fab,body:has(.silo-app[data-view=swap][data-task=atomic][data-sx-dir=sol-xmr] #silo-atomic-reverse [data-now-card]) .grainy-fab{display:none}
 .silo-money{--money-ink:#1a1714;--money-cream:#e9dac6;--money-edge:#b8a68b;position:fixed;inset:0;z-index:60;overflow:hidden;background:var(--grain-orange);color:var(--money-ink);font-family:'Albert Sans Variable','Silo Albert Sans','Albert Sans',system-ui,sans-serif;font-weight:600;-webkit-font-smoothing:antialiased;animation:silo-money-in .25s ease-out both}
 .silo-money-coins{position:absolute;inset:0;overflow:hidden;perspective:900px;pointer-events:none;z-index:1}
 .silo-money-coin{position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);margin-left:calc(var(--s) / -2);transform-style:preserve-3d;animation:silo-money-fall var(--fall) linear var(--delay) infinite both}

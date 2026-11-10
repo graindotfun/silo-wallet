@@ -8,6 +8,7 @@ import { secp256k1 } from '@noble/curves/secp256k1';
 import { keccak_256 } from '@noble/hashes/sha3';
 import { siloPassphraseProblem } from './passphrase-strength.mjs';
 import { signTestNetworkTransaction as testNetworkSign } from './native-keyring-testnet.mjs';
+import { verifySiloAtomicRefunderTx } from './atomic-swap/refunder-tx.mjs';
 import { siloBtcAddress, siloBtcAddresses, siloBtcOwnedScripts, siloBtcRecoveryPhrase, SILO_BTC_NETWORKS } from './btc.mjs';
 import { siloBtcSignReviewed, siloBtcSummarizePsbt } from './btc-send.mjs';
 import { consumeSiloEvmTransferTicket, siloEvmTransferFields, siloEvmSigningBytes, siloEvmSerializeSigned } from './evm-transfer.mjs';
@@ -174,6 +175,16 @@ function session(chain, secret, envelope, store, network = 'mainnet') {
       const tx=VersionedTransaction.deserialize(Buffer.from(encoded,'base64')),pair=nacl.sign.keyPair.fromSeed(secret);
       try{assert();guard();if(bs58.encode(pair.publicKey)!==address)throw Error('Native signer changed.');tx.signatures[0]=nacl.sign.detached(tx.message.serialize(),pair.secretKey);return Buffer.from(tx.serialize()).toString('base64');}
       finally{pair.secretKey.fill(0);}
+    },
+    /** SOL -> XMR no-bridge swap: signs only this wallet's own lock / set_ready / refund for one swap, in the exact
+     * reviewed layout (atomic-swap/refunder-tx.mjs). Mainnet signs here; devnet goes through the test-network module,
+     * which a production build replaces by its held stand-in, so production never signs on a test network. */
+    signReviewedAtomic(encoded, expected) {
+      assert(); if (chain !== 'solana') throw Error('Native Solana required.');
+      if (network !== 'mainnet') return testNetworkSign({ chain, network, address, secret, assert, encoded, atomic: expected });
+      const tx = verifySiloAtomicRefunderTx(encoded, expected, { address, now: Math.floor(Date.now() / 1000) }), pair = nacl.sign.keyPair.fromSeed(secret);
+      try { assert(); if (bs58.encode(pair.publicKey) !== address) throw Error('Native signer changed.'); tx.signatures[0] = nacl.sign.detached(tx.message.serialize(), pair.secretKey); return Buffer.from(tx.serialize()).toString('base64'); }
+      finally { pair.secretKey.fill(0); }
     },
     /** Test networks only: delegated to ./native-keyring-testnet.mjs, which a production build replaces by its held stand-in
      * (vite.config.ts). The key material never leaves this closure except through that call, which zeroes its own copy. */

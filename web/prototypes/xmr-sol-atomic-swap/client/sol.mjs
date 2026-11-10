@@ -1,6 +1,7 @@
 // Devnet client for the xmr_sol_swap Anchor program (hand-encoded, no IDL needed).
-import { Connection, PublicKey, Keypair, Transaction, TransactionInstruction, SystemProgram, ComputeBudgetProgram, sendAndConfirmTransaction } from '@solana/web3.js';
+import { Connection, PublicKey, Keypair, Transaction, VersionedTransaction, TransactionInstruction, SystemProgram, ComputeBudgetProgram } from '@solana/web3.js';
 import { sha256 } from '@noble/hashes/sha256';
+import { sendSecretVia } from './secret-send.mjs';
 
 const env = globalThis.process?.env ?? {};
 export let PROGRAM_ID = new PublicKey(env.SWAP_PROGRAM_ID ?? '7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS');
@@ -46,17 +47,50 @@ export const refundIx = ({ refunder, swapId, secret }) => new TransactionInstruc
   data: Buffer.concat([disc('refund'), Buffer.from(secret)]),
 });
 
-/** Simulates first (never broadcasts a secret-revealing tx that would fail), then sends. */
+/**
+ * Simulates a compiled message UNSIGNED: a VersionedTransaction with all-zero signatures, sigVerify false, replaceRecentBlockhash false.
+ * Those bytes can never pass signature verification, so no RPC can broadcast them, and web3.js neither signs nor swaps the blockhash on
+ * this path. Never use the legacy simulateTransaction(tx, signers) overload: it fetches a blockhash of its own, SIGNS a copy and sends
+ * the valid signed bytes (sigVerify true), so a valid transaction leaves the process during a mere simulation.
+ * Returns the RPC answer as is; the caller decides what an error means.
+ */
+export const simulateUnsigned = (message) => conn.simulateTransaction(new VersionedTransaction(message), { sigVerify: false, replaceRecentBlockhash: false, commitment: 'confirmed' });
+
+/**
+ * Builds one message, simulates it UNSIGNED (simulateUnsigned), and only after a clean simulation signs that SAME message in memory and
+ * sends exactly those bytes (sendRawTransaction, which never swaps the blockhash): one blockhash, one signed variant, and no signed byte
+ * leaves the process unless the simulation passed. A refused simulation throws and nothing signed is ever produced.
+ *
+ * Never for a secret-carrying transaction that matters (refund carries b, claim carries a): the simulation, even unsigned, shows the
+ * scalar to the RPC operator in the instruction data. Only the devnet scripts use it that way. The maker's set-ready and refund go
+ * through maker/maker-send.mjs (refund never simulated, attempt stored durably before broadcast, exposure rule of swap-core.mjs).
+ */
 export async function send(ix, payer, signers = []) {
   const tx = new Transaction().add(ComputeBudgetProgram.setComputeUnitLimit({ units: 60_000 }), ...(Array.isArray(ix) ? ix : [ix]));
   tx.feePayer = payer.publicKey;
-  tx.recentBlockhash = (await conn.getLatestBlockhash()).blockhash;
-  const sim = await conn.simulateTransaction(tx, [payer, ...signers]);
+  const { blockhash, lastValidBlockHeight } = await conn.getLatestBlockhash();
+  tx.recentBlockhash = blockhash;
+  const message = tx.compileMessage();
+  // Every required signer must be supplied and every supplied key must be required, checked before anything goes out.
+  const required = message.accountKeys.slice(0, message.header.numRequiredSignatures).map((k) => k.toBase58());
+  const keys = [payer, ...signers], given = new Set(keys.map((k) => k.publicKey.toBase58()));
+  for (const k of given) if (!required.includes(k)) throw new Error(`unknown signer: ${k}`);
+  for (const k of required) if (!given.has(k)) throw new Error(`missing signer: ${k}`);
+  const sim = await simulateUnsigned(message);
   if (sim.value.err) throw new Error(`simulation refused: ${JSON.stringify(sim.value.err)} ${sim.value.logs?.slice(-3).join(' | ')}`);
-  const sig = await sendAndConfirmTransaction(conn, tx, [payer, ...signers], { commitment: 'confirmed', skipPreflight: true });
+  const signed = new VersionedTransaction(message);
+  signed.sign(keys);
+  const sig = bs58.encode(signed.signatures[0]);
+  await conn.sendRawTransaction(signed.serialize(), { skipPreflight: true });
+  const status = (await conn.confirmTransaction({ signature: sig, blockhash, lastValidBlockHeight }, 'confirmed')).value;
+  if (status.err) throw new Error(`Transaction ${sig} failed (${JSON.stringify(status)})`);
   const info = await conn.getTransaction(sig, { commitment: 'confirmed', maxSupportedTransactionVersion: 0 });
   return { sig, cu: info?.meta?.computeUnitsConsumed, fee: info?.meta?.fee };
 }
+
+/** A transaction that carries a secret (claim reveals a, refund reveals b): authorized again right before every simulation and broadcast, see secret-send.mjs.
+ * notAfter = chain-time second after which revealing is unsafe (null: no deadline). Throws deadline-unsafe / clock-unavailable instead of sending. */
+export const sendSecret = (ix, payer, { notAfter = null, signers = [] } = {}) => sendSecretVia({ conn, now: chainNow, notAfter, ix, payer, signers });
 
 /** Decodes swap account data (8-byte Anchor tag first). Throws on anything that is not a swap account. */
 export const SWAP_ACCOUNT_LEN = 8 + 186;

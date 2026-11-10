@@ -10,7 +10,22 @@ export const CONFIRMATIONS = 10;
 export const makerConfirmations = (n) => (Number.isSafeInteger(n) && n >= 1 && n <= CONFIRMATIONS ? n : CONFIRMATIONS);
 export const CLAIM_FEE = 5000;          // lamports: one signature, no priority fee
 export const MIN_GAS = 2 * CLAIM_FEE;    // the fee payer must hold this before the user funds XMR (H2)
-export const ABORT_LEAD = 900;     // s: an online maker never lets t0 arrive on an unready escrow
+export const ABORT_LEAD = 900;     // s: from here an online maker attempts to refund an unready escrow (an attempt, not settlement)
+// Refund exposure rule (Astra AG-R2-H1). A refund carries b, and once its bytes leave the maker b must be treated as public.
+// Early (before t0, not ready): allowed only while a timing condition holds that is meant to keep the bytes from landing at or
+// after t0, under an ASSUMPTION: a refund signed with a blockhash whose last valid height is at most 151 blocks away cannot land
+// after that height, and EARLY_SEND_MIN_LEAD (600 s) covers 150 blocks at an assumed 3 s each plus EARLY_LANDING_MARGIN. A
+// successful cancel before t0 is not guaranteed; two RPCs and time margins reduce but do not remove the risks (runbook 3b). The guarantee is block height, not
+// time (3 s per block is an assumption): in a network halt the bytes may land after t0 once the cluster resumes (the refund then
+// fails with b on chain); the loss is the principal exposure of that swap, and if the refund did not land an exposed b may also
+// allow recovering the XMR in addition to claiming the SOL. The abort condition below is a sampled observation, not an invariant. Not proven landed by t0 - 120 s:
+// ambiguous, no retry close to t0, the swap moves to the t1 path. A full XMR lock at the set-ready depth is never aborted (the
+// user claims at t0 and the maker sweeps); anything else (nothing, pool-only, shallower than that depth, underpaid) is.
+// Late (from t1): b is released only after a FINALIZED block's time is at least t1 + LATE_REFUND_MARGIN (Clock.unix_timestamp
+// never decreases, so the claim window is closed for good) and the escrow still exists at that finalized context.
+export const EARLY_SEND_MIN_LEAD = 600;
+export const EARLY_LANDING_MARGIN = 120;
+export const LATE_REFUND_MARGIN = 60;
 // Timelock bounds the user accepts (H3): the maker cannot impose a long lockup.
 export const T0_MAX_LEAD = 3 * 3600;      // t0 at most 3 h after the user accepted the maker's lock
 // t1 at most 26 h after acceptance (leave and return, 5 Nov 2026): room for the maker's 24 h claim window (T1=86400) plus clock
@@ -69,27 +84,40 @@ export function aliceNext(o) {
 
 /**
  * Maker (Bob) decides the next step for one swap.
- * obs = { now, lockedAt, pda, outcome, xmr, xmrSwept, expectedAtomic, requiredConfirmations? }
+ * obs = { now, lockedAt, pda, outcome, xmr, xmrSwept, expectedAtomic, requiredConfirmations?, secretExposed?, earlyAbort? }
  *   requiredConfirmations: the maker's own depth for this swap (1..CONFIRMATIONS, else CONFIRMATIONS). Only the maker
  *   bears a shallower depth: a reorg that drops the user's payment after ready costs the maker that XMR, never the user.
- *   xmr = null | { atomic, confirmations }  (view-only scan of the joint address, pool included)
+ *   xmr = null | { atomic, confirmations, mined? }  (view-only scan of the joint address, pool included; mined = [{ atomic, confirmations }]
+ *   of the spendable mined outputs, maker-core usableFromTransfers)
+ *   secretExposed: a refund carrying b has left the maker (never set ready after that).
+ *   earlyAbort === 'ambiguous': an early refund was not proven landed by t0 - EARLY_LANDING_MARGIN; only the t1 path remains.
+ * Refund actions carry kind 'early' or 'late'; the maker's sender re-checks the exposure rule above with fresh chain data.
  */
 export function makerNext(o) {
   if (o.outcome?.kind === 'claimed') return o.xmrSwept ? { action: 'done', result: 'completed' } : { action: 'sweep-xmr', secret: o.outcome.secret };
   if (o.outcome?.kind === 'refunded') return { action: 'done', result: 'refunded' };
   if (!o.pda) return { action: 'wait', reason: 'pda-missing' };
   const p = o.pda;
-  if (o.now >= p.t1) return { action: 'refund' };                      // Alice vanished
+  if (o.now >= p.t1) return o.now >= p.t1 + LATE_REFUND_MARGIN ? { action: 'refund', kind: 'late' } : { action: 'wait', reason: 'claim-window-closing' };
   if (p.ready) return { action: 'wait', reason: 'await-claim' };
   const need = makerConfirmations(o.requiredConfirmations);
   const enough = o.xmr && BigInt(o.xmr.atomic) >= BigInt(o.expectedAtomic) && o.xmr.confirmations >= need;
-  if (enough && o.now < p.t0 - MARGIN) return { action: 'set-ready' };
-  // Deadline abort: after t0 the user may claim without ready, so an online maker that has not seen a
-  // usable payment by now refunds (the user then recovers her XMR with the revealed b).
-  if (o.now >= p.t0 - ABORT_LEAD && o.now < p.t0 - MARGIN) return { action: 'refund' };
-  // Abort only if nothing at all arrived (pool included) and the early refund is safely open.
-  if (!o.xmr && o.now > o.lockedAt + LOCK_WAIT && o.now < p.t0 - MARGIN) return { action: 'refund' };
-  // Underpaid lock: abort early too; Alice recovers her XMR with the revealed b.
-  if (o.xmr && o.xmr.confirmations >= need && BigInt(o.xmr.atomic) < BigInt(o.expectedAtomic) && o.now < p.t0 - MARGIN) return { action: 'refund' };
+  if (enough && !o.secretExposed && o.now < p.t0 - MARGIN) return { action: 'set-ready' };
+  // A full payment at the set-ready depth (`need`, the same bar) is never aborted: after t0 the user claims and the maker sweeps.
+  // Aborting it would only add the risk of b leaking with the refund unlanded. A shallower payment does NOT block the abort (Fable,
+  // PR 699): a payment with 1 confirmation could be reorged out after the early window closes, and the user would then claim at t0
+  // without the maker ever having seen a deep payment. A late payer gets the abort and recovers his XMR with b (he loses time and pays the
+  // Monero fees of his payment and of the recovery).
+  // Astra 699-M1: the exception measures the qualifying payment itself (mined outputs at that depth), so dust in the pool cannot hide a
+  // full deep payment. Without the per-output list, the conservative summary (`enough`) decides.
+  const deepPaid = Array.isArray(o.xmr?.mined) && o.xmr.mined.filter((x) => x.confirmations >= need).reduce((t, x) => t + BigInt(x.atomic), 0n) >= BigInt(o.expectedAtomic);
+  const early = !(enough || deepPaid) && o.earlyAbort !== 'ambiguous' && o.now < p.t0 - EARLY_SEND_MIN_LEAD;
+  // Deadline abort: after t0 the user may claim without ready, so an online maker that has not seen a full mined payment by
+  // now refunds (the user then recovers whatever she sent with the revealed b).
+  if (early && o.now >= p.t0 - ABORT_LEAD) return { action: 'refund', kind: 'early' };
+  // Abort if nothing at all arrived (pool included).
+  if (early && !o.xmr && o.now > o.lockedAt + LOCK_WAIT) return { action: 'refund', kind: 'early' };
+  // Underpaid lock at depth: abort early too; Alice recovers her XMR with the revealed b.
+  if (early && o.xmr && o.xmr.confirmations >= need && BigInt(o.xmr.atomic) < BigInt(o.expectedAtomic)) return { action: 'refund', kind: 'early' };
   return { action: 'wait', reason: o.xmr ? 'xmr-confirming' : 'await-xmr' };
 }

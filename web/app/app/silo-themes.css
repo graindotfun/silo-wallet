@@ -404,6 +404,15 @@ html[data-skin] .silo-app .silo-asset-card .silo-window[data-zone]{background:no
 .silo-locked-error svg{flex:none;color:var(--silo-danger)}
 .silo-app button.silo-locked-go{min-height:56px;border:0;border-radius:var(--silo-radius);background:var(--grain-orange);color:#101010;font:inherit;font-size:18px}
 .silo-app button.silo-locked-go:disabled{background:color-mix(in srgb,var(--silo-text) 9%,transparent);color:var(--silo-faint)}
+.silo-unlock-actions{display:flex;flex-wrap:wrap;gap:8px}
+.silo-unlock-actions>button{box-sizing:border-box}
+.silo-unlock-actions>button:not(.silo-device-go){flex:1 1 calc(50% - 4px);min-width:0}
+.silo-app button.silo-device-go,.silo-app .exposure-actions button.silo-device-go{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:1 1 calc(50% - 4px);min-width:0;min-height:44px;padding:0 12px;border:2px solid var(--grain-orange);border-radius:var(--silo-radius-sm);background:var(--grain-orange);color:#101010;font:inherit;font-size:16px;font-weight:600;font-synthesis:none}
+.silo-app .silo-locked-form button.silo-device-go{min-height:56px;font-size:18px}
+.silo-app button.silo-device-go svg{flex:none;color:#101010}
+.silo-app button.silo-device-go:disabled{border-color:transparent;background:color-mix(in srgb,var(--silo-text) 9%,transparent);color:var(--silo-faint)}
+.silo-app button.silo-device-go:disabled svg{color:var(--silo-faint)}
+.silo-device-message{flex:1 0 100%;margin:0}
 .silo-locked-rows{display:grid;gap:8px;margin:0;padding:0;list-style:none}
 .silo-locked-row{border-radius:var(--silo-radius);background:var(--af);color:var(--ai);padding:8px;display:grid;gap:8px}
 .silo-locked-row-head{display:flex;align-items:center;gap:12px;min-height:52px;padding:6px 10px;border-radius:var(--silo-radius);background:var(--silo-inset);color:var(--silo-inset-ink)}

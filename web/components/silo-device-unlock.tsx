@@ -1,5 +1,6 @@
 'use client';
 import {useCallback,useEffect,useMemo,useSyncExternalStore} from 'react';
+import {Fingerprint,ScanFace} from 'lucide-react';
 import {useSiloSharedPassphrase} from './silo-shared-passphrase';
 import {defaultRevocation,deviceUnlockEnabled,enrolDeviceUnlock,openDeviceUnlockStore,removeDeviceUnlock,siloDeviceUnlockMaybeSupported,unlockWithDevice} from '@/lib/silo/device-unlock.mjs';
 import {ONE_UNLOCK_MESSAGES} from '@/lib/silo/one-unlock.mjs';
@@ -8,6 +9,8 @@ import {ONE_UNLOCK_MESSAGES} from '@/lib/silo/one-unlock.mjs';
  * are open with it (so a mistyped passphrase can never be wrapped), and it hands the passphrase to the same one-unlock submit that typing uses (same attempt tokens,
  * same lock generation). A device-check result that arrives after a lock is discarded. Nothing here is sent anywhere. */
 const DISMISS='silo-device-unlock-offer-dismissed-v1';
+/** Shown when the device check ends without opening anything and no lock caused it (a dismissed sheet, a missing passkey, a refused call). */
+export const SILO_DEVICE_UNLOCK_NOT_FINISHED='The device check did not finish. Try again, or type your passphrase.';
 /** Wording only, never used to decide support: what the device check is called on this device. */
 export function siloDeviceLockLabel(agent:string=typeof navigator==='undefined'?'':navigator.userAgent):string{
  if(/iPhone|iPad|iPod/i.test(agent))return 'Face ID or Touch ID';
@@ -78,7 +81,10 @@ export function useSiloDeviceUnlock():SiloDeviceUnlock{
    patch({usedDevice:true});unlockState.unlock.submit(passphrase);
   }catch(error){
    const reason=(error as {siloDeviceUnlock?:string}).siloDeviceUnlock;
-   if(reason==='stale'||reason==='cancelled')return;
+   // A lock (or this screen going away) ended the check: nothing to say. Any other refusal is said on screen: iOS reports a dismissed Face ID sheet,
+   // a passkey that is no longer on the device and a call it refused all as the same "not allowed" error, so a silent return looked like "nothing happens".
+   if(reason==='stale'||controller.signal.aborted)return;
+   if(reason==='cancelled'){patch({info:false,message:SILO_DEVICE_UNLOCK_NOT_FINISHED});return;}
    if(reason==='corrupt'||reason==='missing')await dropBroken();
    else patch({info:false,message:'Device unlock is not available in this browser. Use your passphrase.'});
   }finally{endCeremony(controller);patch({busy:false});}
@@ -91,7 +97,7 @@ export function useSiloDeviceUnlock():SiloDeviceUnlock{
  const dismiss=useCallback(()=>{patch({dismissed:true});try{sessionStorage.setItem(DISMISS,'1');}catch{/* shown again next time */}},[]);
  const anyOpen=Object.values(unlockState.unlock.statuses).some(status=>status==='open');
  // A message about a failed device unlock clears itself once the wallets are open.
- useEffect(()=>{if(anyOpen&&shared.message&&!shared.busy&&/stopped working|not available/.test(shared.message))patch({message:''});},[anyOpen]);
+ useEffect(()=>{if(anyOpen&&shared.message&&!shared.busy&&/stopped working|not available|did not finish/.test(shared.message))patch({message:''});},[anyOpen]);
  return {maybeSupported:state.maybeSupported,enabled:state.enabled,busy:state.busy,message:state.message,info:state.info,label,dismissed:state.dismissed,canOffer:state.maybeSupported&&state.enabled===false&&anyOpen&&Boolean(unlockState.provenPassphrase()),enable,disable,unlock,dismiss};
 }
 const control={minHeight:44,fontSize:16} as const;
@@ -106,12 +112,22 @@ export function SiloDeviceUnlockOffer(){
   {device.message&&!device.info&&<p role="alert" className="exposure-error">{device.message}</p>}
  </section>;
 }
-/** On the locked screen, when device unlock is on. The passphrase field stays as the fallback. */
+/** Short button wording by device (the long label above is used in sentences and for screen readers). */
+export function siloDeviceShortLabel(agent:string=typeof navigator==='undefined'?'':navigator.userAgent):string{
+ if(/iPhone|iPad|iPod/i.test(agent))return 'Face ID';
+ if(/Android/i.test(agent))return 'Fingerprint';
+ if(/Macintosh|Mac OS X/i.test(agent))return 'Touch ID';
+ if(/Windows/i.test(agent))return 'Windows Hello';
+ return 'Device lock';
+}
+/** The device button of the locked screens, placed in the same row as the passphrase Unlock button (a flex row with wrapping, see .silo-unlock-actions).
+ * Shown only when device unlock is on; callers render it only where a wallet is stored. Its error line takes a full row under both buttons. */
 export function SiloDeviceUnlockButton(){
  const device=useSiloDeviceUnlock();
  if(!device.maybeSupported)return null;
- if(device.enabled!==true)return device.message&&!device.info?<p role="alert" className="exposure-error">{device.message}</p>:null;
- return <div id="silo-device-unlock-button"><button type="button" className="silo-primary" style={{...control,width:'100%'}} disabled={device.busy} onClick={()=>void device.unlock()}>{device.busy?'Waiting for your device…':`Unlock with ${device.label}`}</button>{device.message&&<p role="alert" className="exposure-error">{device.message}</p>}</div>;
+ if(device.enabled!==true)return device.message&&!device.info?<p role="alert" className="exposure-error silo-device-message">{device.message}</p>:null;
+ const short=siloDeviceShortLabel(),Icon=/iPhone|iPad|iPod/i.test(typeof navigator==='undefined'?'':navigator.userAgent)?ScanFace:Fingerprint;
+ return <><button type="button" id="silo-device-unlock-button" className="silo-device-go" aria-label={`Unlock with ${device.label}`} disabled={device.busy} onClick={()=>void device.unlock()}><Icon size={20} aria-hidden="true"/><span>{device.busy?'Waiting…':short}</span></button>{device.message&&<p role="alert" className="exposure-error silo-device-message">{device.message}</p>}</>;
 }
 /** Settings: the switch, what it does and the warning. */
 export function SiloDeviceUnlockSetting(){
