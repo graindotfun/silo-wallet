@@ -11,7 +11,7 @@ public tools. Nothing here was signed or sent to a chain. The upgrade of 2026-11
 | `linux-vm/` | `hashes.json` and the full `build.log` of two builds on a separate linux x86_64 vm (ubuntu 24.04), outside GitHub. |
 | `mac-amd64-emulation/` | `hashes.json` of two builds on a Mac (aarch64) running the linux/amd64 image under emulation (Colima with Rosetta). No full log was kept for these runs. |
 | `bins/old_live.so` | The previous live program bytes (live until the upgrade of 2026-11-08, slot 467051728): the leading 215,944 bytes of a mainnet dump, sha256 `76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d`. |
-| `bins/new_verified.so` | The Docker build of `program/`, sha256 `4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`. The live program since the upgrade of 2026-11-08. |
+| `bins/new_verified.so` | The Docker build of the v1 `program/`, sha256 `4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`. The live program from the upgrade of 2026-11-08 until the v2 upgrade of 2026-11-10, and now the rollback target (see `docs/VERIFY_BUILD_V2.md`). |
 | `diff-regions.py` | Prints the 38 regions where the two binaries differ (offset, length, section, bytes). |
 | `c5/upgrade_equivalence.rs` | Source of the differential test between the two binaries. |
 | `c5/c5-run-full-20261108.log` | Full log of one run of that test. |

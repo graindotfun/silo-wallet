@@ -1,0 +1,66 @@
+{
+  "note": "Values recorded by the v2 Docker build workflow, run 42527425569, in Silo's private source repository on 2026-11-08 (before the upgrade). That run is not publicly viewable. Its commit id and run URL refer to the private repository and are left out; everything else is copied unchanged. program_src_tree equals the git tree id of program/src in this repository. program_dir_tree is the private program directory, which also holds files that are not published here, so it does not equal this repository's program/ tree. The live_* fields describe mainnet before the upgrade (v1). The upgrade itself is recorded under upgrade.",
+  "ci_run": "42527425569 (private repository)",
+  "program_id": "7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS",
+  "program_dir": "prototypes/xmr-sol-atomic-swap/program",
+  "program_dir_tree": "27c363405c9e3a2238b8f6494ab77a2cfbe41f36",
+  "program_src_tree": "c283cb13876de54fb2c26f941f196b28f7235182",
+  "build_inputs_sha256": {
+    "Cargo.toml": "1273f8e2cb4bfe5a563e421ce9241f659fee50c6b6288d9a00df22ff4b16d738",
+    "Cargo.lock": "0db6d21009b36221c77155ecc00bb6f3a69eed4125918154ee1e8e1fef978ed2",
+    "src/lib.rs": "66b6d6116756afebd7408eb073fe725cd9f24dbd84a3374c6e6402813cc8dfc7"
+  },
+  "container_path": "/build",
+  "base_image": "solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd",
+  "solana_verify": "0.5.2",
+  "builds": [
+    {
+      "run": "a",
+      "runner": "GitHub Actions 1000003967",
+      "size": 265488,
+      "sha256": "6ac58cdc80b585290d8fa32e67a8c1cbdbac1081b0fc7b2a487e1cefc68c921e",
+      "solana_verify_executable_hash": "bef3a3e89d71a171c65d1f38b8d8c88dc4e5c5840e881733195defbab962f812"
+    },
+    {
+      "run": "b",
+      "runner": "GitHub Actions 1000003968",
+      "size": 265488,
+      "sha256": "6ac58cdc80b585290d8fa32e67a8c1cbdbac1081b0fc7b2a487e1cefc68c921e",
+      "solana_verify_executable_hash": "bef3a3e89d71a171c65d1f38b8d8c88dc4e5c5840e881733195defbab962f812"
+    }
+  ],
+  "deterministic": true,
+  "local_macos_v2_sha256_for_information": "b8d1e936c4210ccaa8d4455f6277ef6b2b1395c18271de913eda784e7dffb3f8",
+  "live_mainnet_first_215944_sha256": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
+  "live_expected_v1_docker_sha256": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
+  "live_is_v1_docker": true,
+  "live_program_capacity_bytes": "215944",
+  "extend_bytes_needed_vs_215944": 49544,
+  "upgrade": {
+    "transaction": "3X996yrTdNsXpUYgbSUozwHCzND4Xefxh5zhuZjueTQ5DzoNBaovqERkQ9jviqwz8aPsQnAxYvm1aMGHU7iYKpER",
+    "finalized_slot": 467605377,
+    "block_time_utc": "2026-11-10T05:37:37Z",
+    "extend_bytes": 49544,
+    "post_upgrade_chain_read_2026_11_10": {
+      "programdata_account": "9jSbazFuWTXiC3RvnwE6Qw5ew9aBZ8wsxyTzhvY6BiwS",
+      "programdata_data_length": 265533,
+      "last_deploy_slot": 467605377,
+      "upgrade_authority": "8pFUuZgzab6mwXq2UqdEc2mbkDk6Wg68KSppJ4brfF4W",
+      "program_bytes": 265488,
+      "program_sha256": "6ac58cdc80b585290d8fa32e67a8c1cbdbac1081b0fc7b2a487e1cefc68c921e",
+      "trailing_nonzero_bytes": 0,
+      "canonical_bytes": 265473,
+      "canonical_sha256": "bef3a3e89d71a171c65d1f38b8d8c88dc4e5c5840e881733195defbab962f812"
+    },
+    "rollback_buffer": {
+      "address": "D5aHjv8SVQNyoJmAySxQYKPv93HTFE2rZ4scanwcJJia",
+      "account_data_length": 215981,
+      "program_bytes_sha256_leading_215944": "4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515",
+      "canonical_sha256": "6d331f7522d2fe2d1c75e90d1495a264cf7d9de26fba4c5c96834ae834daae39"
+    },
+    "older_rollback_buffer_still_open": {
+      "address": "9BFEveajgqYcBqqK8zEFisJxy8YKytTqLc8ad7Wfv1TN",
+      "holds": "v1 macOS build 76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d"
+    }
+  }
+}

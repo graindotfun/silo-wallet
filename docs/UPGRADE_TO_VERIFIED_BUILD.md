@@ -1,5 +1,8 @@
 # Upgrade the escrow program to a verifiable Docker build
 
+Note added 2026-11-10: this is the record of the v1 upgrade of 2026-11-08. The program was upgraded again on 2026-11-10, to
+protocol v2 (slot 467605377); that upgrade, its hashes and its rollback buffer are in `docs/VERIFY_BUILD_V2.md`.
+
 internal procedure, published for transparency. tracker is our release operator role. astra is an internal model review lane, not an audit.
 
 **Status: executed on 2026-11-08 in a variant (the maker was stopped instead of the admission gate), upgrade transaction
