@@ -67,7 +67,7 @@ with `solana-keygen new --no-bip39-passphrase -o /tmp/throwaway.json` and add `-
 
 ### The automated check
 
-`.github/workflows/v2-docker-verified-build.yml` (manual start, `workflow_dispatch`) does the same on GitHub's runners:
+`.github/workflows/v2-docker-verified-build.yml` (manual start, and on pull requests that change `program/` or the workflow) does the same on GitHub's runners:
 
 1. Two jobs on two runners check out the same commit. Each checks that `program/src` holds only `lib.rs`, that the git tree
    id of `program/src` is `c283cb13876de54fb2c26f941f196b28f7235182`, and that the three build inputs have the sha256 values

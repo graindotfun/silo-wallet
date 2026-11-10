@@ -10,7 +10,7 @@
     },
     {
       "path": ".github/workflows/v2-docker-verified-build.yml",
-      "sha256": "9d20f420423aba25b3c83decfeb362b232427ab154966c28809ec803694c387b",
+      "sha256": "1e62de56dc735ae4a5092f131254b11c5dd2c596615f3892d17f841cb827f4f8",
       "source": null,
       "status": "new"
     },
@@ -172,7 +172,7 @@
     },
     {
       "path": "docs/VERIFY_BUILD_V2.md",
-      "sha256": "9ed942b35a417cb89957587a0289a91935f926f0eabba481703f54993f5c23b4",
+      "sha256": "08936924a99b863a9f875678e2302f75c96499c8ce0d6d28dcafd07e817b6af3",
       "source": null,
       "status": "new"
     },
