@@ -1,6 +1,6 @@
 {
   "sourceRepository": "silo wallet source tree",
-  "note": "Files marked modified differ from the source only by removed internal review notes, SPDX headers, and the two named seams in native-keyring.mjs and native-keyring-testnet.mjs. Files under program/ are byte-identical to prototypes/xmr-sol-atomic-swap/program/ of the source at the commit the live program v2 was built from (the three build inputs are pinned in .github/workflows/v2-docker-verified-build.yml). Files under web/ are taken from source commit b9463c7f389c960b83c27f94f75298fed6df35fc at the same path without the web/ prefix; sourceBlob is the git blob id in that commit, and status modified marks the two files whose comments were edited (see docs/VERIFY_APP.md).",
+  "note": "Files marked modified differ from the source only by removed internal review notes, SPDX headers, and the two named seams in native-keyring.mjs and native-keyring-testnet.mjs. Files under program/ are byte-identical to prototypes/xmr-sol-atomic-swap/program/ of the source at the commit the live program v2 was built from (the three build inputs are pinned in .github/workflows/v2-docker-verified-build.yml). Files under web/ are taken from source commit b9463c7f389c960b83c27f94f75298fed6df35fc at the same path without the web/ prefix; sourceBlob is the git blob id in that commit, and status modified marks the two files whose comments were edited (see docs/VERIFY_APP.md). Six files under web/ (app/app/page.tsx, components/silo-account-panel.tsx, components/silo-inline-account-unlock.tsx, components/silo-workspace.tsx, lib/silo/sync/product-account.mjs, tests/silo-inline-account-unlock.test.mjs) additionally differ from that source commit only by one string: a retired review hostname was replaced by review-retired.invalid, which never resolves. That origin check was only ever used by a retired review feature.",
   "files": [
     {
       "path": ".github/workflows/docker-verified-build.yml",
@@ -684,11 +684,11 @@
     },
     {
       "path": "web/app/app/page.tsx",
-      "sha256": "389b356904acf85240e3bc28d454b111f25ee662455c068b29c9bba466334a98",
+      "sha256": "2f2310ae46cbe4b0e5c5527941003718440910993ce85585d462556f2de17791",
       "source": "app/app/page.tsx",
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "7d512dfacd1a1837a9d7b671a3c9d97f1090c11d",
-      "status": "unchanged"
+      "status": "modified"
     },
     {
       "path": "web/app/app/silo-grainy.css",
@@ -964,11 +964,11 @@
     },
     {
       "path": "web/components/silo-account-panel.tsx",
-      "sha256": "99b1d9329b378e9c47d6439486a3544313104e18cdde9ac7160c86fd4a33f56c",
+      "sha256": "2b1964864b9a006b667cff13f27c14264ee0dba8208f8200849c7303cf02e80c",
       "source": "components/silo-account-panel.tsx",
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "e886bbe6ff448d398ee6d71778823909f5118896",
-      "status": "unchanged"
+      "status": "modified"
     },
     {
       "path": "web/components/silo-account-signing.tsx",
@@ -1180,11 +1180,11 @@
     },
     {
       "path": "web/components/silo-inline-account-unlock.tsx",
-      "sha256": "fdd46c97221e8c38e1ae30a0bb7e3932246df3d1d6c345aba6ac25e3cbcdc3c4",
+      "sha256": "c9041ccb64429de6c66cbfae80324fc29b24834c596eb8f9229d403bab558f52",
       "source": "components/silo-inline-account-unlock.tsx",
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "264822a561ffd877ffabb8b5c6f876d53896c349",
-      "status": "unchanged"
+      "status": "modified"
     },
     {
       "path": "web/components/silo-jupiter-flow.tsx",
@@ -1412,11 +1412,11 @@
     },
     {
       "path": "web/components/silo-workspace.tsx",
-      "sha256": "dc9af3294095223c11ed74a4fff0c2177929ccc93460cbc399ffe74e22b79cf2",
+      "sha256": "d20d288de020519c72b442ed13bd2becea059f17e77293fc0ea0eedeb14ade28",
       "source": "components/silo-workspace.tsx",
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "d08a9fc5a4c9a4bc140ea36a7e720aeddbba64ae",
-      "status": "unchanged"
+      "status": "modified"
     },
     {
       "path": "web/components/silo-xmr-confirmations.tsx",
@@ -3212,11 +3212,11 @@
     },
     {
       "path": "web/lib/silo/sync/product-account.mjs",
-      "sha256": "1545e5ac4aa19c0195b34dbf69239aa5da0534cbdf416c715f4a4ca00b536623",
+      "sha256": "05fafb7383930745aa0720e08b66a5c9649f8d3d424de783e1b53f20cda5a605",
       "source": "lib/silo/sync/product-account.mjs",
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "9d149e42f9ad4c72ec425f5495860002eb73c85f",
-      "status": "unchanged"
+      "status": "modified"
     },
     {
       "path": "web/lib/silo/sync/readers-variants.mjs",
@@ -4156,11 +4156,11 @@
     },
     {
       "path": "web/tests/silo-inline-account-unlock.test.mjs",
-      "sha256": "e904ba8b2657a6325a4e67455b2b508be1665767e0ffec302bc1cdf1bb92dc4e",
+      "sha256": "e7cc02b65120e84eb51d99a9f1579ed1b9f0d3e2f376c12855e8d6c82a7ab5da",
       "source": "tests/silo-inline-account-unlock.test.mjs",
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "5a41fe9bac84be430f96ece43cefb7956ca82276",
-      "status": "unchanged"
+      "status": "modified"
     },
     {
       "path": "web/tests/silo-jupiter-mint-policy.test.mjs",

@@ -28,7 +28,7 @@ export default function SiloPage(){
  // Only whether each EVM chain is configured reaches the page; endpoints and keys stay on the server.
  const accountEnv=env as unknown as Record<string,unknown>;
  const accountEnabled=siloAccountRuntimeAvailable(accountEnv,{sendOTP:siloAccountSender(accountEnv),origin:values.SILO_ORIGIN});
- const accountNewWalletEnabled=accountEnabled&&values.SILO_ACCOUNT_NEW_WALLET_REVIEW_ENABLED==='true'&&values.SILO_ORIGIN==='https://grain-silo.omer-034.workers.dev';
+ const accountNewWalletEnabled=accountEnabled&&values.SILO_ACCOUNT_NEW_WALLET_REVIEW_ENABLED==='true'&&values.SILO_ORIGIN==='https://review-retired.invalid';
  // Who vouches for a mainnet payment (review N1): the account vault when sync is on, this device alone in the closed beta, otherwise nobody.
  const paymentAuthority=siloPaymentAuthority(values,{accountRuntime:accountEnabled});
  // Owner, 29 Oct 2026: a private acceptance deployment must be unmistakable in the UI itself, not only behind the
