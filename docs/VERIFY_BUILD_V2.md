@@ -138,6 +138,8 @@ The two are disjoint in every state. The reason for the two-step claim: the clai
 deadline for it is a number on chain, and a claim that did not land can be sent again, because the refund cannot open
 before `claim_committed_at + W`. In the strict family a claim always needs ready, which v1 does not require after `t0`.
 
+Who can act, in XMR to SOL (the v1 instructions): `refund(secret)` needs the maker's key part `b`, so until the maker reveals it nobody else can call it, and it pays only the maker. The user has no refund instruction of their own. If the user misses the claim window, getting the XMR back depends on the maker refunding, which the program does not force. The strict family (SOL to XMR) differs: the user is the refunder and can call `refund_strict` while the swap is not ready.
+
 Tests: `program/tests/swap.rs` (v1 paths, unchanged), `program/tests/strict.rs` (the strict family) and
 `program/tests/upgrade.rs` (escrows written by the v1 binary are claimed and refunded by the v2 binary). They run against a
 compiled SBF binary, for example `SBF_OUT_DIR=$PWD/target/deploy cargo test --test strict -- --test-threads=1` inside
