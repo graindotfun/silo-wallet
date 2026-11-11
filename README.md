@@ -19,6 +19,8 @@ the wallet web app is published too: `web/` holds the browser code of https://si
 
 swap caps and maker quotas are maker policy, not program code, so do not rely on them (see `docs/WHAT_THE_MAKER_CAN_DO.md`).
 
+what a user can lose: in xmr to sol you send xmr to a shared monero address after the maker locks its sol, and you have no refund of your own. if you miss the claim window, or the maker stops, getting your xmr back depends on the maker refunding, which nothing in the program forces; the xmr can stay unrecoverable. in sol to xmr the sol is refundable by you before the swap is ready, and after the maker's claim you collect the xmr with the swap record saved on your device. both directions depend on the program's upgrade authority. the cases are listed in `docs/WHAT_THE_MAKER_CAN_DO.md` ("What you can lose, by direction"). start small.
+
 Repository: https://github.com/graindotfun/silo-wallet
 
 Source for the parts of Silo that hold your keys and move your money, and in `web/` the source of the whole wallet web
