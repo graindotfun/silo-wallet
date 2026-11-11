@@ -70,7 +70,7 @@
     },
     {
       "path": "README.md",
-      "sha256": "f3da6b7d61772111c5cdbd8314e8923ceed044fb452a9e936a516e5c2f0b9201",
+      "sha256": "b48efbc9b53f79a7a06cd6d67822c849f66df42a882de28c6da6630324bc2277",
       "source": null,
       "status": "new"
     },
@@ -142,7 +142,7 @@
     },
     {
       "path": "docs/PROTOCOL.md",
-      "sha256": "6408551373d2f44b4971b2b5d8c363c15ed8948eed0fb11161ed5afa087b4c9f",
+      "sha256": "c2727e219b6b931659797fe53154836b9580c1e3e56b2624f47de6daf5e6ddb5",
       "source": null,
       "status": "new"
     },
@@ -172,7 +172,7 @@
     },
     {
       "path": "docs/VERIFY_BUILD_V2.md",
-      "sha256": "08936924a99b863a9f875678e2302f75c96499c8ce0d6d28dcafd07e817b6af3",
+      "sha256": "82af4577b11e4bb064f8021b08e64c8b7a093d318d35cfe82495a316c763b9f4",
       "source": null,
       "status": "new"
     },
@@ -184,7 +184,7 @@
     },
     {
       "path": "docs/WHAT_THE_MAKER_CAN_DO.md",
-      "sha256": "64f9d7f20a77d41fbc3a5d4a612ffd30c1481010901e98db78cbc8e1c0777e5e",
+      "sha256": "e5c8fa3538c8b5055fcdb5309e022a8310b88c978404f3ae8f3117495d2a8c95",
       "source": null,
       "status": "new"
     },

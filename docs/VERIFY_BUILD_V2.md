@@ -4,9 +4,8 @@ Since 2026-11-10 the live Solana escrow program runs protocol v2. This page says
 it with the chain, what changed from v1, and how the upgrade and its rollback were set up. The v1 record stays in
 `docs/VERIFY_BUILD.md` and `docs/UPGRADE_TO_VERIFIED_BUILD.md`.
 
-status: v2 is live on mainnet. The SOL to XMR direction that v2 adds is not yet enabled for users: it is enabled by a flag
-after acceptance testing. Until then only the XMR to SOL direction is open, and it uses the v1 instructions, which v2 keeps
-unchanged.
+status: v2 is live on mainnet. Both directions are open to users in the beta: XMR to SOL uses the v1 instructions, which v2
+keeps unchanged, and SOL to XMR uses the strict instructions that v2 adds.
 
 ## The live program
 
@@ -84,6 +83,14 @@ It holds no key, signs nothing and sends no transaction.
 
 Expected result of a run on this repository: `DETERMINISTIC`, `EXPECTED` and `FULL MATCH`.
 
+Rebuild of 2026-11-11, from the files of this branch (the three input hashes above matched): `solana-verify` 0.5.2 with the
+digest-pinned image on a Mac (arm64) running Docker under amd64 emulation gave `program/target/deploy/xmr_sol_swap.so` of
+265,488 bytes, sha256 `6ac58cdc80b585290d8fa32e67a8c1cbdbac1081b0fc7b2a487e1cefc68c921e`, solana-verify hash
+`bef3a3e89d71a171c65d1f38b8d8c88dc4e5c5840e881733195defbab962f812`. A read-only dump of the live program the same day (last
+deploy slot still 467605377) is byte-identical to that build over all 265,488 bytes. So the program source in this repository
+builds to the bytes that are live. This is one more repetition by the team that made the build; the check that counts is
+yours, or the public workflow run once it exists.
+
 This workflow has not yet run in this public repository. The pinned values come from the same workflow run on the same
 three input files in Silo's private source repository (CI run 42527425569, two jobs, both 265,488 bytes with sha256
 `6ac58cdc...`). The values that run recorded are in `docs/verify-build-v2/hashes.json`. That run is not publicly viewable,
@@ -146,7 +153,7 @@ needs a new build and a new comparison, which will come with the next program ch
 
 The procedure follows the v1 upgrade in `docs/UPGRADE_TO_VERIFIED_BUILD.md`, with the v2 file:
 
-1. The SOL to XMR direction stayed off, and new XMR to SOL swaps were paused at the maker for the window.
+1. The SOL to XMR direction stayed off, and new XMR to SOL swaps were stopped at the maker for the window.
 2. The ProgramData account was extended by 49,544 bytes (265,488 minus 215,944) so it can hold v2. An extend redeploys the
    existing bytes and moves the last deploy slot; it does not change them.
 3. The v2 Docker build (sha256 `6ac58cdc...`) was written to an upgrade buffer and handed to the upgrade authority.

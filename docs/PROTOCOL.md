@@ -2,8 +2,7 @@
 
 This describes the XMR to SOL direction, which uses the v1 instructions of the escrow program. The live program runs
 protocol v2 since 2026-11-10; v2 keeps these instructions unchanged and adds a separate set for the SOL to XMR direction,
-described in `docs/VERIFY_BUILD_V2.md` (section 2). That direction is not yet enabled for users: it is enabled by a flag
-after acceptance testing. A later protocol version could change how the view key is shared; there is no date for it. The
+described in `docs/VERIFY_BUILD_V2.md` (section 2). Both directions are open to users in the beta. A later protocol version could change how the view key is shared; there is no date for it. The
 escrow program has had no independent external security review.
 
 Source: `program/src/lib.rs` (escrow), `lib/silo/atomic-swap/` (client logic), `lib/silo/atomic-driver.mjs` (runner).

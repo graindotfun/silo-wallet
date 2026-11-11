@@ -7,8 +7,14 @@ as v1. upgraded in transaction `3X996yrTdNsXpUYgbSUozwHCzND4Xefxh5zhuZjueTQ5DzoN
 finalized slot 467605377. the v1 bytes it replaced (`4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`, live
 from 2026-11-08) are kept in `docs/verify-build/bins/new_verified.so` and in a rollback buffer for an observation period.
 how to rebuild and compare, and what v2 changed: `docs/VERIFY_BUILD_V2.md`.
-v2 adds the instructions for a sol to xmr swap. that direction is not yet enabled for users: it is enabled by a flag after
-acceptance testing. the xmr to sol swap stays open and uses the v1 instructions, which v2 keeps unchanged.
+both swap directions are open to users in a beta: xmr to sol (v1 instructions, kept unchanged in v2) and sol to xmr (the
+instructions v2 added). there is no bridge: each swap is an on-chain escrow on solana plus a monero address whose spend key
+needs both parties' key shares. the beta caps are 0.05 xmr per swap and 0.3 xmr per day. both directions are served by one
+swap maker, run by the Silo team. other parties cannot act as maker in Silo yet, and there is no admission process for them. the program is upgradeable by one owner key (`8pFUuZgzab6mwXq2UqdEc2mbkDk6Wg68KSppJ4brfF4W`), so the
+bytes on chain can be replaced; check the last deploy slot and the hash each time you rely on them.
+the maker code at the live app commit is in `web/prototypes/xmr-sol-atomic-swap/maker/` (both directions). that the running
+maker process equals that code is not proven. the maker is a separate service and nothing here lets you check its running
+bytes.
 the wallet web app is published too: `web/` holds the browser code of https://silo.trading/app at commit `b9463c7f`, the commit the live site runs. a clean rebuild of that commit gave the same sha256 for all 145 files the page loads, and the monero engine rebuilds from `web/` alone to the served bytes. you cannot rebuild the rest of the app from this repository alone yet. what you can and cannot check: `docs/VERIFY_APP.md`.
 
 swap caps and maker quotas are maker policy, not program code, so do not rely on them (see `docs/WHAT_THE_MAKER_CAN_DO.md`).
@@ -44,7 +50,7 @@ claim that the maker deletes the swap keys.
 Planned improvement: a future protocol version could split the view key so that the maker cannot watch the address on its
 own. There is no date for it.
 
-The SOL to XMR direction (in the code and in the v2 program, not yet enabled for users) shares the same kind of key: Silo
+The SOL to XMR direction (in the code, in the v2 program and open to users in the beta) shares the same kind of key: Silo
 makes a fresh one-time view key for the swap and shares it with the maker, so both sides can watch the one-time address
 (`web/lib/silo/atomic-swap/bob-flow.mjs`, `reverseRegisterRequest`). There your wallet's Solana key signs the lock, the
 ready confirmation and any refund (`web/lib/silo/atomic-swap/refunder-tx.mjs`), so your Solana address is linked on chain to
@@ -99,15 +105,17 @@ secrets, and the deploy scripts. The wallet client talks to Silo's hosted sessio
 code behind those endpoints is not published here.
 The swap maker code as it is at the live app commit is in `web/prototypes/xmr-sol-atomic-swap/maker/`, for both swap
 directions. The maker runs as a separate service and is deployed on its own; this repository does not claim the running
-process is identical to that code. The SOL to XMR direction is switched on by a maker setting and a server setting that are
-not in this repository; both are off until acceptance testing is done.
+process is identical to that code, and that is not proven. The SOL to XMR direction is switched on by a maker setting and a
+server setting that are not in this repository. The caps (0.05 XMR per swap, 0.3 XMR per day) are policy of the maker and the
+hosted service, not program code. There is one maker, run by the Silo team, and a maker admission process for other parties
+does not exist yet.
 In the top-level cut, Solana send and swap signing needs a release-ticket flow that is not in the cut, so there
 `signReviewedTransfer` and `signReviewedManaged` refuse to sign. Test-network signing is held off, the same as in the
 production build.
 
 ## Status and honest limits
 
-Silo is in an open beta with small caps. The hosted service enforces the caps; the code in this repository does not enforce a
+Silo is in an open beta with small caps (0.05 XMR per swap, 0.3 XMR per day). The hosted service and the maker enforce the caps; the code in this repository does not enforce a
 holding cap by itself. It has not had an independent external
 security audit. Read the code, run the tests, and report problems (see `SECURITY.md`). Do not treat this repository as a
 statement that the software is safe.
