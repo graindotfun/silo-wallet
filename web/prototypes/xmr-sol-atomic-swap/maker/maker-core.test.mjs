@@ -51,6 +51,63 @@ test('H5: the wallet RPC going down fails queued jobs, and the queue recovers wh
   let created = false; assert.equal(await withWallet('missing', async () => { created = true; }, async () => 'made'), 'made'); assert.equal(created, true);
 });
 
+// ---- Sol M1: the public wallet queue is bounded, has deadlines, is cancelled with its caller and never goes ahead of recovery ----
+function gate() { let open; const p = new Promise((r) => { open = r; }); return { p, open }; }
+function fakeTimers() { const t = []; return { setTimer: (f, ms) => { const h = { f, ms, off: false }; t.push(h); return h; }, clearTimer: (h) => { if (h) h.off = true; }, fire: (i) => { if (!t[i].off) t[i].f(); }, all: t }; }
+test('M1: saturating the public lane never puts a public job ahead of a recovery job that arrives later', async () => {
+  const w = fakeWallet(), order = []; const q = createWalletQueue(w.W, 'pw', { publicMaxDepth: 3 });
+  const g = gate();
+  const running = q.publicLane('p0', async () => {}, async () => { order.push('p0'); await g.p; });   // one public job is already running
+  await new Promise((r) => setImmediate(r));
+  const queued = [1, 2, 3].map((i) => q.publicLane('p' + i, async () => {}, async () => { order.push('p' + i); }));
+  await assert.rejects(q.publicLane('over', async () => {}, async () => order.push('over')), /busy-try-later/);   // depth bound: the 4th waits for nothing
+  const rec = q('rec', async () => {}, async () => { order.push('rec'); return 'recovered'; });
+  g.open();
+  assert.equal(await rec, 'recovered'); await running; await Promise.all(queued);
+  assert.deepEqual(order, ['p0', 'rec', 'p1', 'p2', 'p3'], 'recovery runs right after the one running job, before every queued public job');
+  assert.equal(order.includes('over'), false);
+  assert.deepEqual(q.depth(), { recovery: 0, publicLane: 0 });
+});
+test('M1: a queued public job past its deadline is removed and never touches the wallet; recovery is unaffected', async () => {
+  const w = fakeWallet(), tm = fakeTimers(); const q = createWalletQueue(w.W, 'pw', { setTimer: tm.setTimer, clearTimer: tm.clearTimer, publicDeadlineMs: 5000 });
+  const g = gate(), ran = [];
+  const hold = q('hold', async () => {}, async () => { await g.p; });
+  const slow = q.publicLane('late', async () => {}, async () => { ran.push('late'); });
+  assert.equal(tm.all[0].ms, 5000);
+  tm.fire(0);
+  await assert.rejects(slow, /busy-try-later/);
+  assert.deepEqual(q.depth(), { recovery: 0, publicLane: 0 });
+  g.open(); await hold;
+  assert.deepEqual(ran, [], 'the expired job never ran');
+  assert.equal(w.calls.filter((c) => c === 'open_wallet').length, 1, 'only the recovery job opened a wallet');
+});
+test('M1: a client that disconnects while queued cancels its wallet work; one already running releases the caller and finishes alone', async () => {
+  const w = fakeWallet(); const q = createWalletQueue(w.W, 'pw');
+  const g = gate(), ran = [];
+  const hold = q('hold', async () => {}, async () => { await g.p; });
+  const ac = new AbortController();
+  const queued = q.publicLane('gone', async () => {}, async () => { ran.push('gone'); }, { signal: ac.signal });
+  ac.abort();
+  await assert.rejects(queued, /client-gone/);
+  assert.deepEqual(q.depth().publicLane, 0);
+  await assert.rejects(q.publicLane('pre', async () => {}, async () => {}, { signal: ac.signal }), /client-gone/);   // already aborted: never queued
+  g.open(); await hold;
+  assert.deepEqual(ran, []);
+  // running job: the caller is released at once, the executor still closes the wallet and the next job runs
+  const g2 = gate(), ac2 = new AbortController(); let finished = false;
+  const run = q.publicLane('run', async () => {}, async () => { await g2.p; finished = true; return 'late'; }, { signal: ac2.signal });
+  await new Promise((r) => setImmediate(r));
+  ac2.abort(); await assert.rejects(run, /client-gone/); assert.equal(finished, false);
+  const next = q('next', async () => {}, async () => 'ok');
+  g2.open(); assert.equal(await next, 'ok'); assert.equal(finished, true);
+});
+test('M1: a failing public job reaches only its own caller and the recovery queue keeps working', async () => {
+  const w = fakeWallet(); const q = createWalletQueue(w.W, 'pw');
+  const bad = q.publicLane('x', async () => {}, async () => { throw new Error('boom'); });
+  const rec = q('r', async () => {}, async () => 'fine');
+  await assert.rejects(bad, /boom/); assert.equal(await rec, 'fine');
+});
+
 function deps(over = {}) {
   const log = [], stored = [], sent = [];
   return {
@@ -184,4 +241,108 @@ test('hygiene: scrubSecrets removes v, a, b and stamps the time once; public fie
   const s = { swapId: 'ab', A: 'aa', B: 'bb', V: 'vv', v: 'v'.repeat(64), b: 'b'.repeat(64), done: 'completed', finalEvidence: fe };
   assert.equal(scrubSecrets(s, 123), 2); assert.deepEqual(Object.keys(s).sort(), ['A', 'B', 'V', 'done', 'finalEvidence', 'secretsWipedAt', 'swapId']); assert.equal(s.secretsWipedAt, 123);
   assert.equal(scrubSecrets(s, 456), 0); assert.equal(s.secretsWipedAt, 123, 'second call changes nothing');
+});
+
+// ---- Sol M1 (second round): cancellation reaches the stage boundaries of a STARTED public job; the final close always runs ----
+// A wallet whose chosen methods wait for a gate, so a test can abort the caller while one specific call is under way.
+function stagedWallet(holdOn = []) {
+  const calls = [], gates = Object.fromEntries(holdOn.map((m) => [m, gate()])), reached = Object.fromEntries(holdOn.map((m) => [m, gate()]));
+  const W = async (method) => { calls.push(method); if (gates[method]) { reached[method].open(); await gates[method].p; } return {}; };
+  return { W, calls, gates, reached };
+}
+test('Sol M1: abort while open_wallet is under way: no refresh, no job call, the cleanup close runs, recovery goes next', async () => {
+  const w = stagedWallet(['open_wallet']); const q = createWalletQueue(w.W, 'pw'); const ac = new AbortController(); let jobRan = false;
+  const pub = q.publicLane('p', async () => {}, async () => { jobRan = true; }, { signal: ac.signal });
+  await w.reached.open_wallet.p; ac.abort(); await assert.rejects(pub, /client-gone/);
+  const rec = q('r', async () => {}, async () => 'recovered');
+  w.gates.open_wallet.open(); assert.equal(await rec, 'recovered');
+  assert.equal(jobRan, false); assert.deepEqual(w.calls.slice(0, 3), ['close_wallet', 'open_wallet', 'close_wallet'], 'no refresh for the cancelled job; its close is the cleanup');
+});
+test('Sol M1: abort while refresh is under way: the job call (balance) is never made, the close still runs', async () => {
+  const w = stagedWallet(['refresh']); const q = createWalletQueue(w.W, 'pw'); const ac = new AbortController(); let jobRan = false;
+  const pub = q.publicLane('p', async () => {}, async () => { jobRan = true; await w.W('get_balance'); }, { signal: ac.signal });
+  await w.reached.refresh.p; ac.abort(); await assert.rejects(pub, /client-gone/);
+  const rec = q('r', async () => {}, async () => 'recovered');
+  w.gates.refresh.open(); assert.equal(await rec, 'recovered');
+  assert.equal(jobRan, false); assert.equal(w.calls.includes('get_balance'), false);
+  assert.deepEqual(w.calls.slice(0, 4), ['close_wallet', 'open_wallet', 'refresh', 'close_wallet']);
+});
+test('Sol M1: abort while the job call is under way: it is never interrupted, and its close still runs', async () => {
+  const w = stagedWallet(['get_balance']); const q = createWalletQueue(w.W, 'pw'); const ac = new AbortController(); let finished = false;
+  const pub = q.publicLane('p', async () => {}, async () => { await w.W('get_balance'); finished = true; }, { signal: ac.signal });
+  await w.reached.get_balance.p; ac.abort(); await assert.rejects(pub, /client-gone/);
+  assert.equal(finished, false); w.gates.get_balance.open();
+  await q('r', async () => {}, async () => 'x'); assert.equal(finished, true, 'the call in progress ran to its end');
+  assert.deepEqual(w.calls.slice(0, 5), ['close_wallet', 'open_wallet', 'refresh', 'get_balance', 'close_wallet']);
+});
+test('Sol M1: the deadline cancels a started public job the same way (stops before refresh)', async () => {
+  const w = stagedWallet(['open_wallet']), tm = fakeTimers(); const q = createWalletQueue(w.W, 'pw', { setTimer: tm.setTimer, clearTimer: tm.clearTimer, publicDeadlineMs: 5000 });
+  let jobRan = false; const pub = q.publicLane('p', async () => {}, async () => { jobRan = true; });
+  await w.reached.open_wallet.p; tm.fire(0); await assert.rejects(pub, /busy-try-later/);
+  w.gates.open_wallet.open(); await q('r', async () => {}, async () => 'x');
+  assert.equal(jobRan, false); assert.equal(w.calls.includes('refresh') && w.calls.indexOf('refresh') < w.calls.lastIndexOf('close_wallet', 3), false);
+});
+test('Sol M1: recovery scheduling stays ahead of a cancelled started job and of every waiting public job', async () => {
+  const w = stagedWallet(['refresh']); const q = createWalletQueue(w.W, 'pw'); const order = []; const ac = new AbortController();
+  const p0 = q.publicLane('p0', async () => {}, async () => { order.push('p0'); }, { signal: ac.signal });
+  await w.reached.refresh.p;
+  const p1 = q.publicLane('p1', async () => {}, async () => { order.push('p1'); }), r1 = q('r1', async () => {}, async () => { order.push('r1'); });
+  ac.abort(); await assert.rejects(p0, /client-gone/);
+  w.gates.refresh.open(); await Promise.all([r1, p1]);
+  assert.deepEqual(order, ['r1', 'p1'], 'p0 never ran its job call; recovery went before the waiting public job');
+});
+test('Sol M1: a cancelled public job whose wallet is down still releases the executor', async () => {
+  const w = fakeWallet(); const q = createWalletQueue(w.W, 'pw'); const ac = new AbortController(); ac.abort();
+  await assert.rejects(q.publicLane('p', async () => {}, async () => 1, { signal: ac.signal }), /client-gone/);
+  assert.equal(await q('r', async () => {}, async () => 'ok'), 'ok');
+});
+
+// ---- Sol M1 (third round residual): the cleanup try/finally covers the initial close and the open/create stage too ----
+test('Sol M1 residual: cancellation during a FAILING initial close still attempts the final close', async () => {
+  const calls = []; let closeCount = 0; const ac = new AbortController(); const g = gate();
+  const W = async (m) => { calls.push(m); if (m === 'close_wallet') { closeCount++; if (closeCount === 1) { await g.p; throw new Error('close timed out'); } } return {}; };
+  const q = createWalletQueue(W, 'pw'); let jobRan = false;
+  const pub = q.publicLane('p', async () => {}, async () => { jobRan = true; }, { signal: ac.signal });
+  await Promise.resolve(); ac.abort(); await assert.rejects(pub, /client-gone/);
+  g.open(); assert.equal(await q('r', async () => {}, async () => 'ok'), 'ok');
+  assert.equal(jobRan, false); assert.equal(calls.includes('open_wallet') && calls.indexOf('open_wallet') < 2, false, 'a cancelled job opens nothing');
+  assert.deepEqual(calls.slice(0, 2), ['close_wallet', 'close_wallet'], 'the failed initial close is followed by an attempted final close');
+});
+test('Sol M1 residual: a throwing open fallback (public treasury read) still attempts the final close and releases the executor', async () => {
+  const calls = []; const W = async (m) => { calls.push(m); if (m === 'open_wallet') throw new Error('no wallet'); return {}; };
+  const q = createWalletQueue(W, 'pw');
+  await assert.rejects(q.publicLane('treasury', () => { throw new Error('treasury wallet missing'); }, async () => 1), /treasury wallet missing/);
+  assert.deepEqual(calls, ['close_wallet', 'open_wallet', 'close_wallet']);
+  assert.equal(await q('r', async () => {}, async () => 'ok'), 'ok', 'the queue is not poisoned');
+});
+test('Sol M1 residual: an async create fallback that rejects also reaches the final close', async () => {
+  const calls = []; const W = async (m) => { calls.push(m); if (m === 'open_wallet') throw new Error('no wallet'); return {}; };
+  const q = createWalletQueue(W, 'pw');
+  await assert.rejects(q('x', async () => { throw new Error('create failed'); }, async () => 1), /create failed/);
+  assert.equal(calls.at(-1), 'close_wallet');
+});
+
+// ---- Sol M3 residual: the public response follows finalized SOLANA observations, not the progress of Monero work ----
+import { publicSwapView } from './maker-lanes.mjs';
+test('Sol M3 residual (forward): identical Solana history, sweep succeeding vs pending vs failing: the public response is identical at every pass', async () => {
+  const claim = { secretHex: '11', sig: 'CLAIMSIG' };
+  const run = async (sweepKind) => {
+    const s = { ...swap(), direction: 'xmr-sol', lockSig: 'LK' }; const views = [];
+    const x = deps({ readRevealed: async (which) => (which === 'claim' ? claim : null) });
+    x.d.proveFinal = async (_s, o) => ({ final: true, evidence: { finalizedSlot: 9, outcomeSig: o?.sig ?? null } });
+    x.d.sweep = async () => { if (sweepKind === 'fail') throw new Error('wallet rpc down'); return sweepKind === 'ok' ? ['sweep-tx'] : null; };
+    for (let i = 0; i < 3; i++) { try { await makerStep(s, x.d); } catch {} views.push(JSON.stringify(publicSwapView(s))); }
+    return { views, s };
+  };
+  const ok = await run('ok'), pending = await run('pending'), fail = await run('fail');
+  assert.deepEqual(ok.views[0], pending.views[0]); assert.deepEqual(pending.views[0], fail.views[0]);
+  assert.deepEqual(ok.views.at(-1), pending.views.at(-1)); assert.deepEqual(pending.views.at(-1), fail.views.at(-1));
+  assert.deepEqual(JSON.parse(fail.views[0]), { swapId: 'cd'.repeat(32), direction: 'xmr-sol', lockSig: 'LK', readySig: null, refundSig: null, claimSig: 'CLAIMSIG', state: 'finished' }, 'the claim signature is the OBSERVED one, shown before and without the sweep');
+  assert.equal(fail.s.sweepTxids, undefined); assert.ok(ok.s.sweepTxids, 'the Monero outcomes did differ underneath');
+});
+test('Sol M3 residual: a claim not yet proven at finalized is not shown at all (no public change until proven)', async () => {
+  const s = { ...swap(), direction: 'xmr-sol' }; const before = JSON.stringify(publicSwapView(s));
+  const x = deps({ readRevealed: async (which) => (which === 'claim' ? { secretHex: '11', sig: 'CLAIMSIG' } : null) });
+  x.d.proveFinal = async () => ({ final: false, why: 'not-finalized' }); x.d.sweep = async () => ['t'];
+  await makerStep(s, x.d); assert.equal(JSON.stringify(publicSwapView(s)), before); assert.equal(s.pubSol, undefined);
 });

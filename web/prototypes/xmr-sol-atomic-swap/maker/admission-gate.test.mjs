@@ -655,3 +655,62 @@ test('T15: the check is read-only: the state directory is byte-identical after O
   const inside = await run(join(w.state, 'report.json')); assert.equal(inside.code, 2); assert.equal(treeHash(w.state), before2);
   assert.ok(w.chain.methods.length > 0 && w.chain.methods.every((m) => /^get[A-Z]/.test(m)), [...new Set(w.chain.methods)].join());
 });
+
+// ---- 709-M2: a record reduced by the retention rule still lets the real quiescence collector and classifier answer ----
+import { reduceIfDue } from './maker-retention.mjs';
+import { strictPda } from './strict-sol.mjs';
+test('709-M2: reduced SOL -> XMR and XMR -> SOL records are still classified K0 by the real collector (upgrade check stays OK)', async (t) => {
+  const w = await world(t), user = Keypair.generate().publicKey;
+  const rid = '3c'.repeat(32), fid = '3d'.repeat(32);
+  const full = { swapId: rid, direction: 'sol-xmr', createdAt: '2026-10-01T10:00:00.000Z', refunder: user.toBase58(), claimer: makerKey, done: 'completed', finalEvidence: { finalizedSlot: 5 }, finishedAt: '2026-10-02T00:00:00.000Z', xmrAtomic: '1000', jointAddress: 'x' };
+  const fwd = { swapId: fid, createdAt: '2026-10-01T10:00:00.000Z', claimer: user.toBase58(), done: 'refunded', finalEvidence: { finalizedSlot: 5 }, finishedAt: '2026-10-02T00:00:00.000Z', xmrAtomic: '1000', lockSig: sigOf(fid), v: undefined };
+  const now = Date.parse('2026-11-30T00:00:00.000Z');
+  const pdaFor = (s) => (s.direction === 'sol-xmr' ? strictPda(user, Buffer.from(s.swapId, 'hex')) : sol.swapPda(new PublicKey(makerKey), Buffer.from(s.swapId, 'hex'))).toBase58();
+  const r1 = reduceIfDue(full, { nowMs: now, pda: pdaFor(full) }), r2 = reduceIfDue(fwd, { nowMs: now, pda: pdaFor(fwd) });
+  assert.ok(r1 && r2); assert.equal(r1.refunder, user.toBase58()); assert.equal(r1.pda, pdaFor(full));
+  w.put(r1); w.put(r2); w.journal({ event: 'swap-recorded', swapId: rid }); w.journal({ event: 'swap-recorded', swapId: fid });
+  const r = await w.check();
+  assert.equal(r.ok, true, r.problems.join('; '));
+  assert.deepEqual(r.report.classes.map((c) => c.k).sort(), ['K0', 'K0']);
+  // the old reduction (no refunder) cannot be read: the check is NOT OK, which is what 709-M2 reported
+  const { refunder, ...old } = r1; w.put(old);
+  const bad = await w.check(); assert.equal(bad.ok, false);
+});
+
+// ---- Sol M1 (second round): public admissions are bounded, cancellable before they start, and token admissions are untouched ----
+function fakeTimersAd() { const t = []; return { setTimer: (f, ms) => { const h = { f, ms, off: false }; t.push(h); return h; }, clearTimer: (h) => { if (h) h.off = true; }, fire: (i) => { if (!t[i].off) t[i].f(); } }; }
+test('Sol M1: public admissions beyond the depth bound are refused at once; token admissions are never bounded', async () => {
+  const s = createAdmissionSerial({ publicMaxQueued: 2 }); let release; const hold = new Promise((r) => { release = r; }); const ran = [];
+  const first = s.run(async () => { await hold; ran.push('first'); });
+  const a = s.run(async () => { ran.push('a'); }, { public: true }), b = s.run(async () => { ran.push('b'); }, { public: true });
+  await assert.rejects(s.run(async () => { ran.push('over'); }, { public: true }), /busy-try-later/);
+  const tokens = [1, 2, 3, 4, 5].map((i) => s.run(async () => { ran.push('t' + i); }));
+  release(); await Promise.all([first, a, b, ...tokens]);
+  assert.deepEqual(ran, ['first', 'a', 'b', 't1', 't2', 't3', 't4', 't5'], 'FIFO order kept, the refused one never ran'); assert.equal(s.counts().inflight, 0);
+});
+test('Sol M1: a waiting public admission is removed on abort and on its deadline and never starts; the one behind it still runs', async () => {
+  const tm = fakeTimersAd(), s = createAdmissionSerial({ setTimer: tm.setTimer, clearTimer: tm.clearTimer }); let release; const hold = new Promise((r) => { release = r; }); const ran = [];
+  const first = s.run(async () => { await hold; });
+  const ac = new AbortController();
+  const gone = s.run(async () => { ran.push('gone'); }, { public: true, signal: ac.signal });
+  const late = s.run(async () => { ran.push('late'); }, { public: true });
+  const ok = s.run(async () => { ran.push('ok'); return 'ok'; }, { public: true });
+  await new Promise((r) => setImmediate(r)); assert.equal(s.counts().queued, 3);
+  ac.abort(); await assert.rejects(gone, /client-gone/);
+  tm.fire(1); await assert.rejects(late, /busy-try-later/);
+  assert.equal(s.counts().queued, 1);
+  await assert.rejects(s.run(async () => {}, { public: true, signal: ac.signal }), /client-gone/);
+  release(); await first; assert.equal(await ok, 'ok'); assert.deepEqual(ran, ['ok']); assert.deepEqual(s.counts(), { queued: 0, running: 0, inflight: 0 });
+});
+test('Sol M1: abort during prepare: refused before the commitment, nothing stored, nothing broadcast; abort after store changes nothing', async () => {
+  let release; const gateOpen = new Promise((r) => { release = r; });
+  const h = harness({ prepare: async (q) => { await gateOpen; return { record: { swapId: q.swapId }, signed: { sig: 'S' } }; } });
+  h.quotes.set('q1', { swapId: 'a1' }); const ac = new AbortController();
+  const p = h.serial.run(() => admitSwap({ quoteId: 'q1', signal: ac.signal }, { isOpen: () => true, takeQuote: (id) => { const q = h.quotes.get(id); h.quotes.delete(id); return q; }, checkLimits: () => {}, prepare: async (q) => { await gateOpen; return { record: { swapId: q.swapId }, signed: { sig: 'S' } }; }, store: (s) => h.stored.push(s), broadcast: async (sg) => { h.sent.push(sg.sig); return {}; } }), { public: true, signal: ac.signal });
+  await wait(5); ac.abort(); release();
+  await assert.rejects(p, /client-gone/); assert.equal(h.stored.length, 0); assert.equal(h.sent.length, 0);
+  // after the first persistent commitment the signal no longer applies: store and broadcast both complete
+  const ac2 = new AbortController(); const stored = [], sent = [];
+  await admitSwap({ quoteId: 'q', signal: ac2.signal }, { isOpen: () => true, takeQuote: () => ({ swapId: 'z' }), checkLimits: () => {}, prepare: async () => ({ record: { swapId: 'z' }, signed: { sig: 'S2' } }), store: (s) => { stored.push(s); ac2.abort(); }, broadcast: async (sg) => { sent.push(sg.sig); return {}; } });
+  assert.equal(stored.length, 1); assert.deepEqual(sent, ['S2']);
+});

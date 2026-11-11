@@ -2,7 +2,7 @@
 // the send-once rule and restart behaviour are tested deterministically. Decisions: client/reverse-core.mjs.
 import { makerReverseNext, REV_SEND_MIN_LEAD } from '../client/reverse-core.mjs';
 import { LOCK_WAIT } from '../client/swap-core.mjs';
-import { finishIfFinal } from './maker-core.mjs';
+import { finishIfFinal, recordSolObservation } from './maker-core.mjs';
 import { CLOCK_LAG_S, createAuthorizer } from '../client/secret-send.mjs';
 
 /**
@@ -31,15 +31,22 @@ export function freeInventory(unlockedAtomic, openReverse, reserveAtomic) {
  * capsAdmission is the part both directions share (per swap, open count, daily quota); the normal XMR -> SOL start uses it too, through the
  * SAME serialized section as the reverse registration (Astra r5), so mixed concurrent admissions are counted together.
  */
-export function capsAdmission({ xmrAtomic, openCount, lockedTodayAtomic, caps }) {
+export function capsAdmission({ xmrAtomic, openCount, lockedTodayAtomic, caps, unpaid }) {
   const x = BigInt(xmrAtomic);
   if (!(x >= BigInt(caps.minAtomic) && x <= BigInt(caps.maxPerSwapAtomic))) throw new Error('amount-outside-limits');
   if (openCount >= caps.maxOpen) throw new Error('busy-try-later');
+  // F-12: requests that have not paid yet have their own small counters (maker-limits.mjs); lockedTodayAtomic is the PAID volume plus the
+  // reservation for unpaid swaps that are open right now. Skipped when the caller passes no unpaid tally (older callers, tests).
+  if (unpaid && caps.maxUnpaidOpen !== undefined) {
+    if (unpaid.addressOpenCount >= caps.maxUnpaidPerAddress) throw new Error('address-has-open-swap');
+    if (unpaid.openCount >= caps.maxUnpaidOpen) throw new Error('unpaid-busy-try-later');
+    if (unpaid.todayCount >= caps.maxUnpaidPerDay) throw new Error('unpaid-limit-reached');
+  }
   if (BigInt(lockedTodayAtomic) + x > BigInt(caps.maxPerDayAtomic)) throw new Error('daily-limit-reached');
   return true;
 }
-export function reverseAdmission({ xmrAtomic, openCount, lockedTodayAtomic, unlockedAtomic, openReverse, caps }) {
-  capsAdmission({ xmrAtomic, openCount, lockedTodayAtomic, caps });
+export function reverseAdmission({ xmrAtomic, openCount, lockedTodayAtomic, unlockedAtomic, openReverse, caps, unpaid }) {
+  capsAdmission({ xmrAtomic, openCount, lockedTodayAtomic, caps, unpaid });
   if (freeInventory(unlockedAtomic, openReverse, caps.reserveAtomic) < BigInt(xmrAtomic)) throw new Error('inventory-low');
   return true;
 }
@@ -71,13 +78,16 @@ export function canSendNow({ unlockedAtomic, xmrAtomic, reserveAtomic }) {
 export async function makerReverseStep(s, deps) {
   const pda = await deps.readSwapFinalized();
   let outcome = null, cursorMoved = false;
-  if (pda) { if (!s.seenPda) { s.seenPda = true; cursorMoved = true; } }
+  if (pda) { if (!s.seenPda) { s.seenPda = true; s.committedAt ??= new Date().toISOString(); cursorMoved = true; }
+    // Glass box: the time the escrow was read with ready true for the earliest time, kept once (never moved, never cleared). Time of this read, not of the user's transaction.
+    if (pda.ready === true && !s.readySeenAt) { s.readySeenAt = new Date().toISOString(); cursorMoved = true; } }   // 709-M1: the day the user's SOL was first seen locked
   else if (s.seenPda) {
     s.histCursor ??= {};
     const read = (which, point) => deps.readRevealed(which, point, s.histCursor[which] ?? null, (c) => { if ((s.histCursor[which] ?? null) !== c) { s.histCursor[which] = c; cursorMoved = true; } });
     const c = await read('claim', s.A);
     const r = c ? null : await read('refund', s.B);
     outcome = c ? { kind: 'claimed', secret: c.secretHex, sig: c.sig } : r ? { kind: 'refunded', secret: r.secretHex, sig: r.sig } : null;
+    await recordSolObservation(s, outcome, deps);   // before any recovery of this pass (Sol M3 residual)
   }
   const now = await deps.chainNow();
   if (!pda && !s.seenPda) {
