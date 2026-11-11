@@ -22,3 +22,19 @@ condition = "AND"
 regexTarget = "secret"
 regexes = ['''^[0-9a-f]{64}$''']
 paths = ['''^docs/verify-app/[a-z0-9-]+\.json$''']
+[[rules.allowlists]]
+description = "Made-up values in tests of the standalone client and the release-hash tool, written to prove that secrets are redacted or refused, not credentials"
+condition = "AND"
+regexTarget = "secret"
+regexes = ['''^(tok-secret-1234567890|KEY-abcdef123456|hunter2-SECRET)$''']
+paths = [
+  '''^web/prototypes/xmr-sol-atomic-swap/standalone/swap-lib\.test\.mjs$''',
+  '''^web/prototypes/xmr-sol-atomic-swap/standalone/swap-envelope\.test\.mjs$''',
+  '''^web/prototypes/xmr-sol-atomic-swap/maker/release-hash\.test\.mjs$''',
+]
+
+[[rules]]
+id = "private-key"
+[[rules.allowlists]]
+description = "A fake PEM header inside a test string that the release-hash tool must refuse, no key material"
+paths = ['''^web/prototypes/xmr-sol-atomic-swap/maker/release-hash\.test\.mjs$''']

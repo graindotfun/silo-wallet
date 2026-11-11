@@ -2,7 +2,7 @@
 //
 // The refund carries the maker's scalar b in its instruction data. Zero signatures stop an RPC from authorizing such bytes, but they do
 // not hide them, so the refund is NEVER simulated (signed or unsigned) and never priced with getFeeForMessage: the fee is fixed (one
-// signature, compute limit SEND_COMPUTE_UNITS, no priority fee). One message is compiled with one blockhash and signed once locally;
+// signature, compute limit SEND_COMPUTE_UNITS, and a priority fee that is bounded by configuration and read from the escrow account only, see priority-fee.mjs). One message is compiled with one blockhash and signed once locally;
 // the attempt (action, swap id, signature, blockhash, last valid block height, the exact transaction bytes, its state and the exposure
 // mark) is written durably (tmp, fsync, rename, fsync dir: the caller's store) BEFORE the same raw bytes go to every configured RPC
 // (two independent endpoints on mainnet) with skipPreflight. An outcome is only ever settled from finalized evidence; while one is open
@@ -41,6 +41,7 @@ import { EARLY_SEND_MIN_LEAD, EARLY_LANDING_MARGIN, LATE_REFUND_MARGIN } from '.
 import { REV_COMMIT_WINDOW } from '../client/reverse-core.mjs';
 import { strictPda, claimStrictIx, commitClaimStrictIx, decodeStrict } from './strict-sol.mjs';
 import { ATTEMPT_LISTS, OPEN_ATTEMPT_STATES } from './maker-core.mjs';
+import { computeBudgetIxs } from './priority-fee.mjs';
 
 export const SEND_COMPUTE_UNITS = 60_000;
 export const MAX_BLOCKHASH_BLOCKS = 151;      // a fresh blockhash is valid for 150 more blocks; anything above is not a fresh blockhash
@@ -71,8 +72,8 @@ const attempts = (s) => ATTEMPT_LISTS.flatMap((l) => s[l] ?? []);
 /** Attempts whose outcome is not settled by finalized evidence. While any exists, no new variant of any action is created. */
 export const openAttempts = (s) => attempts(s).filter((a) => OPEN.has(a.state));
 
-function compile(ixs, payerKey, blockhash) {
-  const tx = new Transaction().add(ComputeBudgetProgram.setComputeUnitLimit({ units: SEND_COMPUTE_UNITS }), ...ixs);
+function compile(ixs, payerKey, blockhash, microLamports = 0) {
+  const tx = new Transaction().add(...computeBudgetIxs(SEND_COMPUTE_UNITS, microLamports), ...ixs);
   tx.feePayer = payerKey; tx.recentBlockhash = blockhash;
   return tx.compileMessage();
 }
@@ -216,7 +217,7 @@ export async function finalizedObservation(conn) {
  * conns = [primary, secondary?] web3.js Connections (reads use the primary; every broadcast goes to all). payer = maker keypair.
  * store(s) must be durable (fsync) before it returns. clock() = local ms, injected for tests; used only to make the early check stricter.
  */
-export function createSender({ conns, payer, store, log, clock = () => Date.now(), monotonic = () => (typeof globalThis.performance?.now === 'function' ? globalThis.performance.now() : clock()) }) {
+export function createSender({ conns, payer, store, log, feeFor = async () => 0, clock = () => Date.now(), monotonic = () => (typeof globalThis.performance?.now === 'function' ? globalThis.performance.now() : clock()) }) {
   const primary = conns[0];
   const pdaOf = (s) => sol.swapPda(payer.publicKey, Buffer.from(s.swapId, 'hex'));
 
@@ -340,8 +341,9 @@ export function createSender({ conns, payer, store, log, clock = () => Date.now(
       if (isReverse(s)) return { refused: 'wrong-direction' };
       if (openAttempts(s).length) return { refused: 'attempt-open' };
       if (s.secretExposure || s.earlyAbort) return { refused: 'secret-may-be-exposed' };
+      const fee = await feeFor(pdaOf(s));   // SEC-P-09: read before the blockhash; an escrow address only, no message
       const { blockhash, lastValidBlockHeight } = await primary.getLatestBlockhash('confirmed');
-      const message = compile([sol.readyIx({ refunder: payer.publicKey, swapId: Buffer.from(s.swapId, 'hex') })], payer.publicKey, blockhash);
+      const message = compile([sol.readyIx({ refunder: payer.publicKey, swapId: Buffer.from(s.swapId, 'hex') })], payer.publicKey, blockhash, fee);
       const sim = await primary.simulateTransaction(new VersionedTransaction(message), { sigVerify: false, replaceRecentBlockhash: false, commitment: 'confirmed' });
       if (sim.value.err) return { refused: `simulation-refused ${JSON.stringify(sim.value.err)}` };
       const { raw, sig } = signOnce(message, payer);
@@ -357,6 +359,7 @@ export function createSender({ conns, payer, store, log, clock = () => Date.now(
       const pda = pdaOf(s);
       // The blockhash comes first: every observation below is newer than it. In the early path the chain time is the LAST awaited
       // read (re-sampled after the height and account reads, Astra 699 b) and the local clock is read synchronously in the gate.
+      const fee = await feeFor(pda);   // SEC-P-09: before the blockhash, so everything after it stays as before
       const bh = await primary.getLatestBlockhashAndContext('confirmed');
       const { blockhash, lastValidBlockHeight } = bh.value;
       let gate;
@@ -391,7 +394,7 @@ export function createSender({ conns, payer, store, log, clock = () => Date.now(
         };
       }
       // From here to the store: synchronous only.
-      const message = compile([sol.refundIx({ refunder: payer.publicKey, swapId: Buffer.from(s.swapId, 'hex'), secret: Buffer.from(s.b, 'hex') })], payer.publicKey, blockhash);
+      const message = compile([sol.refundIx({ refunder: payer.publicKey, swapId: Buffer.from(s.swapId, 'hex'), secret: Buffer.from(s.b, 'hex') })], payer.publicKey, blockhash, fee);
       const g = gate();
       if (!g.ok) { log({ event: 'refund-refused', swapId: s.swapId, kind, why: g.why, ...g.facts }); return { refused: g.why }; }
       const { raw, sig } = signOnce(message, payer);
@@ -406,8 +409,9 @@ export function createSender({ conns, payer, store, log, clock = () => Date.now(
       if (openAttempts(s).length) return { refused: 'attempt-open' };
       if (s.claimAbort) return { refused: 'claim-ambiguous' };
       const refunder = new PublicKey(s.refunder), swapId = Buffer.from(s.swapId, 'hex');
+      const fee = await feeFor(strictPda(refunder, swapId));
       const { blockhash, lastValidBlockHeight } = await primary.getLatestBlockhash('confirmed');
-      const message = compile([commitClaimStrictIx({ refunder, swapId, claimer: payer.publicKey })], payer.publicKey, blockhash);
+      const message = compile([commitClaimStrictIx({ refunder, swapId, claimer: payer.publicKey })], payer.publicKey, blockhash, fee);
       const sim = await primary.simulateTransaction(new VersionedTransaction(message), { sigVerify: false, replaceRecentBlockhash: false, commitment: 'confirmed' });
       if (sim.value.err) return { refused: `simulation-refused ${JSON.stringify(sim.value.err)}` };
       const { raw, sig } = signOnce(message, payer);
@@ -427,6 +431,7 @@ export function createSender({ conns, payer, store, log, clock = () => Date.now(
       if (s.claimAbort === 'ambiguous') return { refused: 'claim-ambiguous' };
       if (typeof s.a !== 'string' || !/^[0-9a-f]{64}$/.test(s.a)) return { refused: 'secret-missing' };
       const refunder = new PublicKey(s.refunder), swapId = Buffer.from(s.swapId, 'hex'), pda = strictPda(refunder, swapId);
+      const fee = await feeFor(pda);   // SEC-P-09: before the blockhash
       const bh = await primary.getLatestBlockhashAndContext('confirmed');
       const { blockhash, lastValidBlockHeight } = bh.value;
       const commitSlot = Math.max(0, ...(s.commitAttempts ?? []).filter((a) => a.state === 'landed').map((a) => a.resolvedSlot ?? 0));
@@ -452,7 +457,7 @@ export function createSender({ conns, payer, store, log, clock = () => Date.now(
       }));
       const tipTime = await primary.getBlockTime(await primary.getSlot('confirmed'));
       // From here to the store: synchronous only.
-      const message = compile([claimStrictIx({ refunder, swapId, claimer: payer.publicKey, secret: Buffer.from(s.a, 'hex') })], payer.publicKey, blockhash);
+      const message = compile([claimStrictIx({ refunder, swapId, claimer: payer.publicKey, secret: Buffer.from(s.a, 'hex') })], payer.publicKey, blockhash, fee);
       const localNow = clock() / 1000;
       if (Number.isSafeInteger(tipTime) && localNow - tipTime > CLOCK_AHEAD_ALARM_S) log({ event: 'alarm-local-clock-ahead', swapId: s.swapId, aheadS: Math.round(localNow - tipTime) });
       const g = strictClaimGate({ record: s, reads, tipTime, localNow, remainingBlocks: lastValidBlockHeight - lifetimeHeight, crossCheck });

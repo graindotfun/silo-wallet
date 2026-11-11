@@ -15,9 +15,15 @@ import { prepareSigned, broadcastSigned, rpcClient, chainSnapshot, collectEviden
 import { createSender } from './maker-send.mjs';
 import { CONFIRMATIONS, makerConfirmations } from '../client/swap-core.mjs';
 import { makerReverseStep, freeInventory, xmrTransferRequest, xmrTransferResult, reverseAdmission, capsAdmission, canSendNow, classifyJointBalance } from './maker-reverse.mjs';
-import { reverseTimelocks } from '../client/reverse-core.mjs';
+import { reverseTimelocks, REV_T0_LEAD, REV_CLAIM_WINDOW } from '../client/reverse-core.mjs';
 import { strictPda, readStrictFinalized, readRevealedStrict } from './strict-sol.mjs';
 import { sweepDestination } from './maker-reverse.mjs';
+import { scanSwaps, recoveryPass } from './maker-records.mjs';
+import { pruneFinished } from './maker-retention.mjs';
+import { limitInputs, unpaidCaps } from './maker-limits.mjs';
+import { createPriceCheck, coingeckoPrice, krakenPrice, priceSettings } from './price-feeds.mjs';
+import { priorityFeeConfig, createFeeSource } from './priority-fee.mjs';
+import { parseLaneConfig, laneHealth, laneOf, laneRecords, laneCaps, laneAdmission, tokenHoldback, publicRoute, publicSwapView, corsHeaders, createBucket, createSourceLimiter, pruneQuotes, createQuoteStore, BUILD_HASH } from './maker-lanes.mjs';
 
 const E = process.env;
 const STATE = E.MAKER_STATE ?? (() => { throw new Error('set MAKER_STATE'); })();
@@ -36,6 +42,8 @@ const CFG = {
   smallSwapConfirmations: Number(E.SMALL_SWAP_CONFIRMATIONS ?? 10), smallSwapMaxAtomic: atomic(0.05),
   quoteTtl: 120, t0Delta: Number(E.T0 ?? 7200), t1Delta: Number(E.T1 ?? 14400),
   loopMs: Number(E.LOOP_MS ?? 30_000),
+  priceBandBps: priceSettings(E).bandBps, priceMaxAgeS: priceSettings(E).maxAgeS,
+  ...unpaidCaps(E),
   // SOL -> XMR (maker = Alice, sends XMR from its treasury). Off unless explicitly enabled; on mainnet it also needs
   // the owner's yes for inventory, caps and the public enable (threat model: SOL_TO_XMR_THREAT_MODEL.md).
   solXmr: E.SOL_XMR_ENABLED === 'true',
@@ -45,6 +53,10 @@ const CFG = {
   recycleXmr: E.MAKER_RECYCLE_XMR === 'true',
   inventoryCeiling: atomic(Number(E.MAKER_INVENTORY_CEILING_XMR ?? 0.15)),
 };
+// Open maker endpoint: the public lane is OFF unless MAKER_PUBLIC_LANE=true (maker-lanes.mjs). A bad value stops the start.
+const PUB = parseLaneConfig(E, { min: CFG.minXmrPerSwap, perSwap: CFG.maxXmrPerSwap, perDay: CFG.maxXmrPerDay, open: CFG.maxOpenSwaps });
+// Self-reported build hash for /v1/health, from the environment only; nothing here proves the running code equals any source.
+if (E.MAKER_BUILD_HASH && !BUILD_HASH.test(E.MAKER_BUILD_HASH)) throw new Error('MAKER_BUILD_HASH must be sha256:<64 hex>');
 mkdirSync(`${STATE}/swaps`, { recursive: true });
 const maker = await loadKeypair(`${STATE}/maker-sol.json`);
 // Optional wallet-rpc login ("user:password" in a root-provisioned file); never in a URL or the environment.
@@ -78,9 +90,11 @@ const swapFile = (id) => `${STATE}/swaps/${id}.json`;
 const load = (id) => JSON.parse(readFileSync(swapFile(id), 'utf8'));
 const store = (s) => writeDurable(swapFile(s.swapId), JSON.stringify(s, null, 2));
 // Set-ready and refund (AG-R2-H1): attempt persisted durably before broadcast, the refund never simulated, sent to every endpoint.
-const sender = createSender({ conns: [sol.conn, ...(E.SOL_RPC_SECONDARY ? [new Connection(E.SOL_RPC_SECONDARY, 'confirmed')] : [])], payer: maker, store, log });
+const sender = createSender({ conns: [sol.conn, ...(E.SOL_RPC_SECONDARY ? [new Connection(E.SOL_RPC_SECONDARY, 'confirmed')] : [])], payer: maker, store, log, feeFor: createFeeSource(priorityFeeConfig(E), sol.conn) });
 const quotes = new Map();
 const reverseQuotes = new Map();   // SOL -> XMR quotes (they hold the maker's secret a until registration); dropped with the forward quotes on every closed read
+// ONE quote ceiling per lane across both directions; check and reservation are one synchronous step (maker-lanes.mjs createQuoteStore).
+const quoteStore = createQuoteStore({ maps: [quotes, reverseQuotes], pub: PUB });
 // The watch wallet starts at least 900 s (8 Monero blocks of 120 s) before the lock, so a payment sent just before it is seen too.
 const XMR_LOOKBACK_BLOCKS = 8;
 
@@ -95,8 +109,12 @@ const admission = createAdmission({
   requireUnwritableDir: CFG.network === 'mainnet',
   onClosed: () => { quotes.clear(); reverseQuotes.clear(); },
 });
-const accepting = () => gate.isOpen() && admission.isOpen();
-const admissions = createAdmissionSerial();
+// 709-H1: an unreadable swap record (or an unlistable directory) closes admission until it is readable again; recovery never stops.
+const acct = { complete: true, bad: [], dirError: null, at: null };
+const accepting = () => gate.isOpen() && admission.isOpen() && acct.complete;
+const admissions = createAdmissionSerial(PUB.enabled ? { publicMaxQueued: PUB.admissionQueueDepth, publicDeadlineMs: PUB.admissionDeadlineMs } : {});
+// Public admissions carry the request's signal and are bounded and cancellable while they wait (Sol M1); token admissions pass no options.
+const admitOpts = (input) => (input?.lane === 'public' ? { public: true, signal: input.signal } : {});
 // R9: journaled (fsync) at every process start, before the API listens. A swap file created before this time was written by a process
 // that has ended; the quiesce check's K4 rule bounds the blockhashes that process could have used from this time.
 // The generation id names THIS process: the quiesce check requires /v1/status to report the same generation as the journal's last
@@ -107,34 +125,51 @@ log({ event: 'maker-started', at: startedAt, generation, maker: maker.publicKey.
 const chainRpc = rpcClient(sol.conn.rpcEndpoint);
 
 // ---- Monero wallet access is serialized (one open wallet at a time; a failure never poisons the queue, H5) ----
-const withWallet = createWalletQueue(W, PW);
+// Recovery work (the watch loop, sweeps, refunds, the token lane) runs on the queue itself and is always served ahead of public jobs; public lane reads use their own
+// bounded queue (withWallet.publicLane: depth, deadline, cancelled when the caller goes away). One executor, one open wallet at a time.
+const withWallet = createWalletQueue(W, PW, PUB.enabled ? { publicMaxDepth: PUB.walletQueueDepth, publicDeadlineMs: PUB.walletDeadlineMs } : {});
+const walletFor = (lane, signal) => (lane === 'public' ? (name, create, fn) => withWallet.publicLane(name, create, fn, { signal }) : withWallet);
 
-// ---- Price: one public source plus a fixed spread ----
-// Same provider, API base and asset ids as Silo's own price feed (lib/silo/prices.mjs), including
-// its optional demo-key header. Jupiter is not used: it can only price wXMR, the bridge token.
-async function price() {
-  const headers = E.COINGECKO_DEMO_API_KEY ? { 'x-cg-demo-api-key': E.COINGECKO_DEMO_API_KEY } : {};
-  const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=monero,solana&vs_currencies=usd', { headers, signal: AbortSignal.timeout(8000) });
-  const j = await r.json();
-  const xmr = j?.monero?.usd, solUsd = j?.solana?.usd;
-  if (!(xmr > 0 && solUsd > 0)) throw new Error('price-unavailable');
-  return { xmrUsd: xmr, solUsd, solPerXmr: xmr / solUsd };
-}
+// ---- Price: CoinGecko, checked against Kraken (SEC-P-07), plus a fixed spread ----
+// Same CoinGecko provider, API base and asset ids as Silo's own price feed (lib/silo/prices.mjs), including its optional demo-key header.
+// Kraken is a second, independent public source. No quote when either is down or stale or they differ by more than PRICE_BAND_BPS.
+// Jupiter is not used: it can only price wXMR, the bridge token.
+const price = createPriceCheck({ bandBps: CFG.priceBandBps, fetchers: [() => coingeckoPrice({ apiKey: E.COINGECKO_DEMO_API_KEY, maxAgeS: CFG.priceMaxAgeS }), () => krakenPrice()] });
 
 // Every record not done stays in the recovery loop, including a lock proven never landed (it only stops counting toward the open cap).
-function openSwaps() { return readdirSync(`${STATE}/swaps`).filter((f) => f.endsWith('.json')).map((f) => load(f.slice(0, -5))).filter((s) => !s.done); }
-const cappedSwaps = () => openSwaps().filter((s) => lockStage(s) !== 'never-landed');
-function lockedToday() {
-  const day = new Date().toISOString().slice(0, 10);
-  return readdirSync(`${STATE}/swaps`).filter((f) => f.endsWith('.json')).map((f) => load(f.slice(0, -5))).filter((s) => s.createdAt.startsWith(day)).reduce((t, s) => t + BigInt(s.xmrAtomic), 0n);
+// Every read goes through scanSwaps: one bad file never throws (709-H1). The cache `acct` is refreshed by every scan.
+function scan() {
+  const r = scanSwaps({ list: () => readdirSync(`${STATE}/swaps`), load });
+  noteScan(r);
+  return r;
 }
+function noteScan(r) {
+  const key = (x) => JSON.stringify([x.dirError, x.bad.map((b) => `${b.id}:${b.why}`)]);
+  if (key(r) !== key(acct) || r.complete !== acct.complete) log(r.complete ? { event: 'records-readable-again' } : { event: 'records-unreadable', dirError: r.dirError, files: r.bad.map((b) => ({ id: b.id.slice(0, 16), why: b.why })) });
+  acct.complete = r.complete; acct.bad = r.bad; acct.dirError = r.dirError; acct.at = new Date().toISOString();
+}
+function openSwaps() { return scan().records.filter((s) => !s.done); }
+// Each lane counts only its own records (laneRecords); with the public lane off there is one pool, exactly as before.
+const cappedSwaps = (lane = 'token') => laneRecords(openSwaps(), lane, PUB.enabled).filter((s) => lockStage(s) !== 'never-landed');
+const isOpenCounted = (s) => !s.done && lockStage(s) !== 'never-landed';
+// F-12: the daily XMR allowance counts PAID swaps (plus a reservation for unpaid ones open right now); unpaid requests have their own counters.
+const allSwaps = () => scan().records;
+// Accounting must be complete to admit anything: a record that cannot be read could be a paid or open swap that the limits must count.
+const limitsNow = (requester = null, lane = 'token') => { const r = scan(); if (!r.complete) throw new Error('maker-accounting-incomplete'); return limitInputs(laneRecords(r.records, lane, PUB.enabled), requester, { isOpenCounted }); };
+const lockedToday = (lane = 'token') => limitsNow(null, lane).lockedTodayAtomic;
+// Accounting must be complete for any admission; the lane check sees every record and filters by lane itself.
+const completeRecords = () => { const r = scan(); if (!r.complete) throw new Error('maker-accounting-incomplete'); return r.records; };
 
-async function quote({ xmr }) {
-  const xmrAtomic = atomic(Number(xmr));
-  if (!(xmrAtomic >= CFG.minXmrPerSwap && xmrAtomic <= CFG.maxXmrPerSwap)) throw new Error('amount-outside-limits');
-  if (lockedToday() + xmrAtomic > CFG.maxXmrPerDay) throw new Error('daily-limit-reached');
+// t0Delta/t1Delta in both quotes: the refund times this maker will register, in seconds after the lock (additive, so a client can show them before registering).
+async function quote({ xmr, lane = 'token', signal }) {
+  const xmrAtomic = atomic(Number(xmr)), C = laneCaps(lane, caps(), PUB);   // lane: set by the server
+  if (!(xmrAtomic >= C.minAtomic && xmrAtomic <= C.maxPerSwapAtomic)) throw new Error('amount-outside-limits');
+  if (lockedToday(lane) + xmrAtomic > C.maxPerDayAtomic) throw new Error('daily-limit-reached');
   if (!accepting()) throw new Error('maker-paused');
-  if (cappedSwaps().length >= CFG.maxOpenSwaps) throw new Error('busy-try-later');
+  if (cappedSwaps(lane).length >= C.maxOpen) throw new Error('busy-try-later');
+  quoteLimits(xmrAtomic, lane);   // F-12: the unpaid counters, same error codes as at admission
+  const slot = quoteStore.reserve(lane);   // M2: ceiling check and reservation in one synchronous step, before any await
+  try {
   const p = await price();
   const gross = Number(xmrAtomic) / 1e12 * p.solPerXmr * (1 - CFG.spreadBps / 10_000);
   const lamports = Math.floor(gross * LAMPORTS_PER_SOL) - CFG.gasLamports;
@@ -143,11 +178,13 @@ async function quote({ xmr }) {
   // The swap id is fixed at quote time so both key-share proofs can be bound to it.
   const swapId = hex(globalThis.crypto.getRandomValues(new Uint8Array(32)));
   const confirmations = xmrAtomic <= CFG.smallSwapMaxAtomic ? makerConfirmations(CFG.smallSwapConfirmations) : CONFIRMATIONS;
-  const q = { quoteId, swapId, xmrAtomic: xmrAtomic.toString(), lamports, gasLamports: CFG.gasLamports, solPerXmr: p.solPerXmr, spreadBps: CFG.spreadBps, priceSource: 'coingecko', confirmations, expiresAt: Math.floor(Date.now() / 1000) + CFG.quoteTtl };
+  const q = { quoteId, swapId, xmrAtomic: xmrAtomic.toString(), lamports, gasLamports: CFG.gasLamports, solPerXmr: p.solPerXmr, spreadBps: CFG.spreadBps, priceSource: 'coingecko', confirmations, t0Delta: CFG.t0Delta, t1Delta: CFG.t1Delta, expiresAt: Math.floor(Date.now() / 1000) + CFG.quoteTtl };
   if (!accepting()) throw new Error('maker-paused');   // closed while the price was fetched: issue nothing
-  quotes.set(quoteId, q);
+  if (signal?.aborted) throw new Error('client-gone');
+  slot.commit(quotes, quoteId, { ...q, lane });
   log({ event: 'quote', ...q });
   return q;
+  } finally { slot.release(); }
 }
 
 // ONE admission gate for both directions (VBU-M1 + Astra r5): the drain file and the start gate are read live through accepting(); every
@@ -155,8 +192,11 @@ async function quote({ xmr }) {
 // admitSwap: entry check, shared limits (capsAdmission: per swap, open count, daily quota counted over BOTH directions), all awaits, then the
 // last check with no await before the swap file (the first persistent commitment) is stored. For XMR -> SOL that file already holds the
 // secret, the signed lock signature and its last valid block height, and only then is the lock broadcast.
-const caps = () => ({ minAtomic: CFG.minXmrPerSwap, maxPerSwapAtomic: CFG.maxXmrPerSwap, maxPerDayAtomic: CFG.maxXmrPerDay, maxOpen: CFG.maxOpenSwaps, reserveAtomic: CFG.xmrFeeReserve });
-const sharedLimits = (q) => capsAdmission({ xmrAtomic: q.xmrAtomic, openCount: cappedSwaps().length, lockedTodayAtomic: lockedToday(), caps: caps() });
+const caps = () => ({ minAtomic: CFG.minXmrPerSwap, maxPerSwapAtomic: CFG.maxXmrPerSwap, maxPerDayAtomic: CFG.maxXmrPerDay, maxOpen: CFG.maxOpenSwaps, reserveAtomic: CFG.xmrFeeReserve, maxUnpaidOpen: CFG.maxUnpaidOpen, maxUnpaidPerAddress: CFG.maxUnpaidPerAddress, maxUnpaidPerDay: CFG.maxUnpaidPerDay });
+// Quote time has no requester address yet: the global unpaid counters apply, the per-address one is checked at admission.
+const quoteLimits = (xmrAtomic, lane = 'token') => laneAdmission({ lane, xmrAtomic, records: completeRecords(), isOpenCounted, base: caps(), pub: PUB });
+// A quote belongs to the lane it was issued in: using it from the other lane is refused like an expired one (input.lane is set by the server).
+const sharedLimits = (q, input) => { if (laneOf(q) !== laneOf(input)) throw new Error('quote-expired'); return laneAdmission({ lane: laneOf(q), xmrAtomic: q.xmrAtomic, requester: input?.claimer ?? input?.refunder ?? null, records: completeRecords(), isOpenCounted, base: caps(), pub: PUB }); };
 const startSwap = (input) => admissions.run(() => admitSwap(input, {
   isOpen: accepting,
   takeQuote(quoteId) {
@@ -175,7 +215,7 @@ const startSwap = (input) => admissions.run(() => admitSwap(input, {
     log({ event: 'sol-locked', swapId: s.swapId, sig: r.sig, lamports: s.lamports, xmrAtomic: s.xmrAtomic, t0: s.t0, t1: s.t1, gas: signed.gas });
     return { swapId: s.swapId, B: s.B, proofB: signed.proofB, jointAddress: s.jointAddress, pda: sol.swapPda(maker.publicKey, unhex(s.swapId)).toBase58(), refunder: maker.publicKey.toBase58(), t0: s.t0, t1: s.t1, lamports: s.lamports, lockSig: r.sig, xmrAtomic: s.xmrAtomic };
   },
-}));
+}), admitOpts(input));
 
 async function prepareSwap(q, { quoteId, claimer, feePayer, A, proofA, v }) {
   const claimerKey = new PublicKey(claimer);
@@ -188,13 +228,15 @@ async function prepareSwap(q, { quoteId, claimer, feePayer, A, proofA, v }) {
   if (vS === 0n || vS >= (await import('../client/keys.mjs')).L) throw new Error('bad-view-key');
   // Locked SOL already sits in PDAs, so the wallet balance is the free inventory.
   const bal = await sol.conn.getBalance(maker.publicKey);
-  if (bal < q.lamports + q.gasLamports + CFG.solReserve) throw new Error('inventory-low');
+  // Token lane only: leave the unused part of the public lane's float alone (XMR-equivalent at this quote's price). Zero when the lane is off.
+  const hold = laneOf(q) === 'token' ? Math.ceil(Number(tokenHoldback(completeRecords(), PUB, isOpenCounted)) / 1e12 * q.solPerXmr * LAMPORTS_PER_SOL) : 0;
+  if (bal < q.lamports + q.gasLamports + CFG.solReserve + hold) throw new Error('inventory-low');
   const b = randomScalar(), B = pub(b);
   const V = pub(vS);
   const jointAddress = moneroAddress(addPoints(Ab, B), V, CFG.network);
   const proofB = proveShare(b, swapId, 1);
   const now = await sol.chainNow();
-  const s = { swapId: hex(swapId), quoteId, feePayer: gasKey.toBase58(), createdAt: new Date().toISOString(), claimer, A, B: hex(B), b: hex(toLE(b)), v, V: hex(V), jointAddress,
+  const s = { swapId: hex(swapId), lane: laneOf(q), quoteId, feePayer: gasKey.toBase58(), createdAt: new Date().toISOString(), claimer, A, B: hex(B), b: hex(toLE(b)), v, V: hex(V), jointAddress,
     xmrAtomic: q.xmrAtomic, confirmations: q.confirmations, lamports: q.lamports, t0: now + CFG.t0Delta, t1: now + CFG.t1Delta, lockedAt: now, restoreHeight: (await daemonHeight()) - XMR_LOOKBACK_BLOCKS };
   const ixs = [];
   if ((await sol.conn.getBalance(gasKey)) < q.gasLamports) ixs.push(SystemProgram.transfer({ fromPubkey: maker.publicKey, toPubkey: gasKey, lamports: q.gasLamports }));
@@ -209,15 +251,24 @@ async function prepareSwap(q, { quoteId, claimer, feePayer, A, proofA, v }) {
 
 // ---- SOL -> XMR: quote, register, then the user locks SOL; the loop sends XMR and claims ----
 const openReverse = () => openSwaps().filter((s) => s.direction === 'sol-xmr');
-async function treasuryUnlocked() { return withWallet(TREASURY, () => { throw new Error('treasury wallet missing'); }, async () => (await W('get_balance')).unlocked_balance); }
-async function reverseQuote({ xmr }) {
+// Token lane: the unused part of the public lane's float is not available to it (maker-lanes.mjs tokenHoldback). Public lane and lane off: unchanged.
+function inventoryFor(lane, unlocked) {
+  if (lane !== 'token' || !PUB.enabled) return unlocked;
+  const left = BigInt(unlocked) - tokenHoldback(completeRecords(), PUB, isOpenCounted);
+  return left > 0n ? left : 0n;
+}
+async function treasuryUnlocked(lane = 'token', signal) { return walletFor(lane, signal)(TREASURY, () => { throw new Error('treasury wallet missing'); }, async () => (await W('get_balance')).unlocked_balance); }
+async function reverseQuote({ xmr, lane = 'token', signal }) {
   if (!CFG.solXmr) throw new Error('direction-disabled');
   if (!accepting()) throw new Error('maker-paused');
-  const xmrAtomic = atomic(Number(xmr));
-  if (!(xmrAtomic >= CFG.minXmrPerSwap && xmrAtomic <= CFG.maxXmrPerSwap)) throw new Error('amount-outside-limits');
-  if (lockedToday() + xmrAtomic > CFG.maxXmrPerDay) throw new Error('daily-limit-reached');
-  if (cappedSwaps().length >= CFG.maxOpenSwaps) throw new Error('busy-try-later');
-  if (freeInventory(await treasuryUnlocked(), openReverse(), CFG.xmrFeeReserve) < xmrAtomic) throw new Error('inventory-low');
+  const xmrAtomic = atomic(Number(xmr)), C = laneCaps(lane, caps(), PUB);
+  if (!(xmrAtomic >= C.minAtomic && xmrAtomic <= C.maxPerSwapAtomic)) throw new Error('amount-outside-limits');
+  if (lockedToday(lane) + xmrAtomic > C.maxPerDayAtomic) throw new Error('daily-limit-reached');
+  if (cappedSwaps(lane).length >= C.maxOpen) throw new Error('busy-try-later');
+  quoteLimits(xmrAtomic, lane);   // F-12
+  const slot = quoteStore.reserve(lane);   // M2
+  try {
+  if (freeInventory(inventoryFor(lane, await treasuryUnlocked(lane, signal)), openReverse(), CFG.xmrFeeReserve) < xmrAtomic) throw new Error('inventory-low');
   const p = await price();
   // The user pays the SOL; the maker's spread is added on top of the market price.
   const lamports = Math.ceil(Number(xmrAtomic) / 1e12 * p.solPerXmr * (1 + CFG.spreadBps / 10_000) * LAMPORTS_PER_SOL);
@@ -225,11 +276,14 @@ async function reverseQuote({ xmr }) {
   const swapId = globalThis.crypto.getRandomValues(new Uint8Array(32));
   const a = randomScalar(), A = pub(a);
   const q = { direction: 'sol-xmr', quoteId, swapId: hex(swapId), xmrAtomic: xmrAtomic.toString(), lamports, solPerXmr: p.solPerXmr, spreadBps: CFG.spreadBps, priceSource: 'coingecko',
+    t0Delta: REV_T0_LEAD, t1Delta: REV_T0_LEAD + REV_CLAIM_WINDOW,
     A: hex(A), proofA: proveShare(a, swapId, 0), claimer: maker.publicKey.toBase58(), expiresAt: Math.floor(Date.now() / 1000) + CFG.quoteTtl };
   if (!accepting()) throw new Error('maker-paused');   // closed while the balance and price were fetched: issue nothing
-  reverseQuotes.set(quoteId, { ...q, a: hex(toLE(a)) });
+  if (signal?.aborted) throw new Error('client-gone');
+  slot.commit(reverseQuotes, quoteId, { ...q, a: hex(toLE(a)), lane });
   log({ event: 'rev-quote', quoteId, swapId: q.swapId, xmrAtomic: q.xmrAtomic, lamports, solPerXmr: p.solPerXmr, spreadBps: CFG.spreadBps, priceSource: 'coingecko', expiresAt: q.expiresAt });
   return q;
+  } finally { slot.release(); }
 }
 // N1: registration is where capacity becomes a commitment. It is an admission like any other: the same queue, the same admitSwap, the same
 // live gate read before and after every await, the same shared limits; the inventory check (live treasury) runs inside prepare. The swap file
@@ -249,16 +303,18 @@ const reverseRegister = (input) => admissions.run(() => admitSwap(input, {
     log({ event: 'rev-registered', swapId: s.swapId, refunder: s.refunder, lamports: s.lamports, xmrAtomic: s.xmrAtomic, t0: s.t0, t1: s.t1 });
     return { swapId: s.swapId, jointAddress: s.jointAddress, t0: s.t0, t1: s.t1, lamports: s.lamports, xmrAtomic: s.xmrAtomic, claimer: s.claimer, claimPoint: s.A, pda: strictPda(new PublicKey(s.refunder), unhex(s.swapId)).toBase58() };
   },
-}));
-async function prepareReverse(q, { quoteId, refunder, B, proofB, v }) {
+}), admitOpts(input));
+async function prepareReverse(q, { quoteId, refunder, B, proofB, v, signal }) {
   const swapId = unhex(q.swapId), Bb = unhex(B), vS = fromLE(unhex(v));
   if (!verifyShare(Bb, proofB, swapId, 1)) throw new Error('bad-share-proof');
   if (vS === 0n || vS >= (await import('../client/keys.mjs')).L) throw new Error('bad-view-key');
-  reverseAdmission({ xmrAtomic: q.xmrAtomic, openCount: cappedSwaps().length, lockedTodayAtomic: lockedToday(), unlockedAtomic: await treasuryUnlocked(), openReverse: openReverse(), caps: caps() });
+  const lane = laneOf(q), l = limitsNow(refunder, lane);
+  reverseAdmission({ xmrAtomic: q.xmrAtomic, openCount: cappedSwaps(lane).length, lockedTodayAtomic: l.lockedTodayAtomic, unpaid: l.unpaid, unlockedAtomic: inventoryFor(lane, await treasuryUnlocked(lane, signal)), openReverse: openReverse(), caps: laneCaps(lane, caps(), PUB) });
+  laneAdmission({ lane, xmrAtomic: q.xmrAtomic, requester: refunder, records: completeRecords(), isOpenCounted, base: caps(), pub: PUB });   // adds the public lane's float, read after the awaits
   const refunderKey = new PublicKey(refunder);
   const jointAddress = moneroAddress(addPoints(unhex(q.A), Bb), pub(vS), CFG.network);
   const { t0, t1 } = reverseTimelocks(await sol.chainNow());
-  const record = { direction: 'sol-xmr', swapId: q.swapId, quoteId, createdAt: new Date().toISOString(), refunder: refunderKey.toBase58(), claimer: q.claimer,
+  const record = { direction: 'sol-xmr', lane, swapId: q.swapId, quoteId, createdAt: new Date().toISOString(), refunder: refunderKey.toBase58(), claimer: q.claimer,
     A: q.A, a: q.a, B, v, V: hex(pub(vS)), jointAddress, xmrAtomic: q.xmrAtomic, lamports: q.lamports, t0, t1, quoteExpiresAt: q.expiresAt,
     restoreHeight: (await daemonHeight()) - XMR_LOOKBACK_BLOCKS, userProofOk: true };
   return { record, signed: null };
@@ -355,6 +411,8 @@ async function step(s) {
   });
 }
 
+// Privacy retention: finished swaps are reduced to their outcome and amounts after 14 days (maker-retention.mjs). At start, then every hour.
+const retain = () => { try { pruneFinished({ ids: () => readdirSync(`${STATE}/swaps`).filter((f) => f.endsWith('.json')).map((f) => f.slice(0, -5)), load, write: store, mtimeMs: (id) => statSync(swapFile(id)).mtimeMs, pdaOf: (s) => (s.direction === 'sol-xmr' ? strictPda(new PublicKey(s.refunder), unhex(s.swapId)) : sol.swapPda(maker.publicKey, unhex(s.swapId))).toBase58(), nowMs: () => Date.now(), log }); } catch (e) { log({ event: 'retention-error', error: String(e?.message ?? e).slice(0, 120) }); } };
 let lastAdmission = null;
 function admissionTick() {
   const a = admission.state();   // a closed read also drops every issued quote (R2)
@@ -364,13 +422,15 @@ function admissionTick() {
 }
 const QUICK_RETRY_MS = 1500;   // F5: after a claim refused only for endpoint height skew, look again this soon (never later than the normal interval)
 async function loop() {
-  const g = await gate.check();
-  if (!g.open) log({ event: 'gate-closed', reasons: g.reasons });
-  admissionTick();
-  let snapshot, quick = false;
-  for (const s of openSwaps()) {
-    try {
-      if (s.direction === 'sol-xmr') { const r = await reverseStep(s); if (r?.reason === 'claim-refused: endpoint-heights-disagree') quick = true; continue; }   // F5: a skew-only refusal is re-read soon, not after the full poll interval   // no maker lock in this direction: nothing for resolveLock
+  let quick = false;
+  try {
+    const g = await gate.check();
+    if (!g.open) log({ event: 'gate-closed', reasons: g.reasons });
+    admissionTick();
+    { const t = Math.floor(Date.now() / 1000); pruneQuotes(quotes, t); pruneQuotes(reverseQuotes, t); }   // expired quotes do not pile up between quote requests
+    let snapshot;
+    const results = await recoveryPass({ scan, onScan: noteScan, log, handle: async (s) => {
+      if (s.direction === 'sol-xmr') { const r = await reverseStep(s); return r?.reason === 'claim-refused: endpoint-heights-disagree' ? 'quick' : null; }   // F5: a skew-only refusal is re-read soon, not after the full poll interval   // no maker lock in this direction: nothing for resolveLock
       // A write-ahead record whose lock outcome is unknown (answer lost, crash) is settled from finalized evidence when possible: a late
       // landing marks it locked; two coherent K2 observations mark it never-landed, and it STAYS in this loop (file, secret, lockSig kept).
       // Recovery (makerStep) runs on every open record exactly as before, so a late landing is driven (ready, refund, sweep) in any case.
@@ -380,39 +440,82 @@ async function loop() {
         await resolveLock(s, { evidence: (x) => collectEvidence(chainRpc, { snapshot, record: x, makerKey: maker.publicKey, program: sol.PROGRAM_ID.toBase58() }), store, log });
       }
       await step(s);
-    } catch (e) { log({ event: 'error', swapId: s.swapId, error: String(e.message ?? e) }); }
-  }
-  setTimeout(loop, quick ? Math.min(CFG.loopMs, QUICK_RETRY_MS) : CFG.loopMs);
+      return null;
+    } });
+    quick = results.includes('quick');
+  } catch (e) { log({ event: 'error', where: 'loop', error: String(e?.message ?? e).slice(0, 200) }); }   // a failing gate check or journal write never ends the loop
+  finally { setTimeout(loop, quick ? Math.min(CFG.loopMs, QUICK_RETRY_MS) : CFG.loopMs); }   // 709-H1: always rescheduled
 }
 
-const json = (res, code, body) => { res.writeHead(code, { 'content-type': 'application/json' }); res.end(JSON.stringify(body)); };
-http.createServer(async (req, res) => {
+const json = (res, code, body, extra = {}) => { res.writeHead(code, { 'content-type': 'application/json', ...extra }); res.end(JSON.stringify(body)); };
+// ---- Public lane gates (maker-lanes.mjs). All of this is inert while MAKER_PUBLIC_LANE is not true. ----
+const STATUS_PATH = '/v1/status';
+const buckets = PUB.enabled ? { quote: createBucket(PUB.rates.quote), swap: createBucket(PUB.rates.swap), status: createBucket(PUB.rates.status) } : null;
+const sourceLimiter = PUB.enabled && PUB.perSource > 0 ? createSourceLimiter({ header: PUB.sourceHeader, perMin: PUB.perSource }) : null;
+let publicInFlight = 0;
+// A public caller sees a short code or a generic one, never an internal message (it could carry a path or an endpoint).
+const publicError = (e) => { const m = String(e?.message ?? e); return /^[a-z][a-z0-9-]{1,48}$/.test(m) ? m : e instanceof SyntaxError ? 'bad-request' : 'request-failed'; };
+const server = http.createServer(async (req, res) => {
+  let lane = 'token', cors = {}, slot = false, signal;
   try {
-    let body = ''; for await (const c of req) { body += c; if (body.length > 8192) throw new Error('too-large'); }
-    const input = body ? JSON.parse(body) : {};
-    // Only the Silo server (holding MAKER_API_TOKEN) may quote or open swaps; this stops anyone tying up the caps.
+    // Only the Silo server (holding MAKER_API_TOKEN) may use the token lane; this stops anyone tying up its caps.
     const h = (x) => createHash('sha256').update(String(x)).digest();
     const authorized = () => !!E.MAKER_API_TOKEN && timingSafeEqual(h(req.headers.authorization ?? ''), h(`Bearer ${E.MAKER_API_TOKEN}`));
-    if (req.method === 'POST' && E.MAKER_API_TOKEN && !authorized()) return json(res, 401, { error: 'unauthorized' });
+    // SEC-P-06: every route except the minimal /v1/health needs the bearer token (GET included: swap ids are public on Solana, and the lookup
+    // answers with the joint Monero address and transaction ids). No token configured = every protected route refuses, as /v1/status already did.
+    const isHealth = req.method === 'GET' && req.url === '/v1/health';
+    // Test networks without a token keep the old behaviour for POST only (local rehearsals); mainnet cannot start without a token (start gate).
+    const devOpenPost = req.method === 'POST' && !E.MAKER_API_TOKEN && CFG.network !== 'mainnet';
+    if (PUB.enabled && req.headers.authorization === undefined) cors = corsHeaders(PUB);   // answers to token-less callers only
+    if (!isHealth && !(devOpenPost && !PUB.enabled) && !authorized()) {
+      // Not the token lane. With the public lane off this is the old 401. With it on, a caller that sent NO Authorization header may use the
+      // public routes; one that sent a wrong token still gets 401; operator status is never public.
+      if (!PUB.enabled || req.headers.authorization !== undefined || req.url === STATUS_PATH) return json(res, 401, { error: 'unauthorized' });
+      if (req.method === 'OPTIONS' && PUB.cors && (publicRoute('POST', req.url) || publicRoute('GET', req.url))) { res.writeHead(204, corsHeaders(PUB, true)); return res.end(); }
+      const route = publicRoute(req.method, req.url);
+      if (!route) return json(res, 404, { error: 'not-found' });
+      const wait = buckets[route].take();
+      if (!wait.ok) return json(res, 429, { error: 'rate-limited' }, { ...cors, 'retry-after': String(wait.retryAfterS) });
+      const src = sourceLimiter?.take(req.headers);
+      if (src && !src.ok) return json(res, 429, { error: 'rate-limited' }, { ...cors, 'retry-after': String(src.retryAfterS) });
+      if (publicInFlight >= PUB.maxConcurrent) return json(res, 503, { error: 'busy-try-later' }, { ...cors, 'retry-after': '5' });
+      publicInFlight += 1; slot = true;
+      // M1: a client that goes away frees its slot AND cancels what it has queued (wallet read, quote in progress); its queued work never runs.
+      const ac = new AbortController(); signal = ac.signal;
+      res.on('close', () => { if (slot) { slot = false; publicInFlight -= 1; } if (!res.writableFinished) ac.abort(); });
+      lane = 'public';
+    }
+    const maxBody = lane === 'public' ? PUB.maxBody : 8192;
+    let body = ''; for await (const c of req) { body += c; if (body.length > maxBody) throw new Error('too-large'); }   // read and parsed only
+    const input = body ? JSON.parse(body) : {};   // parsed only after authorization: an unauthenticated malformed body gets 401, not 400
     // R6: operator status, always token-protected (no token configured = always refused). Read-only.
     if (req.method === 'GET' && req.url === '/v1/status') {
       if (!authorized()) return json(res, 401, { error: 'unauthorized' });
       const a = admission.state(), open = openSwaps();
       return json(res, 200, { admission: a.open ? 'open' : 'closed', admissionReason: a.reason, startGate: { open: gate.isOpen() }, ...admissions.counts(), openCount: open.length,
-        open: open.map((s) => ({ id: s.swapId.slice(0, 8), direction: s.direction ?? 'xmr-sol', lock: s.direction === 'sol-xmr' ? null : lockStage(s), lockedOnChain: s.direction === 'sol-xmr' ? Boolean(s.seenPda) : s.solLocked === true,
+        open: open.map((s) => ({ id: s.swapId.slice(0, 8), direction: s.direction ?? 'xmr-sol', lane: laneOf(s), lock: s.direction === 'sol-xmr' ? null : lockStage(s), lockedOnChain: s.direction === 'sol-xmr' ? Boolean(s.seenPda) : s.solLocked === true,
           ready: !!s.readySig, xmrSent: Boolean(s.xmrSendTxid), committed: !!s.commitSig, attemptsOpen: ATTEMPT_LISTS.flatMap((l) => s[l] ?? []).filter((a) => OPEN_ATTEMPT_STATES.has(a.state)).length,
           secretExposed: !!s.secretExposure, earlyAbort: s.earlyAbort ?? null, claimAbort: s.claimAbort ?? null })),
+        accounting: { complete: acct.complete, unreadable: acct.bad.map((b) => ({ id: b.id.slice(0, 16), why: b.why })), dirError: acct.dirError },
         maker: maker.publicKey.toBase58(), programId: sol.PROGRAM_ID.toBase58(), network: CFG.network, startedAt, generation, stateDir });
     }
-    if (req.method === 'POST' && req.url === '/v1/quote') return json(res, 200, await quote(input));
-    if (req.method === 'POST' && req.url === '/v1/swap') return json(res, 200, await startSwap(input));
-    if (req.method === 'POST' && req.url === '/v1/rev/quote') return json(res, 200, await reverseQuote(input));
-    if (req.method === 'POST' && req.url === '/v1/rev/swap') return json(res, 200, await reverseRegister(input));
+    // The lane is set here by the server and overrides anything the caller put in the body.
+    if (req.method === 'POST' && req.url === '/v1/quote') return json(res, 200, await quote({ ...input, lane, signal }), cors);
+    if (req.method === 'POST' && req.url === '/v1/swap') return json(res, 200, await startSwap({ ...input, lane, signal }), cors);
+    if (req.method === 'POST' && req.url === '/v1/rev/quote') return json(res, 200, await reverseQuote({ ...input, lane, signal }), cors);
+    if (req.method === 'POST' && req.url === '/v1/rev/swap') return json(res, 200, await reverseRegister({ ...input, lane, signal }), cors);
     if (req.method === 'GET' && req.url?.startsWith('/v1/swap/')) {
-      const s = load(req.url.slice(9).replace(/[^0-9a-f]/g, ''));
+      let s;
+      try { s = load(req.url.slice(9).replace(/[^0-9a-f]/g, '')); } catch (e) { return json(res, e?.code === 'ENOENT' ? 404 : 400, { error: e?.code === 'ENOENT' ? 'not-found' : 'unreadable' }, cors); }   // never the state path
+      // The public lane sees only its own swaps, reduced (publicSwapView); the token lane sees the full lookup as before.
+      if (lane === 'public') return laneOf(s) === 'public' ? json(res, 200, publicSwapView(s), cors) : json(res, 404, { error: 'not-found' }, cors);
       return json(res, 200, { swapId: s.swapId, direction: s.direction ?? 'xmr-sol', jointAddress: s.jointAddress, lockSig: s.lockSig ?? null, readySig: s.readySig ?? null, refundSig: s.refundSig ?? null, xmrSendTxid: s.xmrSendTxid ?? null, claimSig: s.claimSig ?? null, done: s.done ?? null });
     }
-    if (req.method === 'GET' && req.url === '/v1/health') return json(res, 200, { ok: true, accepting: accepting(), maker: maker.publicKey.toBase58(), limits: { maxXmrPerSwap: fmt(CFG.maxXmrPerSwap), maxXmrPerDay: fmt(CFG.maxXmrPerDay), maxOpenSwaps: CFG.maxOpenSwaps }, solXmr: CFG.solXmr });
-    json(res, 404, { error: 'not-found' });
-  } catch (e) { json(res, 400, { error: String(e.message ?? e) }); }
-}).listen(CFG.port, '127.0.0.1', () => { log({ event: 'start', port: CFG.port, maker: maker.publicKey.toBase58() }); loop(); });
+    if (req.method === 'GET' && req.url === '/v1/health') return json(res, 200, { ok: true, accepting: accepting(), maker: maker.publicKey.toBase58(), limits: { maxXmrPerSwap: fmt(CFG.maxXmrPerSwap), maxXmrPerDay: fmt(CFG.maxXmrPerDay), maxOpenSwaps: CFG.maxOpenSwaps }, solXmr: CFG.solXmr,
+      // Both absent when off or unset. buildHash is what the operator says it runs (an environment value), not a proof of anything.
+      ...(E.MAKER_BUILD_HASH ? { buildHash: E.MAKER_BUILD_HASH } : {}), ...(PUB.enabled ? { publicLane: laneHealth(PUB, { open: CFG.maxOpenSwaps, perDay: CFG.maxXmrPerDay }) } : {}) }, cors);
+    json(res, 404, { error: 'not-found' }, cors);
+  } catch (e) { json(res, 400, { error: lane === 'public' ? publicError(e) : String(e.message ?? e) }, cors); }
+});
+if (PUB.enabled) { server.headersTimeout = 10_000; server.requestTimeout = 20_000; }   // slow senders do not hold a public slot for minutes
+server.listen(CFG.port, '127.0.0.1', () => { log({ event: 'start', port: CFG.port, maker: maker.publicKey.toBase58() }); retain(); setInterval(retain, 3600_000).unref(); loop(); });

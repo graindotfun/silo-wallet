@@ -1,6 +1,6 @@
 {
   "sourceRepository": "silo wallet source tree",
-  "note": "Files marked modified differ from the source only by removed internal review notes, SPDX headers, and the two named seams in native-keyring.mjs and native-keyring-testnet.mjs. Files under program/ are byte-identical to prototypes/xmr-sol-atomic-swap/program/ of the source at the commit the live program v2 was built from (the three build inputs are pinned in .github/workflows/v2-docker-verified-build.yml). Files under web/ are taken from source commit b9463c7f389c960b83c27f94f75298fed6df35fc at the same path without the web/ prefix; sourceBlob is the git blob id in that commit, and status modified marks the two files whose comments were edited (see docs/VERIFY_APP.md). Six files under web/ (app/app/page.tsx, components/silo-account-panel.tsx, components/silo-inline-account-unlock.tsx, components/silo-workspace.tsx, lib/silo/sync/product-account.mjs, tests/silo-inline-account-unlock.test.mjs) additionally differ from that source commit only by one string: a retired review hostname was replaced by review-retired.invalid, which never resolves. That origin check was only ever used by a retired review feature.",
+  "note": "Files marked modified differ from the source only by removed internal review notes, SPDX headers, and the two named seams in native-keyring.mjs and native-keyring-testnet.mjs. Files under program/ are byte-identical to prototypes/xmr-sol-atomic-swap/program/ of the source at the commit the live program v2 was built from (the three build inputs are pinned in .github/workflows/v2-docker-verified-build.yml). Files under web/ are taken from source commit b9463c7f389c960b83c27f94f75298fed6df35fc at the same path without the web/ prefix; sourceBlob is the git blob id in that commit, and status modified marks the two files whose comments were edited (see docs/VERIFY_APP.md). Six files under web/ (app/app/page.tsx, components/silo-account-panel.tsx, components/silo-inline-account-unlock.tsx, components/silo-workspace.tsx, lib/silo/sync/product-account.mjs, tests/silo-inline-account-unlock.test.mjs) additionally differ from that source commit only by one string: a retired review hostname was replaced by review-retired.invalid, which never resolves. That origin check was only ever used by a retired review feature. Files added by the open maker publication (11 Nov 2026) carry sourceCommit 9331dfa4d40126063fad30972850ebb3ef0a7a15 of the source tree. Of those, the files marked modified differ from the source only in documentation wording (internal names, review references and status lines made public-safe, paths pointing to web/) and, in web/tests/silo-maker-list.test.mjs, one example address replaced by a neutral program id. The remaining added or updated source files are byte-identical to the source.",
   "files": [
     {
       "path": ".github/workflows/docker-verified-build.yml",
@@ -28,7 +28,7 @@
     },
     {
       "path": ".gitleaks.toml",
-      "sha256": "045260402cec048f33c54fce738e4fcd20c0f4663b3281b8ae27b70222d05444",
+      "sha256": "81f7f4644b01f3396c48a6aaed1a9ddc6ebfb4c04a8016f9506e043410728d79",
       "source": null,
       "status": "new"
     },
@@ -1515,6 +1515,30 @@
       "status": "unchanged"
     },
     {
+      "path": "web/docs/OPEN_MAKER_LIST.md",
+      "sha256": "cac9091bbe02c28b842c0ee9ccce4a424fe53922ab8a1d823df0af9a9e07e931",
+      "source": "docs/OPEN_MAKER_LIST.md",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "0b4031d93b8557b384ffada7bd48173ba25f4421",
+      "status": "modified"
+    },
+    {
+      "path": "web/docs/OPEN_MAKER_PROTOCOL.md",
+      "sha256": "d84b6651ec3b318413341fbba6031ae4d0f04edfec0d89eab72a5748b7965055",
+      "source": "docs/OPEN_MAKER_PROTOCOL.md",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "df57d6ea46b8e177eb25b67f43a6085e9cc82b34",
+      "status": "modified"
+    },
+    {
+      "path": "web/docs/OPEN_MAKER_PUBLIC_LANE.md",
+      "sha256": "f7179e32300a0d28bed9a84fe61c30b32e53b1d6aafc7f8af918cb2fc1a284c1",
+      "source": "docs/OPEN_MAKER_PUBLIC_LANE.md",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "05e262bb43574895031dc866259115e16aea8c1e",
+      "status": "modified"
+    },
+    {
       "path": "web/docs/security/proposals/silo-sdk-worker-removal-20261014/build-worker.mjs",
       "sha256": "a89ac0a1a53c87fee4fa5d7f778adde8f149c7ed764ef5b4fda592f2c68c494d",
       "source": "docs/security/proposals/silo-sdk-worker-removal-20261014/build-worker.mjs",
@@ -1553,6 +1577,14 @@
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "b1d7f714990a3f58728a7785ca6b9e6a712cd4ad",
       "status": "unchanged"
+    },
+    {
+      "path": "web/docs/silo-trust/MAKER_BUILD_VERIFICATION.md",
+      "sha256": "839539daa01340d1151959f1d1d71c7a8c438cdb597dfc48533e54e8b082c903",
+      "source": "docs/silo-trust/MAKER_BUILD_VERIFICATION.md",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "b23ea959180298924dd12a792537d82c61ebebbd",
+      "status": "modified"
     },
     {
       "path": "web/hooks/use-quote-prices.ts",
@@ -2016,6 +2048,14 @@
       "source": "lib/silo/atomic-reverse-driver.mjs",
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "3957d22e46b1ebcc0e58ddfc0cc3fe96c3dfedfd",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/lib/silo/atomic-reverse-terms.mjs",
+      "sha256": "83f6e7d288f43437268dc9e50101b6e21e4e89e0a50bbdf0b0c9962f3f430c95",
+      "source": "lib/silo/atomic-reverse-terms.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "b0a8f9068a8d8a2144242c2bcd36bb0521899b71",
       "status": "unchanged"
     },
     {
@@ -2736,6 +2776,22 @@
       "source": "lib/silo/local-store.mjs",
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "16bc9544a5288d35e92e3f14794cab1cd9b2ecd0",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/lib/silo/maker-list/index.mjs",
+      "sha256": "48a070e215f890c2a40450f9406f7f7a9438da26ed3268fc7a4f9643ca98fd9f",
+      "source": "lib/silo/maker-list/index.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "d198d7f9f31dbd60c936095c0322ae2e9244eb0d",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/lib/silo/maker-list/verify.mjs",
+      "sha256": "26f4e097faaa15a9e2b4492add47efe138bb2e322d219c743e40d26d34de04ee",
+      "source": "lib/silo/maker-list/verify.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "89f49aacfbcaa6c1b475b75c66ef814eb2a7cd5a",
       "status": "unchanged"
     },
     {
@@ -3635,6 +3691,14 @@
       "status": "unchanged"
     },
     {
+      "path": "web/prototypes/xmr-sol-atomic-swap/client/alice-flow.mjs",
+      "sha256": "fa2fc953817c17c20fd85b12d9d36e233ba35650d9ef45f013b7ed9d507d2581",
+      "source": "prototypes/xmr-sol-atomic-swap/client/alice-flow.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "a144807f23a9cb23c265e4aee432a6d1f44b3af1",
+      "status": "unchanged"
+    },
+    {
       "path": "web/prototypes/xmr-sol-atomic-swap/client/keys.mjs",
       "sha256": "aa430f363723fdf355cc4a43750873ce130189d352a0964eeac7c67a5972379b",
       "source": "prototypes/xmr-sol-atomic-swap/client/keys.mjs",
@@ -3699,11 +3763,59 @@
       "status": "unchanged"
     },
     {
+      "path": "web/prototypes/xmr-sol-atomic-swap/conformance/README.md",
+      "sha256": "2d47b2a9bdf30f38537b3772f9185dc5bf255899cf7fed204afb004122feef06",
+      "source": "prototypes/xmr-sol-atomic-swap/conformance/README.md",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "0ae9aa998b5f00553f9268b71852c111cdb474a0",
+      "status": "modified"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/conformance/checks.mjs",
+      "sha256": "93b253e968edde972d2cb3e85f5575c7199f713da2ffa84ba2a33959103823f4",
+      "source": "prototypes/xmr-sol-atomic-swap/conformance/checks.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "ffccdf7c47dcf53bf48f6d1dacb5ad9d2f4cbaea",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/conformance/conformance.test.mjs",
+      "sha256": "a0eb305c951e98ff0c70a008f8d599cd4a3aa323649e329631bc93f9b17e3fb4",
+      "source": "prototypes/xmr-sol-atomic-swap/conformance/conformance.test.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "ac11de6c0e825694bb141129fba02114fb495ef6",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/conformance/fake-maker.mjs",
+      "sha256": "ae53227fd2625e51efb5dd84c289e78d33d2ad2214babc4fdd906684c9a189be",
+      "source": "prototypes/xmr-sol-atomic-swap/conformance/fake-maker.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "2b88f1cad8ac3c7b023455df227cdae7eeb108a0",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/conformance/run.mjs",
+      "sha256": "a98c95e5cbca5f82931790f2d53c22452abc3d8a9e765de1c9aefb380a0ef75e",
+      "source": "prototypes/xmr-sol-atomic-swap/conformance/run.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "c1a73d5cb8fd6ccc165f3f852dc9d3bf64c457c9",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/README.md",
+      "sha256": "4d3e72057b3a5567c69e07d9280ab800e633ecdedefb8187abd2df36ddd6d038",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/README.md",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "9698d3dc92173676ba1c89e7345befba6a8c58e5",
+      "status": "modified"
+    },
+    {
       "path": "web/prototypes/xmr-sol-atomic-swap/maker/admission-gate.test.mjs",
-      "sha256": "218439798a67c71e2d2fbbf8940a28c6b03cc74fdd7b24a2e299209adae59795",
+      "sha256": "7df912f0b4e02140188bec47f6a20dd14544317e6f6a7a986700972575198519",
       "source": "prototypes/xmr-sol-atomic-swap/maker/admission-gate.test.mjs",
-      "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
-      "sourceBlob": "ec40b6823e8e124c22e6ef87dc0bfc9f782504bd",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "7caba37f6b70943192f5c26283ff09ef11ff119c",
       "status": "unchanged"
     },
     {
@@ -3716,50 +3828,106 @@
     },
     {
       "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-core.mjs",
-      "sha256": "c3da831e10e6c5c8344f2e0d22e7defaeabf8a49bb6bf5cd34cfdcf4b91267dc",
+      "sha256": "9d70e120d9a478b1e966cef7653b19499bdd57d2f272386a6c4f0593d2ce9dce",
       "source": "prototypes/xmr-sol-atomic-swap/maker/maker-core.mjs",
-      "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
-      "sourceBlob": "7b43ec88e8652293c327f9d6ea29d65abf0b2e20",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "34126cf00c207cce860d5f1d2b3000b795c7b8aa",
       "status": "unchanged"
     },
     {
       "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-core.test.mjs",
-      "sha256": "8987c4abbc57285b0ee123bffa232ec3b3fc7fae2b0ac0209627284e762e3936",
+      "sha256": "3075c11d2a54cfc8ddd973f299b8e6a62b5350afae341c35f81a29b1b939641c",
       "source": "prototypes/xmr-sol-atomic-swap/maker/maker-core.test.mjs",
-      "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
-      "sourceBlob": "348d244ca18d69d5f5c13fdfd747e55a2009adbd",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "affe6fa49ae0cef4031bba724591465e4b7463b3",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-hardening.test.mjs",
+      "sha256": "2ca22df6edc4c6193dabb41e17aceb348e1d735c28af2af110ea5adeef6805f1",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/maker-hardening.test.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "8e3542ad3eb63e0a5031c3591d3a4ceb73894202",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-lanes.mjs",
+      "sha256": "ab5dfbeb0220f0023fad09748647e3ea7dc40a347291fa9fa272c4a56a66414a",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/maker-lanes.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "25a9205fb6d7ef48c20fbfa32b92469f7ad596ba",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-lanes.test.mjs",
+      "sha256": "72b4da710fc7e995f52c553a3b392b4c0cc94b124eec97d15188f11f3e363cfb",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/maker-lanes.test.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "d6e4dcad4f0bc1d09bec4fde8174d5ddfb67e5c0",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-limits.mjs",
+      "sha256": "237d689bdc742d74c00003137c9d796d1032a4d30108a8404a3ec6c77476ec5e",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/maker-limits.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "e28d4d016f1d19e50d51f4b1f1eeee97ca2533e0",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-records.mjs",
+      "sha256": "8cbbf4cab6552e9b96190e11cf7523bc8ac7c3e8e393444a2b21440dbee2ce4a",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/maker-records.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "dda00c107263ff0f0f29b0d4c04cbecf07411cd4",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-recovery.test.mjs",
+      "sha256": "d9252b797781c9268c72fa829933872e60c16ff73c9eabf8f47301e31498c54b",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/maker-recovery.test.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "b87fc65d080ab690ba361ad1199b70fb76b2a1ff",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-retention.mjs",
+      "sha256": "c56896d8b344dbfbbba67c93f7a8210367047ddcb8c4ebcd4aaae369753a7f0a",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/maker-retention.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "c2ff35e3167151d8b5f6567ddc346aedc9411ea6",
       "status": "unchanged"
     },
     {
       "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-reverse.mjs",
-      "sha256": "46f4633d4999920f84ad6be2688b315debd160907e68f7fb88087e3831e92438",
+      "sha256": "791c557fb7ccd53a50cf49dcd3e27c14986660662486efc7dff6d70502c5f33f",
       "source": "prototypes/xmr-sol-atomic-swap/maker/maker-reverse.mjs",
-      "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
-      "sourceBlob": "3e4cfde0209c474581cba2d2e4e82d20cf025b74",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "2350a0e355617364b8eef52faf0fdf30812d1ab8",
       "status": "unchanged"
     },
     {
       "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-reverse.test.mjs",
-      "sha256": "16e3972d3717d6732ca492e309146424d526440ce7c99b2fd50468805945da4d",
+      "sha256": "430dfb40f5c4b1c045185845dbea796b09b06e024446b4ad634a3c06422de0e8",
       "source": "prototypes/xmr-sol-atomic-swap/maker/maker-reverse.test.mjs",
-      "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
-      "sourceBlob": "43f51e9743566c9a06612cb506a33aefcb421ada",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "d29e5dff269f5a50648e0fcd5067e9e91a49fecc",
       "status": "unchanged"
     },
     {
       "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker-send.mjs",
-      "sha256": "7ae6e8a4d081eb27ee4003675a785a486560cf19abbd92d42e01fcc5dc88a602",
+      "sha256": "97790a72268f7ceccb43af20dd0bbd44041b4a62c861ecbec70a420a0b3b6c87",
       "source": "prototypes/xmr-sol-atomic-swap/maker/maker-send.mjs",
-      "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
-      "sourceBlob": "05802a4be076e9ea6d7beb36958eeed7f78e9a92",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "9a8ab7c8cc3e257cce4086c307d86bea28a658d4",
       "status": "unchanged"
     },
     {
       "path": "web/prototypes/xmr-sol-atomic-swap/maker/maker.mjs",
-      "sha256": "5f4fadbf2c36cf7864a6359ea64257328874bf3b66b26a0a6a787aebac66f243",
+      "sha256": "b139409fc968c84857ed7ab4b85b5f776a574efefd0daa1fc5f527e814d37cee",
       "source": "prototypes/xmr-sol-atomic-swap/maker/maker.mjs",
-      "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
-      "sourceBlob": "cc9b242cb0e4502d3bba9cd0be6e15079c5e6f15",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "26ad33c34fd35639ec27654cc0ac5c66924e5f28",
       "status": "unchanged"
     },
     {
@@ -3779,11 +3947,27 @@
       "status": "unchanged"
     },
     {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/price-feeds.mjs",
+      "sha256": "2c6897d4f7c88858a1843ea1d005a26b4ebbce2537c379f56e3e730bd30c11b2",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/price-feeds.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "a38ce06e7d41b3614ff3f6115656bde9f4cff965",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/priority-fee.mjs",
+      "sha256": "43af31fb1cd04ea5bd6e5f80f82a366a36720b9f88e80400a11ed1551f9ac8c1",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/priority-fee.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "b9350b36408e59b76c5f9932126e7148b8cefcf3",
+      "status": "unchanged"
+    },
+    {
       "path": "web/prototypes/xmr-sol-atomic-swap/maker/quiesce-check.mjs",
-      "sha256": "28ad332df32bc0eb8b27eb1e788870481a5da965a188f32a069b02833ed50f3f",
+      "sha256": "53be06a18ffb5bc36715924f21935fece7f85d5a0271e2780211fe6d773d9477",
       "source": "prototypes/xmr-sol-atomic-swap/maker/quiesce-check.mjs",
-      "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
-      "sourceBlob": "c011caf4a946947653577856b79de98e0981d828",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "ad65b4622a9813606f9ad077ac61a8a47e1859b3",
       "status": "unchanged"
     },
     {
@@ -3792,6 +3976,22 @@
       "source": "prototypes/xmr-sol-atomic-swap/maker/refund-exposure.test.mjs",
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "a421f7a9b3c2bcdbf9aeb52bf98978a6641c8d43",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/release-hash.mjs",
+      "sha256": "f1a595dccbc6ee9427f077e36b271efa8a0f2fd73e817a16304ec8b03548ef78",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/release-hash.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "b39e5843ccf804c58c533ba26a83a3b250d0ab36",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/maker/release-hash.test.mjs",
+      "sha256": "498e3d80df17029612be7e7c5a8fa7bb1a2e91b2e140af73cd205e2beffee88d",
+      "source": "prototypes/xmr-sol-atomic-swap/maker/release-hash.test.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "5c38ecb4d5ce75cd62c36eebf0180793fe10ed4d",
       "status": "unchanged"
     },
     {
@@ -3816,6 +4016,102 @@
       "source": "prototypes/xmr-sol-atomic-swap/maker/terminal-finality.test.mjs",
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "20f41ccadb8afed5acd84ac235ef355be69718c6",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/README.md",
+      "sha256": "761c4b4e634efd972191fc435a028f577c777b61ef9995c8ce8c9c083a5c1b05",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/README.md",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "3bdf97e51d8fcec1cdd418436574157051ad6f3a",
+      "status": "modified"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/silo-swap.mjs",
+      "sha256": "2b063992b166bd9efc36f30ca49cc681bc4d32d985f1146e7d71c716f2fe9a59",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/silo-swap.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "35252db2ad0128ef2f80920e2189cdb8290d76da",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/swap-envelope.mjs",
+      "sha256": "d645e2f548df105700a097fbf971d8e2fe6eb2f864d3739f8c1be1faa05c7c1e",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/swap-envelope.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "c1d885a342769f40e8ed39d699a7bbdd99b5291b",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/swap-envelope.test.mjs",
+      "sha256": "0aa5a5fa85c4f942e7f61902c8d53ab23cc7bc9e6c225ae1c48bf526fdf0d590",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/swap-envelope.test.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "7edb1449c032067b10460812266f52ab038e556a",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/swap-lib-xmr-sol.mjs",
+      "sha256": "d4aaef83b5d4f29ecba5c973cd9868d34e5ff20a782a987e9276289bd578a5ba",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/swap-lib-xmr-sol.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "bd939514833150b154256f7bfb7d906fb4dc5a5b",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/swap-lib-xmr-sol.test.mjs",
+      "sha256": "e1ccc79a38de8aeb2ac4f0d3c37949c8fcde743d521fb5bc3fa5c8eb5c0970db",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/swap-lib-xmr-sol.test.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "9fbb69146d5e35f396f016af9a351a814027894c",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/swap-lib.mjs",
+      "sha256": "cbd9380ae7d755d21f4a9f3d67c549ecf21cf608f8bd18334fa1083c26282408",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/swap-lib.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "48a807f372b1b875f0dd6488c6f431dc2af3d16c",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/swap-lib.test.mjs",
+      "sha256": "c78c41f8e5b7937a5aabb9d9b05b408d7f42c9ee187fd94ecc6658611507d05c",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/swap-lib.test.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "0371aa6ac65102825417fb10b93490cec0e0d8d5",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/swap-lock-race.child.mjs",
+      "sha256": "edb3d1cb6b83f5c3990db93e786ec9b4979d6f6db47a47b15d94749b6201c387",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/swap-lock-race.child.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "1411ca3fb1dc4f24db1cf499a239d8324a9eb327",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/swap-lock-race.test.mjs",
+      "sha256": "a01df0a7201b8d7f369113f95b577c9713fde6776093252564d2dc3e2f9bbe3f",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/swap-lock-race.test.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "15ef46f4ae4653a79931b6e2829372e64ac8e32f",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/swap-log.mjs",
+      "sha256": "a58d73137c2a6d7a907497814099cece6e4fbd70bf41c0587ec980e2313b4b1b",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/swap-log.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "079471bf83a8651b9068076863ad38eb574719a2",
+      "status": "unchanged"
+    },
+    {
+      "path": "web/prototypes/xmr-sol-atomic-swap/standalone/swap-test-world.mjs",
+      "sha256": "f7b0743b31f43b39f41d89885b09befa85092d8142dd20493c3a7215b8a4314f",
+      "source": "prototypes/xmr-sol-atomic-swap/standalone/swap-test-world.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "3b76db1cd28c25bdc9f14aa93098c2977d4777d5",
       "status": "unchanged"
     },
     {
@@ -4209,6 +4505,14 @@
       "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
       "sourceBlob": "87fc7ead9f959c8d604e7b81c2e5bba4332e7ae9",
       "status": "unchanged"
+    },
+    {
+      "path": "web/tests/silo-maker-list.test.mjs",
+      "sha256": "5e4e5a6d7b0b68fb2e9bdac45b057e693b352fa717659d084949612bea9e3e2f",
+      "source": "tests/silo-maker-list.test.mjs",
+      "sourceCommit": "9331dfa4d40126063fad30972850ebb3ef0a7a15",
+      "sourceBlob": "aa208e15a20f9fe05c53c8330b43bc7ef4692e18",
+      "status": "modified"
     },
     {
       "path": "web/tests/silo-move-private.test.mjs",

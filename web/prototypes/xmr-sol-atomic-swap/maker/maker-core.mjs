@@ -90,19 +90,90 @@ export function usableFromTransfersOf(t, txid) {
  * wallet-rpc holds one open wallet at a time, so access is serialized. One failure must not poison the
  * queue (H5): each job runs after the previous one settles, whatever its outcome, and its own error goes
  * only to its own caller.
+ *
+ * Two queues feed that ONE executor (open maker endpoint, Sol M1):
+ * - the recovery queue (the function itself): the watch loop, sweeps, refunds, the token lane. First in, first out, unbounded as before,
+ *   and always served BEFORE any public job that has not started;
+ * - the public queue (withWallet.publicLane): bounded depth, a deadline per job, and cancellation when the caller goes away. A public job
+ *   that has not started is removed on its deadline or on the caller's abort and never touches the wallet.
+ * A public job that has started is a WHOLE job of up to six sequential wallet RPC calls: close_wallet, open_wallet (create on failure),
+ * refresh, the job's own call(s) (for the treasury read: get_balance), close_wallet. A call that is under way is never interrupted. When the
+ * caller aborts or the deadline passes, the caller is released at once and the job is told to stop at the next SAFE stage boundary: before
+ * open_wallet, before refresh and before the job's own call it is skipped; a final close_wallet is ALWAYS ATTEMPTED on every exit path, including a failed initial close, a failed open and a throwing create fallback (cleanup, never skipped; a failed close is not proof that the wallet is closed). So a
+ * recovery job that arrives behind a started public job waits for the call in progress plus the cleanup close, not for the whole job.
+ * Each call has the wallet client's own timeout (120 s on the maker), so the worst case is bounded by the sum, listed in the runbook.
+ * opts: { publicMaxDepth = 4, publicDeadlineMs = 10000, setTimer, clearTimer } (the timers are injectable for tests).
  */
-export function createWalletQueue(W, password) {
-  let chain = Promise.resolve();
-  return (filename, create, fn) => {
-    const run = chain.then(async () => {
+export function createWalletQueue(W, password, opts = {}) {
+  const { publicMaxDepth = 4, publicDeadlineMs = 10_000, setTimer = setTimeout, clearTimer = clearTimeout } = opts;
+  const recovery = [], pending = [];
+  let busy = false;
+  // Stage boundaries where a cancelled public job may stop: nothing is changed by skipping them. Never inside a call, never the final close.
+  const exec = async (j) => {
+    const stop = () => { if (j.cancelled) throw new Error('client-gone'); };
+    // Sol M1 residual: the cleanup try/finally starts BEFORE the initial close, so every exit path (a throwing cancellation after a failed
+    // initial close, an open failure followed by a throwing create fallback, the public treasury fallback that throws at once) still ATTEMPTS
+    // a final close. An attempt is all that can be promised: a close that itself fails or times out leaves the wallet state unknown.
+    try {
+      stop();
       try { await W('close_wallet'); } catch {}
-      try { await W('open_wallet', { filename, password }); } catch { await create(); }
+      stop();
+      try { await W('open_wallet', { filename: j.filename, password }); } catch { await j.create(); }
+      stop();
       await W('refresh');
-      try { return await fn(); } finally { await W('close_wallet').catch(() => {}); }
-    });
-    chain = run.catch(() => {});
-    return run;
+      stop();
+      return await j.fn();
+    } finally { await W('close_wallet').catch(() => {}); }
   };
+  const pump = () => {
+    if (busy) return;
+    const job = recovery.shift() ?? pending.shift();
+    if (!job) return;
+    busy = true; job.started = true;
+    exec(job).then(job.ok, job.fail).finally(() => { busy = false; pump(); });
+  };
+  const job = (filename, create, fn) => {
+    let ok, fail;
+    const promise = new Promise((res, rej) => { ok = res; fail = rej; });
+    return { filename, create, fn, promise, ok, fail, started: false, cancelled: false };
+  };
+  const withWallet = (filename, create, fn) => { const j = job(filename, create, fn); recovery.push(j); pump(); return j.promise; };
+  withWallet.publicLane = (filename, create, fn, { signal, deadlineMs = publicDeadlineMs } = {}) => {
+    if (signal?.aborted) return Promise.reject(new Error('client-gone'));
+    if (pending.length >= publicMaxDepth) return Promise.reject(new Error('busy-try-later'));
+    const j = job(filename, create, fn);
+    let done = false, timer = null, onAbort = null;
+    const settle = (f, v) => { if (done) return; done = true; clearTimer(timer); signal?.removeEventListener('abort', onAbort); f(v); };
+    const out = new Promise((res, rej) => {
+      const drop = (why) => { j.cancelled = true; const i = pending.indexOf(j); if (i >= 0) pending.splice(i, 1); settle(rej, new Error(why)); };
+      timer = setTimer(() => drop('busy-try-later'), deadlineMs);
+      onAbort = () => drop('client-gone');
+      signal?.addEventListener('abort', onAbort, { once: true });
+      j.promise.then((v) => settle(res, v), (e) => settle(rej, e));
+    });
+    pending.push(j); pump();
+    return out;
+  };
+  withWallet.depth = () => ({ recovery: recovery.length, publicLane: pending.length });
+  return withWallet;
+}
+
+/**
+ * Sol M3 residual: the PUBLIC view of a swap may only show what is independently recorded from finalized SOLANA observations, never anything
+ * whose timing follows Monero work (the XMR sweep or recovery, a wallet scan). The moment a claim or a refund is observed in the escrow's
+ * history, it is proven final at finalized commitment (deps.proveFinal, the same proof a terminal result needs) and recorded ONCE as
+ * s.pubSol = { kind: 'claimed' | 'refunded', sig }. That happens before any sweep or recovery in the same pass, so the public answer for
+ * identical Solana histories does not depend on whether the Monero side has finished, is pending or failed. Not proven: nothing is recorded,
+ * the next pass tries again. Returns true when a new observation was recorded.
+ */
+export async function recordSolObservation(s, outcome, deps) {
+  if (s.pubSol || !outcome || (outcome.kind !== 'claimed' && outcome.kind !== 'refunded')) return false;
+  let proof;
+  try { proof = deps.proveFinal ? await deps.proveFinal(s, outcome) : null; } catch { return false; }
+  if (!proof?.final || !Number.isInteger(proof?.evidence?.finalizedSlot)) return false;
+  s.pubSol = { kind: outcome.kind, sig: outcome.sig };
+  deps.store(s);
+  return true;
 }
 
 /**
@@ -122,7 +193,8 @@ export async function finishIfFinal(s, result, outcome, deps) {
     deps.log({ event: 'terminal-not-proven', swapId: s.swapId, result, why });
     return false;
   }
-  s.done = result; s.finalEvidence = proof.evidence; delete s.provisionalResult;
+  if (outcome && !s.pubSol) s.pubSol = { kind: outcome.kind, sig: outcome.sig };   // Sol M3 residual: same finalized proof, same record the public view reads
+  s.done = result; s.finalEvidence = proof.evidence; s.finishedAt = new Date().toISOString(); delete s.provisionalResult;
   scrubSecrets(s);
   return true;
 }
@@ -146,6 +218,7 @@ export async function makerStep(s, deps) {
     const c = await read('claim', s.A);
     const r = c ? null : await read('refund', s.B);
     outcome = c ? { kind: 'claimed', secret: c.secretHex, sig: c.sig } : r ? { kind: 'refunded', sig: r.sig } : null;
+    await recordSolObservation(s, outcome, deps);   // before any Monero work of this pass (Sol M3 residual)
   }
   // Attempts are settled on every pass, also when the escrow looks absent (701-H1: a confirmed absence must not skip settlement). With an
   // escrow present an open attempt blocks every new decision; without one, nothing can be sent anyway and finishIfFinal refuses while it is open.
@@ -155,6 +228,9 @@ export async function makerStep(s, deps) {
   }
   const now = await deps.chainNow();
   const xmr = pda && !pda.ready && now < pda.t1 ? await deps.scanXmr(s) : null;
+  // F-12: the swap counts as PAID once the full amount is mined (one confirmation or more; a pool-only payment can still be double spent).
+  // Recorded once and durably, only ever used for the daily-volume tally (maker-limits.mjs), never for a money decision.
+  if (xmr && !s.committedAt && xmr.confirmations >= 1 && BigInt(xmr.atomic) >= BigInt(s.xmrAtomic)) { s.committedAt = new Date().toISOString(); cursorMoved = true; deps.log?.({ event: 'paid-seen', swapId: s.swapId }); }
   const obs = { lockedAt: s.lockedAt, pda, outcome, xmr, xmrSwept: !!s.sweepTxids, expectedAtomic: s.xmrAtomic, requiredConfirmations: s.confirmations, secretExposed: !!s.secretExposure, earlyAbort: s.earlyAbort };
   const a = makerNext({ now, ...obs });
   if (a.action === 'wait') { if (cursorMoved) deps.store(s); return a; }   // the history position survives a restart (H7)
@@ -217,15 +293,46 @@ export function createAdmission({ file, fs, requireUnwritableDir = false, onClos
 /**
  * One admission at a time, in call order; one failure never blocks the next (same helper as PR 675). Counts admissions waiting in the
  * queue and the one running, so /v1/status can show work the swap files cannot show yet (R4).
+ * Sol M1 (second round): public admissions share this FIFO but are BOUNDED and CANCELLABLE before they start. run(fn, { public: true, signal })
+ * rejects at once with busy-try-later when publicMaxQueued public admissions already wait, removes the entry (and rejects with busy-try-later
+ * on the deadline, client-gone on abort) while it waits, and never starts fn for a removed entry. Token admissions (no options) are unbounded
+ * and uncancelled as before. Once fn has started nothing here interrupts it; admitSwap checks the signal at its own stage boundaries,
+ * before the first persistent commitment only.
+ * opts: { publicMaxQueued = 4, publicDeadlineMs = 10000, setTimer, clearTimer } (timers injectable for tests).
  */
-export function createAdmissionSerial() {
-  let tail = Promise.resolve(), queued = 0, running = 0;
+export function createAdmissionSerial(opts = {}) {
+  const { publicMaxQueued = 4, publicDeadlineMs = 10_000, setTimer = setTimeout, clearTimer = clearTimeout } = opts;
+  const waiting = []; let busy = false, queued = 0, running = 0;
+  const pump = () => {
+    if (busy) return;
+    const e = waiting.shift();
+    if (!e) return;
+    busy = true;
+    Promise.resolve().then(async () => { queued -= 1; running += 1; try { return await e.fn(); } finally { running -= 1; } })
+      .then(e.ok, e.fail).finally(() => { busy = false; pump(); });
+  };
   return {
-    run(fn) {
-      queued += 1;
-      const job = tail.then(async () => { queued -= 1; running += 1; try { return await fn(); } finally { running -= 1; } });
-      tail = job.then(() => {}, () => {});
-      return job;
+    run(fn, o = {}) {
+      const isPublic = o.public === true;
+      if (isPublic) {
+        if (o.signal?.aborted) return Promise.reject(new Error('client-gone'));
+        if (waiting.filter((w) => w.public).length >= publicMaxQueued) return Promise.reject(new Error('busy-try-later'));
+      }
+      let ok, fail;
+      const promise = new Promise((res, rej) => { ok = res; fail = rej; });
+      const e = { fn, ok, fail, public: isPublic };
+      queued += 1; waiting.push(e);
+      if (isPublic) {
+        let timer = null, onAbort = null;
+        const cleanup = () => { clearTimer(timer); o.signal?.removeEventListener('abort', onAbort); };
+        const drop = (why) => { const i = waiting.indexOf(e); if (i < 0) return; waiting.splice(i, 1); queued -= 1; cleanup(); fail(new Error(why)); };
+        timer = setTimer(() => drop('busy-try-later'), o.deadlineMs ?? publicDeadlineMs);
+        onAbort = () => drop('client-gone');
+        o.signal?.addEventListener('abort', onAbort, { once: true });
+        promise.then(cleanup, cleanup);
+      }
+      pump();
+      return promise;
     },
     counts: () => ({ queued, running, inflight: queued + running }),
   };
@@ -240,10 +347,12 @@ export function createAdmissionSerial() {
  * a lock whose send response is lost is never mistaken for "never locked" (Astra round 2: ambiguous lock).
  */
 export async function admitSwap(input, d) {
+  if (input.signal?.aborted) throw new Error('client-gone');   // M1: a gone client costs nothing before the quote is taken
   const q = d.takeQuote(input.quoteId);
   if (!d.isOpen()) throw new Error('maker-paused');
-  d.checkLimits(q);
+  d.checkLimits(q, input);
   const { record, signed } = await d.prepare(q, input);
+  if (input.signal?.aborted) throw new Error('client-gone');   // M1: last cancellation point: nothing is stored or broadcast yet; after store() it never applies
   if (!d.isOpen()) throw new Error('maker-paused');      // R4: re-check after the last await, immediately before the commitment
   d.store(record);
   return d.broadcast(signed, record);

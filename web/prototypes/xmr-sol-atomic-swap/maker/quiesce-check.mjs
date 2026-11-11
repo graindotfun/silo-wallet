@@ -53,7 +53,8 @@ export function recordProblem(s, fileId) {
   if (!optional(s.solLocked, (v) => typeof v === 'boolean')) return 'solLocked malformed';
   if (!optional(s.direction, (v) => v === 'xmr-sol' || v === 'sol-xmr')) return 'direction has an unknown value';
   if (s.direction === 'sol-xmr') {
-    if (!isB58(s.refunder, 32, 44)) return 'refunder missing or malformed';
+    if (!isB58(s.refunder, 32, 44)) return 'refunder missing or malformed';   // also kept by retention: the collector derives the strict PDA from it (709-M2)
+    if (!optional(s.pda, (v) => isB58(v, 32, 44))) return 'pda malformed';
     if (!optional(s.done, (v) => REVERSE_FINAL.has(v))) return 'done has an unknown value';
   } else if (!optional(s.done, (v) => v === 'completed' || v === 'refunded')) return 'done has an unknown value';
   for (const list of ATTEMPT_LISTS) {

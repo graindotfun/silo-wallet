@@ -179,11 +179,11 @@ test('r5 wiring: the normal start and the reverse registration use the SAME seri
   const { readFileSync } = await import('node:fs'); const src = readFileSync(new URL('./maker.mjs', import.meta.url), 'utf8');
   assert.match(src, /const startSwap = \(input\) => admissions\.run\(\(\) => admitSwap\(input, \{/);
   assert.match(src, /const reverseRegister = \(input\) => admissions\.run\(\(\) => admitSwap\(input, \{/);
-  assert.equal((src.match(/createAdmissionSerial\(\)/g) ?? []).length, 1, 'exactly one admission serial');
+  assert.equal((src.match(/createAdmissionSerial\(/g) ?? []).length, 1, 'exactly one admission serial');
   assert.equal((src.match(/createSerial\(\)/g) ?? []).length, 0, 'no second serial');
   assert.equal((src.match(/admitSwap\(input, \{/g) ?? []).length, 2, 'both directions through the one admitSwap');
   assert.equal((src.match(/checkLimits: sharedLimits,/g) ?? []).length, 2, 'the same caps check for both directions');
-  assert.match(src, /const sharedLimits = \(q\) => capsAdmission\(/);
+  assert.match(src, /const sharedLimits = \(q, input\) => \{[^\n]*laneAdmission\(/);   // F-12: the requester address is passed for the per-address unpaid limit; laneAdmission (maker-lanes.mjs) calls capsAdmission
 });
 
 // ---- Astra r5 N4: recovery-only. Flag-off, a closed gate or the drain file never stops the runner from finishing swaps already started ----
@@ -207,7 +207,7 @@ test('r5 N4 wiring: the drain file blocks every admission and quote of both dire
   assert.match(src, /file: E\.MAKER_ADMISSION_FILE \?\? `\$\{STATE\}\/ADMISSION_CLOSED`/);
   assert.equal((src.match(/createAdmission\(\{/g) ?? []).length, 1, 'one admission gate'); assert.ok(!/existsSync|admissionOpen/.test(src), 'no second drain-file reader');
   for (const fn of ['async function quote(', 'async function reverseQuote(']) {
-    const body = src.slice(src.indexOf(fn), src.indexOf(fn) + 1600); assert.ok((body.match(/accepting\(\)/g) ?? []).length >= 2, `${fn} reads the gate before and after its awaits`);
+    const body = src.slice(src.indexOf(fn), src.indexOf(fn) + 2200); assert.ok((body.match(/accepting\(\)/g) ?? []).length >= 2, `${fn} reads the gate before and after its awaits`);
   }
   assert.match(src, /onClosed: \(\) => \{ quotes\.clear\(\); reverseQuotes\.clear\(\); \}/, 'a closed read drops the quotes of both directions');
   const loop = src.slice(src.indexOf('async function loop()')); assert.ok(!/accepting\(|admission\.isOpen/.test(loop.slice(0, loop.indexOf('http.createServer'))), 'the runner loop ignores the drain file');
@@ -477,4 +477,20 @@ test('F5-M1: a refusal that is NOT marked unsent (pending attempt, ambiguity) ke
   const t2 = owned(); const y = deps({ swap: pda(true, c0), now: c0 + 10 });
   await assert.rejects(makerReverseStep(t2, { ...y.d, wallNow: () => 5, sendClaim: async () => { throw new Error('connection lost mid-send'); } }));
   assert.equal(t2.claimSentAt, 5, 'a thrown (ambiguous) send keeps the stamp');
+});
+
+// ---- Sol M3 residual: identical Solana history, Monero recovery done vs pending vs failed vs absent: same public response, pass by pass ----
+import { publicSwapView } from './maker-lanes.mjs';
+test('Sol M3 residual (reverse): a user refund; recovery recovered, pending, failing or absent gives the same public response at every pass', async () => {
+  const run = async (kind) => {
+    const s = rec({ direction: 'sol-xmr', lockSig: 'LK', xmrSendTxid: 'xt', xmrRelayed: true, seenPda: true }); const views = [];
+    const x = deps({ swap: null, revealed: { refund: { secretHex: 'bsecret', sig: 'REFUNDSIG' } } });
+    x.d.recoverXmr = async () => { if (kind === 'fail') throw new Error('wallet rpc down'); return kind === 'ok' ? { status: 'recovered', txids: ['rt'] } : { status: kind }; };
+    for (let i = 0; i < 4; i++) { try { await makerReverseStep(s, x.d); } catch {} views.push(JSON.stringify(publicSwapView(s))); }
+    return { views, s };
+  };
+  const ok = await run('ok'), pending = await run('pending'), fail = await run('fail'), absent = await run('absent');
+  for (let i = 0; i < 4; i++) for (const o of [pending, fail, absent]) assert.equal(o.views[i], ok.views[i], `pass ${i}`);
+  assert.deepEqual(JSON.parse(ok.views[0]), { swapId: 'ab', direction: 'sol-xmr', lockSig: 'LK', readySig: null, refundSig: 'REFUNDSIG', claimSig: null, state: 'refunded' });
+  assert.ok(ok.s.recoverTxids && ok.s.done, 'recovery did complete in one variant'); assert.equal(pending.s.done, undefined, 'and did not in the other');
 });
