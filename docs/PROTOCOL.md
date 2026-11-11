@@ -1,11 +1,13 @@
 # XMR to SOL atomic swap: protocol (beta version)
 
-This describes the beta version that is live today. A version 2 is planned and will change parts of this (for example
-how the view key is shared). There is no date for it. The escrow program has had no independent external security review.
+This describes the XMR to SOL direction, which uses the v1 instructions of the escrow program. The live program runs
+protocol v2 since 2026-11-10; v2 keeps these instructions unchanged and adds a separate set for the SOL to XMR direction,
+described in `docs/VERIFY_BUILD_V2.md` (section 2). Both directions are open to users in the beta. A later protocol version could change how the view key is shared; there is no date for it. The
+escrow program has had no independent external security review.
 
 Source: `program/src/lib.rs` (escrow), `lib/silo/atomic-swap/` (client logic), `lib/silo/atomic-driver.mjs` (runner).
 
-Window specifics (`t0`, `t1`, the bounds and margins below) will change if protocol v2 ships.
+Window specifics (`t0`, `t1`, the bounds and margins below) are those of the XMR to SOL direction.
 
 ## Roles
 - Bob, the maker ("refunder"): holds SOL, wants XMR.
@@ -57,4 +59,4 @@ Whoever holds the swap's view key can also see outputs sent to the swap address.
 ## Honest limits
 - The escrow program is upgradeable (see `SECURITY.md`).
 - Getting XMR back after a missed claim needs the maker to refund. Expiry alone does not return it.
-- The maker's code and servers are not published.
+- The maker's code is in `web/prototypes/xmr-sol-atomic-swap/maker/`; its servers and configuration are not published.

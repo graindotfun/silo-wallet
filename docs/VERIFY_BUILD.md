@@ -1,5 +1,12 @@
 # Verify the escrow program
 
+Since 2026-11-10 the live program runs protocol v2 (sha256 `6ac58cdc80b585290d8fa32e67a8c1cbdbac1081b0fc7b2a487e1cefc68c921e`,
+265,488 bytes, upgrade transaction `3X996yrTdNsXpUYgbSUozwHCzND4Xefxh5zhuZjueTQ5DzoNBaovqERkQ9jviqwz8aPsQnAxYvm1aMGHU7iYKpER`,
+slot 467605377), and `program/` holds the v2 source. How to rebuild and compare v2 is in `docs/VERIFY_BUILD_V2.md`. This page
+is the record of v1 as it was on 2026-11-08 and 2026-11-09, kept unchanged below. The v1 source is `program/` at commit
+`b33cc3eb33f3ad7d09c44f3121db356db2561568` (tree `75f75111781c25b612a0ac04408cb8ae8383fc07`); the hashes, slots and commands
+below apply to that source, and `.github/workflows/docker-verified-build.yml` now builds it from that commit.
+
 The live Solana escrow program for the XMR to SOL atomic swap is:
 
 - Program id: `7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS`

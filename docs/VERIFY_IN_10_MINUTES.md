@@ -7,20 +7,23 @@ commands from the repository root; files written outside `/tmp` make step 5 repo
    ```bash
    solana program dump -u mainnet-beta 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS /tmp/live.so && shasum -a 256 /tmp/live.so
    ```
-   Since the upgrade of 2026-11-08 (slot 467051728) the team reports
-   `4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515` for the 215,944 program bytes. A raw dump can have
-   trailing zero padding, so also hash the leading 215,944 bytes: `head -c 215944 /tmp/live.so | shasum -a 256`. The previous live
-   bytes, before that upgrade, had sha256 `76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d`.
+   Since the upgrade to protocol v2 on 2026-11-10 (slot 467605377) the team reports
+   `6ac58cdc80b585290d8fa32e67a8c1cbdbac1081b0fc7b2a487e1cefc68c921e` for the 265,488 program bytes. A raw dump can have
+   trailing zero padding, so also hash the leading 265,488 bytes: `head -c 265488 /tmp/live.so | shasum -a 256`. The previous
+   live bytes (v1, 2026-11-08 to 2026-11-10) had sha256 `4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515`,
+   and before that `76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d`.
 2. See who can upgrade the program, and when it was last upgraded.
    ```bash
    solana program show -u mainnet-beta 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS
    ```
-   The upgrade authority is `8pFUuZgzab6mwXq2UqdEc2mbkDk6Wg68KSppJ4brfF4W` and the last deploy slot is 467051728. If the slot
+   The upgrade authority is `8pFUuZgzab6mwXq2UqdEc2mbkDk6Wg68KSppJ4brfF4W` and the last deploy slot is 467605377. If the slot
    is newer, the program was upgraded again and the hash in step 1 no longer applies until this repository says so. Some
    Solana CLI versions (4.3.2, for example) ask for a default keypair even for this read-only command: make a throwaway one
    with `solana-keygen new --no-bip39-passphrase -o /tmp/throwaway.json` and add `-k /tmp/throwaway.json`. It signs nothing.
 3. Find the time windows in the code: `claim_open` and `refund_open` in `program/src/lib.rs`, and the same rules (with a safety margin)
-   in `aliceNext` and `makerNext` of `lib/silo/atomic-swap/swap-core.mjs`.
+   in `aliceNext` and `makerNext` of `lib/silo/atomic-swap/swap-core.mjs`. The v2 windows of the SOL to XMR direction are
+   `strict_claim_open` and `strict_refund_open` in `program/src/lib.rs`, and `userNext` in
+   `web/lib/silo/atomic-swap/reverse-core.mjs`.
 4. Run the tests.
    ```bash
    npm ci && npm test
@@ -36,5 +39,5 @@ commands from the repository root; files written outside `/tmp` make step 5 repo
      --base-image solanafoundation/solana-verifiable-build@sha256:12fd4c0a0790f0fc41ef74b0cdb6bccc167ba6137eb1adb749bac649481c86bd
    shasum -a 256 program/target/deploy/xmr_sol_swap.so
    ```
-   The hash must equal the leading 215,944 bytes of step 1. Details, the build without Docker and the automated checks are in
-   `docs/VERIFY_BUILD.md`.
+   The hash must equal the leading 265,488 bytes of step 1. Details, what v2 changed and the automated check are in
+   `docs/VERIFY_BUILD_V2.md`.

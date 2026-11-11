@@ -8,5 +8,5 @@ export function SiloUnlockHome({onOpenWallet}:{onOpenWallet:(id:SiloUnlockRow['i
  const {state,submit,lockGeneration}=useSiloUnlockState();
  if(!state.rows.length||state.rows.every(row=>row.status==='open'))return null;
  // `key` drops any text typed but not submitted when a lock happens.
- return <section id="silo-unlock-home" aria-label="Unlock your wallets"><SiloDeviceUnlockButton/><SiloLockedDeck key={lockGeneration} state={state} onUnlock={submit} onOpenWallet={onOpenWallet}/></section>;
+ return <section id="silo-unlock-home" aria-label="Unlock your wallets"><SiloLockedDeck key={lockGeneration} state={state} deviceAction={<SiloDeviceUnlockButton/>} onUnlock={submit} onOpenWallet={onOpenWallet}/></section>;
 }

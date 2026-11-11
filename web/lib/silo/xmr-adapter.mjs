@@ -315,6 +315,41 @@ export async function openXmrResearch({sdk,node,seed=null,height=0,cache=null,ne
  }
 }
 
+/** What a view-only scan may count (SOL -> XMR, threat model U2): only outputs with unlock_time 0 count toward the amount,
+ * and confirmations are the minimum over every incoming transaction seen (pool included), so a pending or time-locked output
+ * can only delay "ready", never trigger it. Same rule as the maker's usableFromTransfers. Returns null when nothing arrived. */
+export function siloXmrWatchUsable(txs){
+ let atomic=0n,confirmations=Infinity,seen=0;
+ for(const tx of Array.isArray(txs)?txs.slice(0,10000):[]){
+  if(tx.getIsFailed?.()===true)continue;
+  const amount=BigInt(tx.getIncomingAmount?.()??0n);if(amount<=0n)continue;seen++;
+  const conf=tx.getInTxPool?.()===true?0:Number(tx.getNumConfirmations?.()??0);confirmations=Math.min(confirmations,Number.isFinite(conf)?conf:0);
+  if(BigInt(tx.getUnlockTime?.()??0n)===0n)atomic+=amount;
+ }
+ return seen?{atomic:atomic.toString(),confirmations}:null;
+}
+/** A view-only wallet for one joint swap address (no spend key, nothing can be sent from it). */
+/** @param {{sdk:any,node:string,network?:string,primaryAddress:string,privateViewKey:string,restoreHeight?:number,release?:any,fetcher?:typeof fetch}} options */
+export async function openXmrWatchOnly({sdk,node,network='stagenet',primaryAddress,privateViewKey,restoreHeight=0,release=null,fetcher=fetch}){
+ assertSiloNetwork('xmr',network);authorizeSiloNetwork('xmr',network,release);const uri=siloNodeUrl(node);
+ if(typeof primaryAddress!=='string'||primaryAddress.length<90||primaryAddress.length>110)throw Error('Invalid swap address.');
+ if(!/^[a-f0-9]{64}$/.test(privateViewKey??''))throw Error('Invalid view key.');
+ if(!Number.isSafeInteger(restoreHeight)||restoreHeight<0)throw Error('Use a valid restore height.');
+ const response=await fetcher(`${uri}/get_info`,{cache:'no-store',credentials:'omit',referrerPolicy:'no-referrer',signal:AbortSignal.timeout(10000)});
+ if(!response.ok){await response.body?.cancel().catch(()=>{});throw Error('Node did not verify the selected Monero network.');}
+ assertSiloXmrNodeNetwork(await siloJson(response),network);
+ await sdk.LibraryUtils.setLogLevel(0);
+ const wallet=await sdk.createWalletFull({networkType:network==='stagenet'?sdk.MoneroNetworkType.STAGENET:sdk.MoneroNetworkType.MAINNET,password:WALLET_PASSWORD,primaryAddress,privateViewKey,restoreHeight,server:{uri},proxyToWorker:true,isTrustedDaemon:false,fs:MEMORY_ONLY_FS});
+ let closed=false,closing=null;const active=()=>{if(closed)throw Error('Watch wallet is closed.');};
+ return Object.freeze({
+  /** Syncs, then returns { atomic, confirmations } of usable incoming outputs, or null when nothing has arrived. */
+  status:async()=>{active();await wallet.sync();active();return siloXmrWatchUsable(await wallet.getTxs({isIncoming:true}));},
+  /** Stops a running sync (monero-ts stopSyncing). The wallet keeps the height it reached, so the next status() continues from there. */
+  cancel:async()=>{if(closed)return;await wallet.stopSyncing();},
+  // Idempotent and honest: a second call shares the first attempt and only reports closed once the wallet really closed; a failed attempt can be retried.
+  close:()=>closing??=(async()=>{closed=true;try{await wallet.close(false);}catch(error){closing=null;throw error;}})(),
+ });
+}
 /** Opens a wallet from full Monero keys (the joint address of a refunded no-bridge swap) in memory only, with the same network and
  * node authorization as openXmrResearch. It exists to sweep one address to the user's own wallet: nothing is stored or backed up. */
 /** @param {{sdk:any,node:string,network?:string,primaryAddress:string,privateViewKey:string,privateSpendKey:string,restoreHeight?:number,release?:any,fetcher?:typeof fetch}} options */

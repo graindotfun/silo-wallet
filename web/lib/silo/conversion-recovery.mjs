@@ -50,6 +50,8 @@ export async function createSiloConversionRecovery({passphrase,snapshot=null}){
      const id=`atomic:${record.swapId}`,known=atomic.get(record.swapId),pinned=structuredClone(record);
      // A payment that may have gone out stays recorded whatever a later, older copy says (H6): the flag never clears.
      if(known?.record?.fundingAttempted&&!pinned.fundingAttempted)pinned.fundingAttempted=known.record.fundingAttempted;
+     // SOL -> XMR: a SOL lock that may have gone out stays recorded the same way, so a stale copy can never lead to a second lock.
+     if(known?.record?.lockAttemptAt&&!pinned.lockAttemptAt)pinned.lockAttemptAt=known.record.lockAttemptAt;
      if(!known&&data.size>=MAX_ATTEMPTS)throw Error('conversion-recovery-bound');
      const revision=known?known.revision+1:0;
      if(!await store.compareAndSwap(id,known?known.revision:null,{id,revision,kind:ATOMIC_ROW,swapId:record.swapId,record:pinned}))throw Error('conversion-recovery-conflict');active();

@@ -2,12 +2,14 @@
 # Builds program/ with a pinned toolchain, prints the sha256 of the .so in the public log and compares it with the bytes
 # dumped from the live program on Solana mainnet. Fails loudly on any mismatch.
 #
-# STATUS: secondary check. The supported check is .github/workflows/docker-verified-build.yml (a pinned image that anyone can
-# repeat with solana-verify). This workflow builds without Docker; on GitHub's linux runner it gives the same bytes as the
-# Docker build (run 42490579014). A green run is evidence only if the log shows "FULL MATCH".
-# Expected value: since the upgrade of 2026-11-08 (slot 467051728) the live program is the Docker build, sha256
-# 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515. The previous live bytes (sha256
-# 76424c24aa28d5f74e52781df0a98d95e43003ad2374c48f47acd1c21045599d, built on macOS) are no longer checked here.
+# STATUS: secondary check. The supported check is .github/workflows/v2-docker-verified-build.yml (a pinned image that anyone
+# can repeat with solana-verify). This workflow builds without Docker. For v1, on GitHub's linux runner it gave the same
+# bytes as the Docker build (run 42490579014). For v2 it has not run yet: whether the non-Docker recipe gives the Docker v2
+# bytes is unknown until it does. A different result would be a finding about this recipe, not about the live program,
+# which the Docker workflow compares. A green run is evidence only if the log shows "FULL MATCH".
+# Expected value: since the upgrade of 2026-11-10 (slot 467605377) the live program is the v2 Docker build, 265,488 bytes,
+# sha256 6ac58cdc80b585290d8fa32e67a8c1cbdbac1081b0fc7b2a487e1cefc68c921e. Earlier live bytes (v1 Docker 4033eb70..., live
+# 2026-11-08 to 2026-11-10, and v1 macOS 76424c24... before that) are no longer checked here.
 name: verify-build
 on:
   workflow_dispatch:
@@ -19,9 +21,9 @@ permissions:
   contents: read
 env:
   PROGRAM_ID: 7nu5ZGNAu8LbRFR5iSyAtNxRGyGqjtQ8Z9qzFqemZKuS
-  EXPECTED_SHA256: 4033eb70a5d4d6f7d47654d278a54633bafd5366303b7882a17032d4cbbc3515
-  EXPECTED_SIZE: "215944"
-  # Pinned toolchain; the non-docker run reproduces the docker bytes since the 2026-11-08 upgrade (sha256 4033eb70...):
+  EXPECTED_SHA256: 6ac58cdc80b585290d8fa32e67a8c1cbdbac1081b0fc7b2a487e1cefc68c921e
+  EXPECTED_SIZE: "265488"
+  # Pinned toolchain; for v1 the non-docker run reproduced the docker bytes (sha256 4033eb70...); not yet run for v2:
   # cargo-build-sbf 4.3.0 (installed from crates.io, NOT the newer wrapper that the Agave installer ships), platform-tools
   # v1.57 with its own cargo and rustc first on PATH (no rustup override), and no --arch flag (4.3.0 defaults to v0).
   # History: wrapper 4.4.0 with the default arch gave 202,872 bytes; with --arch v0 it gave 215,944 bytes but 1,672 bytes

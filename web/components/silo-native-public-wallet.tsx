@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {SiloSecretField} from './silo-secret-field';
+import {SiloDeviceUnlockButton} from './silo-device-unlock';
 import {Download,LockKeyhole} from 'lucide-react';
 import {siloPassphraseProblem} from '@/lib/silo/passphrase-strength.mjs';
 import {bindSiloIdleLock} from '@/lib/silo/idle-lock.mjs';
@@ -292,7 +293,7 @@ export function SiloNativePublicWallet({keyNetwork='mainnet',chain,permitted,hel
     {hint&&<p className="silo-hint" role="status" aria-live="polite">{hint}</p>}
     {/* The custody facts come before Create on every screen (Sol, baf30097, M3). */}
     {!stored&&<SiloCustodyNote testKey={keyNetwork!=='mainnet'} extra={chain==='solana'&&keyNetwork==='mainnet'?'You can export this wallet’s raw private key later to use it in another Solana wallet app.':undefined}/>}
-    <div className="exposure-actions">{stored?<button className="silo-primary" disabled={!hydrated||!accepted||!permitted||busy||passphrase.length<12} onClick={()=>void open('unlock')}>Unlock {name} wallet</button>:<button className="silo-primary" disabled={!hydrated||!newReady} onClick={()=>void open('create')}>Create wallet</button>}</div>
+    <div className="exposure-actions">{stored?<><button className="silo-primary" disabled={!hydrated||!accepted||!permitted||busy||passphrase.length<12} onClick={()=>void open('unlock')}>Unlock {name} wallet</button><SiloDeviceUnlockButton/></>:<button className="silo-primary" disabled={!hydrated||!newReady} onClick={()=>void open('create')}>Create wallet</button>}</div>
     <p className="silo-unlock-foot"><LockKeyhole size={14} aria-hidden="true"/>Encrypted on this device. Silo never sends your key or passphrase anywhere.</p>
    </div>
    <div className="silo-more">

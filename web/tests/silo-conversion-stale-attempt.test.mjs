@@ -2,12 +2,12 @@ import test from 'node:test';import assert from 'node:assert/strict';import {rea
 import {conversionAttemptResolved,conversionNothingSentMessage,conversionStaleWithoutRecord,conversionStateMayHoldFunds} from '../lib/silo/conversion-ui.mjs';
 import {markConversionDepositOpened,readConversionAttemptMeta,recordConversionWindow} from '../lib/silo/conversion-attempt-meta.mjs';
 const memory=()=>{const m=new Map();return {getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>void m.set(k,String(v)),removeItem:k=>void m.delete(k)};};
-test('expired or provider-failed with no funds at risk resolves; a closed waiting window resolves only with no deposit step',()=>{
- assert.equal(conversionAttemptResolved('expired',{noFundsAtRisk:true}),true);
- assert.equal(conversionAttemptResolved('expired',{noFundsAtRisk:false}),false);
- assert.equal(conversionAttemptResolved('waiting',{noFundsAtRisk:true,windowClosed:true}),true);
- assert.equal(conversionAttemptResolved('waiting',{noFundsAtRisk:true,windowClosed:false}),false);
- assert.equal(conversionAttemptResolved('waiting',{noFundsAtRisk:false,windowClosed:true}),false);
+test('only the provider fresh expired/failed answer with a closed window resolves; local facts never do; a waiting order never resolves',()=>{
+ assert.equal(conversionAttemptResolved('expired',{noFundsAtRisk:true}),false);
+ assert.equal(conversionAttemptResolved('expired',{providerVerifiedClosed:true,windowClosed:true}),true);
+ assert.equal(conversionAttemptResolved('expired',{providerVerifiedClosed:true,windowClosed:false}),false);
+ assert.equal(conversionAttemptResolved('waiting',{noFundsAtRisk:true,windowClosed:true}),false);
+ assert.equal(conversionAttemptResolved('waiting',{noFundsAtRisk:true,windowClosed:true,providerVerifiedClosed:true}),false);
 });
 test('no discard is ever offered for funds-at-risk states, whatever the flags say about the window',()=>{
  for(const state of ['creation-uncertain','deposit-uncertain','deposit-signed','deposit-submitted','provider-confirming','provider-exchanging','provider-sending','payout-reported','refund-reported','wallet-retired']){
@@ -25,7 +25,7 @@ test('the provider answer resolves expired/provider-failed even after the deposi
 });
 test('the plain statement is exact',()=>{
  const text='This order expired. Nothing was sent. Your funds are still in your wallet.';
- assert.equal(conversionNothingSentMessage('expired'),text);assert.equal(conversionNothingSentMessage('waiting',{windowClosed:true}),text);assert.equal(conversionNothingSentMessage('waiting'),null);
+ assert.equal(conversionNothingSentMessage('expired'),text);assert.equal(conversionNothingSentMessage('waiting',{windowClosed:true}),null);assert.equal(conversionNothingSentMessage('waiting'),null);
 });
 test('after a reload the browser-side facts decide: deadline passed and no deposit review opened',async()=>{
  const storage=memory(),now=1_000_000;
@@ -58,5 +58,5 @@ test('panel wiring: provider flag is in-memory only, silent returns now say some
  const body=panel.slice(panel.indexOf('async function prepareDeposit('),panel.indexOf('depositing.current=true;setSawFunding(true);'));
  assert.equal((body.match(/return;/g)??[]).length,(body.match(/setError\(/g)??[]).length,'every early return sets a message');
  assert.match(body,/Time to send ran out/);assert.match(body,/Open your Solana wallet first/);
- assert.match(panel,/autoPrepared\.current\.has\(response\.order\.orderId\)/);assert.match(panel,/Time to send ran out\. Check the order, then start a new one\./);
+ assert.match(panel,/autoPrepared\.current\.has\(response\.order\.orderId\)/);assert.match(panel,/Time to send ran out\. If you already sent funds to this order/);
 });

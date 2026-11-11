@@ -3,7 +3,7 @@ name = "xmr-sol-swap"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-description = "XMR<->SOL atomic swap escrow program (beta, not audited)"
+description = "Feasibility prototype: trustless XMR<->SOL atomic swap escrow (devnet only, not audited)"
 publish = false
 
 [lib]

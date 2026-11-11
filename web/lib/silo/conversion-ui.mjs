@@ -101,15 +101,60 @@ export function conversionAttemptResolved(state, { receiptConfirmed = false, des
   if (state === 'payout-reported') return destinationIsXmr && receiptConfirmed;
   // The provider is the authority for "nothing arrived": a fresh provider answer in THIS page session (never storage) saying expired /
   // provider-failed, with the deposit window closed, resolves the attempt even if the deposit review was opened. Only these two states.
-  if (FUNDS_SAFE_TERMINAL.has(state)) return noFundsAtRisk === true || (providerVerifiedClosed === true && windowClosed === true);
-  // An order still 'waiting' after its own deposit deadline, with no deposit step ever opened, can never be funded.
-  if (state === 'waiting') return noFundsAtRisk === true && windowClosed === true;
+  // Only the provider's own fresh answer proves that nothing arrived. Local facts (created here, no deposit review recorded, a missing
+  // browser meta row) never do: a deposit sent shortly before the deadline can still be unseen by the provider.
+  if (FUNDS_SAFE_TERMINAL.has(state)) return providerVerifiedClosed === true && windowClosed === true;
+  // A 'waiting' order never resolves by itself, however late. It can be hidden from the screen but stays tracked (conversionCanHide).
   return false;
 }
 /** Plain-language outcome for an attempt that was never funded, or null. Used for the one "Start a new conversion" action. */
 export function conversionNothingSentMessage(state, { windowClosed = false } = {}) {
-  return state === 'expired' || state === 'provider-failed' || (state === 'waiting' && windowClosed) ? 'This order expired. Nothing was sent. Your funds are still in your wallet.' : null;
+  return state === 'expired' || state === 'provider-failed' ? 'This order expired. Nothing was sent. Your funds are still in your wallet.' : null;
 }
+/** True only for an order still 'waiting' whose own deposit deadline has passed: the one state that may be moved off the main screen.
+ * Hiding is display only. It never retires the recovery handle and never stops checking the order. */
+export function conversionCanHide(state, { windowClosed = false } = {}) { return state === 'waiting' && windowClosed === true; }
+/** Meta facts that allow hiding: this browser's own record is readable and says no deposit review was ever opened for the order.
+ * Unreadable meta, or depositOpened:true, never qualifies (Astra 671-M1). */
+function metaShowsNoDeposit(meta) { return Boolean(meta) && meta.readable === true && meta.depositOpened === false; }
+/** Display-only hide of an expired 'waiting' order (Astra 671-H1/M1). All must hold:
+ *  - the handle is in the wallet's durable recovery list (journaled), so Past conversions keeps enumerating and checking it;
+ *  - a fresh provider answer in THIS page session said 'waiting', and the server's own clock at that answer (HTTP Date) was at or
+ *    past the order's server deadline; the local clock must also be past it;
+ *  - this browser's meta is readable and shows no deposit review opened, and no funding stage was seen in this session.
+ * Hiding never says nothing was sent and never retires the handle.
+ * @param {{state?:string,journaled?:boolean,freshWaitingServerNow?:number|null,deadline?:number|null,now?:number,meta?:{readable:boolean,depositOpened:boolean,windowEndsAt:number|null}|null,sawFunding?:boolean}} [options] */
+export function conversionCanHideWaiting({ state, journaled = false, freshWaitingServerNow = null, deadline = null, now = Date.now(), meta = null, sawFunding = false } = {}) {
+  if (state !== 'waiting' || journaled !== true || sawFunding === true) return false;
+  if (!Number.isSafeInteger(deadline) || !Number.isSafeInteger(freshWaitingServerNow)) return false;
+  if (freshWaitingServerNow < deadline || now < deadline) return false;
+  return metaShowsNoDeposit(meta);
+}
+/** A saved order that cannot be loaded at all (for example the server copy was removed after its retention period, 24 h after a
+ * terminal state or 30 days after creation) would otherwise block a new conversion forever. It may be hidden the same way, display
+ * only, when: a check of it failed in THIS page session, the handle is journaled, and this browser's meta is readable, shows no
+ * deposit review opened, and does not show a deposit window still open. Never retires the handle; it stays listed under Past
+ * conversions and keeps being checked.
+ * @param {{loadFailed?:boolean,journaled?:boolean,meta?:{readable:boolean,depositOpened:boolean,windowEndsAt:number|null}|null,now?:number}} [options] */
+export function conversionCanHideUnloaded({ loadFailed = false, journaled = false, meta = null, now = Date.now() } = {}) {
+  if (loadFailed !== true || journaled !== true || !metaShowsNoDeposit(meta)) return false;
+  return !(Number.isSafeInteger(meta.windowEndsAt) && meta.windowEndsAt > now);
+}
+/** Honest one-sentence wording for an order shown under "Past conversions", by the provider's last answer in this page session.
+ * "Nothing arrived" is only ever said for a state the provider itself reported as expired or failed. A waiting order past its deadline
+ * never says that: a deposit sent shortly before the deadline can still be unseen by the provider. `state` null = not checked yet. */
+export function conversionPastEntryText(state) {
+  if (state === 'expired') return 'The provider reports this order as expired, with no deposit received.';
+  if (state === 'provider-failed') return 'The provider reports this order as failed, with no deposit received.';
+  if (state === 'waiting') return 'This order expired. If you sent funds to it, they are still being tracked here. Check it any time.';
+  if (state === 'settled') return 'This conversion finished.';
+  if (state === 'refund-confirmed' || state === 'refund-reported') return 'A refund was reported for this order. Open it to see the details.';
+  if (state === null || state === undefined || state === 'creation-uncertain') return 'Not checked yet. Check it to see where it stands. If you sent funds to it, they are still being tracked here.';
+  return 'A deposit was detected for this order. It comes back to the main screen so you can follow it.';
+}
+/** A past (hidden) order whose last provider answer says funds may be in flight must return to the main screen. */
+export function conversionPastNeedsAttention(state) { return typeof state === 'string' && state !== 'creation-uncertain' && conversionStateMayHoldFunds(state); }
+
 /** Local-only fallback when the saved order cannot be loaded (for example after a reload): the attempt may be discarded only if this
  * browser knows its deposit deadline has passed AND the deposit review was never opened for it. Unreadable meta never qualifies. */
 export function conversionStaleWithoutRecord(meta, now = Date.now()) {

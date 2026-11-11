@@ -3,18 +3,21 @@
 This page explains how to compare the wallet app that https://silo.trading serves with the source in `web/`, what we
 measured, and what you cannot check yet.
 
-## Result, measured on 2026-11-09
+## Result, measured on 2026-11-10
 
 - The live wallet page `https://silo.trading/app` is served by Cloudflare Worker `grain-silo`, version
-  `732d4c5f-df6c-4c92-8b1e-13269af60a1a`. It was built from source commit `6dd7023cb3203dbdaac82b9af68bd2a016ad607b`. The
-  page itself names that commit: search the page source for `6dd7023cb3203dbdaac82b9af68bd2a016ad607b`.
-- The page, and the scripts and stylesheets it loads, refer to 143 static files that the site serves: JavaScript,
+  `6a1e9356-aa66-401d-8e02-40f5fe2cef67` (from the deploy record). It was built from source commit
+  `b9463c7f389c960b83c27f94f75298fed6df35fc`. The page itself names that commit: search the page source for
+  `b9463c7f389c960b83c27f94f75298fed6df35fc`.
+- The page, and the scripts and stylesheets it loads, refer to 145 static files that the site serves: JavaScript,
   stylesheets, fonts, icons, and the Monero and Zcash engines that run in the browser.
-- We rebuilt that commit from a clean copy with the recipe below. All 143 files had the same sha256 as the files the site
-  serves. A second rebuild, with hidden source maps turned on so we could see which source file ends up in which served
-  file, again gave the same bytes for all 143.
+- We rebuilt that commit from a clean copy (`git archive` of the commit, fresh `npm ci`) with the recipe below. All 145
+  files had the same sha256 as the files the site serves. A second rebuild, with hidden source maps turned on so we could
+  see which source file ends up in which served file, again gave the same bytes for all 145.
 - Two files in `web/` differ from the commit, in comments only (see "What was changed"). A third rebuild with those two
-  edited files also gave the same bytes for all 143. Comments are removed when the code is minified.
+  edited files also gave the same bytes for all 145. Comments are removed when the code is minified.
+- The earlier publication, at commit `6dd7023c` (143 files, measured on 2026-11-09), is kept for reference in
+  `docs/verify-app/expected-6dd7023c.json` and `docs/verify-app/chunk-sources-6dd7023c.json`. The site no longer serves it.
 - The served pages contain router data that names 127 more files, for other pages of the same codebase. The wallet Worker
   refuses to serve those (it answers 404, by design: it only serves an allowlist of wallet files). The script lists them
   for information.
@@ -26,13 +29,14 @@ does not show yet: that you can rebuild them yourself. Read the next section.
 
 You can:
 
-1. Check that the site still serves the files we recorded for commit `6dd7023c`
-   (`docs/verify-app/expected-6dd7023c.json`). Run the script below. After a new deploy the files change, and this check
+1. Check that the site still serves the files we recorded for commit `b9463c7f`
+   (`docs/verify-app/expected-b9463c7f.json`). Run the script below. After a new deploy the files change, and this check
    reports mismatches until a new expected file is published for the new commit.
-2. Read the source of everything in those files. `docs/verify-app/chunk-sources-6dd7023c.json` lists, for every served
+2. Read the source of everything in those files. `docs/verify-app/chunk-sources-b9463c7f.json` lists, for every served
    JavaScript file, the source files in `web/` and the npm packages that went into it.
 3. Rebuild the Monero engine from this repository alone and compare it with the served files (see "Rebuild the Monero
-   engine"). We did this from a fresh copy of `web/` and got the same bytes for both files.
+   engine"). We did this on 2026-11-09 from a fresh copy of `web/` at commit `6dd7023c` and got the same bytes for both
+   files. The engine's build inputs and the two served files are unchanged at `b9463c7f`; we did not repeat the rebuild.
 4. Run the tests in `web/tests/` (see "Run the tests").
 
 You cannot yet:
@@ -56,7 +60,7 @@ expected values are pinned in `web/lib/silo/zec-sdk-manifest.json`.
 Node 22 or later, no packages needed:
 
 ```bash
-node scripts/verify-app.mjs --expected docs/verify-app/expected-6dd7023c.json
+node scripts/verify-app.mjs --expected docs/verify-app/expected-b9463c7f.json
 ```
 
 The script fetches `/app`, follows every script, stylesheet, font and engine file that the page and its scripts name on the
@@ -69,10 +73,10 @@ same origin, and hashes what it gets. For each file it prints one of:
 | `missing-in-reference` | The site serves a file that the reference does not contain |
 | `referenced-not-served` | Named inside the code but refused by this origin (other pages); information only |
 
-The last line is a summary. Exit code 0 means no `mismatch` and no `missing-in-reference`. On 2026-11-09 the summary was:
+The last line is a summary. Exit code 0 means no `mismatch` and no `missing-in-reference`. On 2026-11-10 the summary was:
 
 ```
-{"origin":"https://silo.trading","documents":[{"page":"/app","status":200}],"files":270,"counts":{"referenced-not-served":127,"match":143}}
+{"origin":"https://silo.trading","documents":[{"page":"/app","status":200}],"files":272,"counts":{"referenced-not-served":127,"match":145}}
 ```
 
 Other options: `--dist <dir>` compares with a local build output directory (`dist/client`), `--write <file>` records
@@ -85,7 +89,7 @@ which is why you cannot run it from this repository yet. It is written here so t
 it, and so you can see exactly which inputs and switches go into the build.
 
 ```bash
-SHA=6dd7023cb3203dbdaac82b9af68bd2a016ad607b
+SHA=b9463c7f389c960b83c27f94f75298fed6df35fc
 # Node 22.22.3, a clean export of the commit
 npm ci
 # Close the five launch switches of the launchpad that shares this codebase. They are open in the commit and closed in
@@ -100,7 +104,7 @@ printf 'pet/\n' >> public/.assetsignore
 # Build. NEXT_DEPLOYMENT_ID pins an id that is otherwise random per build. SOLANA_RPC_URL must not be set.
 NEXT_DEPLOYMENT_ID=$SHA GITHUB_SHA=$SHA GRAINPAD_WORKER_CONFIG=wrangler.silo.jsonc npm run build
 # Compare
-node scripts/verify-app.mjs --dist dist/client --expected docs/verify-app/expected-6dd7023c.json
+node scripts/verify-app.mjs --dist dist/client --expected docs/verify-app/expected-b9463c7f.json
 ```
 
 `lib/rewards-policy.mjs` and `lib/platform-settings.mjs` are in `web/` (the wallet imports them). They are published as
@@ -122,7 +126,7 @@ node scripts/silo/build-experimental-xmr-worker.mjs # builds the browser worker 
 shasum -a 256 public/silo-sdk/monero-sdk-7b5da83603c012d3.js public/silo-sdk/monero-worker-2b5086070f76c982.js
 ```
 
-Expected, and what the site serves (see `docs/verify-app/expected-6dd7023c.json`):
+Expected, and what the site serves (see `docs/verify-app/expected-b9463c7f.json`):
 
 ```
 7b5da83603c012d3061a14ea9c091db9796bf4b243b431fb9ce2ab843f4a7c01  public/silo-sdk/monero-sdk-7b5da83603c012d3.js
@@ -137,7 +141,7 @@ call (`web/docs/security/proposals/silo-sdk-worker-removal-20261014/`).
 
 ## What is in `web/`
 
-Every file in `web/` is taken from commit `6dd7023c` at the same path. `PUBLIC_MANIFEST.json` lists each file with its
+Every file in `web/` is taken from commit `b9463c7f` at the same path. `PUBLIC_MANIFEST.json` lists each file with its
 sha256 and its git blob id in that commit.
 
 - `components/`, `hooks/`, `lib/`, `app/app/error.tsx`, `app/error.tsx`, `vendor/bigint-buffer-js/`: every source file
@@ -148,23 +152,24 @@ sha256 and its git blob id in that commit.
 - `app/layout.tsx`, `app/app/page.tsx` and the stylesheets they load: the page entry points. These two `.tsx` files run on
   the server and are not sent to the browser. They are here to show which component and which stylesheets the page uses.
   The server modules they import are not published.
-- `prototypes/xmr-sol-atomic-swap/maker/` and the six client files it imports: the swap maker code as it is in the same
-  commit, with its tests. The maker runs as a separate service and is deployed on its own. This repository does not
+- `prototypes/xmr-sol-atomic-swap/maker/` and the eight client files it imports: the swap maker code as it is in the same
+  commit, with its tests. It covers both directions: XMR to SOL, and SOL to XMR (`maker-reverse.mjs`), which is switched
+  on by the maker setting `SOL_XMR_ENABLED` and stays off until acceptance testing is done. The maker runs as a separate service and is deployed on its own. This repository does not
   claim that the running maker process is identical to this code.
 - `scripts/silo/`, `docs/security/proposals/silo-sdk-worker-removal-20261014/` (five build helper files only),
   `vendor/silo/zec-core/`, `lib/silo/xmr-sdk-entry.ts`: how the Monero and Zcash engines are built.
 - `package.json`, `package-lock.json`, `vite.config.ts`, `tsconfig.json`, `next.config.ts`, `postcss.config.mjs`,
   `vendor/shadcn-tailwind-4.13.0.css`: build inputs, unchanged. The name, licence and repository fields in `package.json`
   describe the private source tree. In this repository the files in `web/` are under the licence stated in `NOTICE`.
-- `tests/`: the 83 test files of the commit that import only files in `web/` and pass on their own (498 tests).
+- `tests/`: the 89 test files of the commit that import only files in `web/` and pass on their own (564 tests).
 
 ## Run the tests
 
 ```bash
 cd web
 npm ci --ignore-scripts
-node --test tests/*.test.*                                     # 498 tests on 2026-11-09, all passing
-node --test prototypes/xmr-sol-atomic-swap/maker/maker-core.test.mjs   # 13 maker tests
+node --test tests/*.test.*                                     # 564 tests on 2026-11-10, all passing
+node --test prototypes/xmr-sol-atomic-swap/maker/*.test.mjs    # 154 maker tests in 6 files, all passing
 ```
 
 Use `node --test` directly: the `test` script in `web/package.json` belongs to the private tree and names files that are
@@ -177,9 +182,9 @@ not here.
 - The deploy and release scripts of the private source tree.
 - Pages and code of the launchpad that the wallet does not import.
 - Binary files that the site serves (fonts, logos, coin icons, the engine files). Their sha256 values are in
-  `docs/verify-app/expected-6dd7023c.json`.
-- The other tests of the commit: those that import or read files outside `web/`, and 45 that drive a browser (they need
-  Playwright).
+  `docs/verify-app/expected-b9463c7f.json`.
+- The other tests of the commit: those that import or read files outside `web/`, and those that drive a browser (they
+  need Playwright).
 
 ## What was changed
 

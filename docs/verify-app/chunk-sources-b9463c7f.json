@@ -1,0 +1,1006 @@
+{
+ "schema": "silo-chunk-sources-v1",
+ "sourceCommit": "b9463c7f389c960b83c27f94f75298fed6df35fc",
+ "note": "Read from source maps of an analysis rebuild with build.sourcemap set to hidden. That rebuild produced the same bytes for every file listed in expected-b9463c7f.json. Facade chunks that only re-export another chunk have no entry.",
+ "chunks": {
+  "/_next/static/chunks/alice-flow-DSTu9dI6.js": {
+   "source": [
+    "web/lib/silo/atomic-swap/alice-flow.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/amounts-lEbtVj0I.js": {
+   "source": [
+    "web/lib/silo/amounts.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/app-elements-D6hwZz0F.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/app-route-prefetch-policy-B_WY3V1v.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/app-rsc-cache-busting-CL34g01y.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/app-rsc-render-mode-BKD4gTlM.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/appearance-control-PH5reBOE.js": {
+   "source": [
+    "web/components/appearance-control.tsx"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/arrow-down-up-BQCltZ0q.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/arrow-left-right-DKr0xXFf.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/arrow-right-1aod-F0w.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/bob-flow-Cj3S_LlD.js": {
+   "source": [
+    "web/lib/silo/atomic-swap/bob-flow.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/bounded-json-D1kAcdl1.js": {
+   "source": [
+    "web/lib/silo/bounded-json.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/brand-presentation-BZB_Kjx1.js": {
+   "source": [
+    "web/lib/brand-presentation.ts"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/browser-buffer-C1hkexiU.js": {
+   "source": [
+    "web/lib/browser-buffer.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/browser-rpc-session-BAG2pk4a.js": {
+   "source": [
+    "web/lib/browser-rpc-session.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/browser-sdk-DKSX85k_.js": {
+   "source": [
+    "web/lib/silo/browser-sdk.mjs",
+    "web/lib/silo/xmr-sdk-manifest.json"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/build-commit-DqYOiz2i.js": {
+   "source": [
+    "web/lib/build-commit.ts"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/button-B902Um1n.js": {
+   "source": [
+    "web/components/ui/button.tsx"
+   ],
+   "npmPackages": [
+    "@radix-ui/react-compose-refs",
+    "@radix-ui/react-slot",
+    "class-variance-authority"
+   ]
+  },
+  "/_next/static/chunks/chain-context-chrome-D8yfTWvl.js": {
+   "source": [
+    "web/components/chain-context-chrome.tsx",
+    "web/components/contract-address-bar.tsx",
+    "web/components/price-tab.tsx"
+   ],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/chevron-down-B1W6aHE6.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/chevron-right-seRQf74U.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/copy-lK1LBeaf.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/createLucideIcon-BZKEg08z.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/decimal-Btzf75bM.js": {
+   "source": [],
+   "npmPackages": [
+    "decimal.js-light"
+   ]
+  },
+  "/_next/static/chunks/deployment-id-DW_moCub.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/disclosures-A0aaFqDf.js": {
+   "source": [
+    "web/lib/silo/disclosures.mjs",
+    "web/lib/silo/local-envelope.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/download-C5V-HNHR.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/error-CsxVaJhu.js": {
+   "source": [
+    "web/app/error.tsx"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/error-D_a0cgso.js": {
+   "source": [
+    "web/app/app/error.tsx"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/es2015-BT2qvVCg.js": {
+   "source": [
+    "web/lib/brand-assets.ts"
+   ],
+   "npmPackages": [
+    "@radix-ui/primitive",
+    "@radix-ui/react-compose-refs",
+    "@radix-ui/react-context",
+    "@radix-ui/react-dismissable-layer",
+    "@radix-ui/react-focus-guards",
+    "@radix-ui/react-focus-scope",
+    "@radix-ui/react-id",
+    "@radix-ui/react-portal",
+    "@radix-ui/react-presence",
+    "@radix-ui/react-primitive",
+    "@radix-ui/react-slot",
+    "@radix-ui/react-use-callback-ref",
+    "@radix-ui/react-use-controllable-state",
+    "@radix-ui/react-use-effect-event",
+    "@radix-ui/react-use-layout-effect",
+    "aria-hidden",
+    "get-nonce",
+    "react-remove-scroll",
+    "react-remove-scroll-bar",
+    "react-style-singleton",
+    "tslib",
+    "use-callback-ref",
+    "use-sidecar"
+   ]
+  },
+  "/_next/static/chunks/esm-DSNPR5pz.js": {
+   "source": [],
+   "npmPackages": [
+    "base-x",
+    "bs58"
+   ]
+  },
+  "/_next/static/chunks/evm-wallet-BUlkHMhN.js": {
+   "source": [
+    "web/lib/chain/evm-wallet.ts"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/exposure-report-BBrz5jKj.js": {
+   "source": [
+    "web/lib/exposure-report.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/fee-policy-DOlxhtAn.js": {
+   "source": [
+    "web/lib/fee-policy.mjs",
+    "web/lib/market-execution-hold.mjs",
+    "web/lib/rewards-split-policy.mjs",
+    "web/lib/transaction-addresses.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/framework-Cnia9vEt.js": {
+   "source": [],
+   "npmPackages": [
+    "react",
+    "react-dom",
+    "scheduler"
+   ]
+  },
+  "/_next/static/chunks/gate-hero-CA3Bcq1q.js": {
+   "source": [
+    "web/lib/silo/brand-motion/gate-hero.mjs",
+    "web/lib/silo/brand-motion/physics.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/grainpet-entry-DV_Or3tl.js": {
+   "source": [
+    "web/lib/grainpet-entry.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/grainy-art.generated-D-x949vG.js": {
+   "source": [
+    "web/lib/silo/grainy-art.generated.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/hash-B9TVtkv9.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/headers-BW6EV0oo.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/hybrid-client-route-owner-ChlA6ezh.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/image-CVO3xr3k.js": {
+   "source": [],
+   "npmPackages": [
+    "@unpic/core",
+    "@unpic/react",
+    "ipaddr.js",
+    "unpic",
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/index-CCC9Q4bu.js": {
+   "source": [],
+   "npmPackages": [
+    "@vitejs/plugin-rsc",
+    "react-server-dom-webpack",
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/index.browser.esm-B6-7lkPx.js": {
+   "source": [],
+   "npmPackages": [
+    "@noble/curves",
+    "@noble/hashes",
+    "@solana/buffer-layout",
+    "@solana/codecs-core",
+    "@solana/codecs-numbers",
+    "@solana/errors",
+    "@solana/web3.js",
+    "base-x",
+    "base64-js",
+    "bn.js",
+    "borsh",
+    "bs58",
+    "buffer",
+    "eventemitter3",
+    "ieee754",
+    "jayson",
+    "rpc-websockets",
+    "safe-buffer",
+    "superstruct",
+    "text-encoding-utf-8"
+   ]
+  },
+  "/_next/static/chunks/integrity-BFnrcZYZ.js": {
+   "source": [
+    "web/lib/silo/integrity.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/intent-BnYhsg83.js": {
+   "source": [
+    "web/lib/trading/intent.mjs"
+   ],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/jupiter-build-execution-DHZu55G-.js": {
+   "source": [
+    "web/lib/silo/jupiter-build-execution.mjs",
+    "web/lib/silo/jupiter-clmm-route.mjs",
+    "web/lib/silo/jupiter-execution.mjs",
+    "web/lib/silo/jupiter-route-policy.mjs",
+    "web/lib/silo/revenue-policy.mjs",
+    "web/lib/silo/swap-policy.mjs",
+    "web/lib/silo/swap-referral.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/jupiter-route-v2-pHQtHScG.js": {
+   "source": [
+    "web/lib/jupiter-route-v2.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/launch-instructions-DSRGqd8E.js": {
+   "source": [
+    "web/lib/launch-instructions.mjs",
+    "web/lib/launch-rules.mjs",
+    "web/vendor/bigint-buffer-js/index.cjs"
+   ],
+   "npmPackages": [
+    "@raydium-io/raydium-sdk-v2",
+    "@solana/buffer-layout-utils",
+    "@solana/codecs-core",
+    "@solana/codecs-data-structures",
+    "@solana/codecs-numbers",
+    "@solana/errors",
+    "@solana/spl-token",
+    "@solana/spl-token-group",
+    "axios",
+    "big.js",
+    "decimal.js",
+    "js-sha256",
+    "lodash",
+    "toformat"
+   ]
+  },
+  "/_next/static/chunks/layout-segment-context-ByailLRj.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/link-2-8W7Ifz_I.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/link-BLXNF9Zw.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/market-core-DfEhdSOH.js": {
+   "source": [
+    "web/lib/market-core.mjs",
+    "web/lib/rewards-market.mjs",
+    "web/lib/rewards-snapshot.mjs",
+    "web/lib/transfer-tax.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/nacl-fast-D_YsUAA5.js": {
+   "source": [],
+   "npmPackages": [
+    "tweetnacl"
+   ]
+  },
+  "/_next/static/chunks/navigation-errors-BC-YU5ky.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/networks-l5wpNbwY.js": {
+   "source": [
+    "web/lib/chain/networks.ts"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/official-artwork-CWiiss0i.js": {
+   "source": [
+    "web/lib/official-artwork.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/official-ca-refresh-Dbnw6dC1.js": {
+   "source": [
+    "web/lib/official-ca-refresh.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/platform-settings-BRV6nX_v.js": {
+   "source": [
+    "web/lib/finalized-official-inventory-identity.mjs",
+    "web/lib/launch-post-link.mjs",
+    "web/lib/metadata-publication.mjs",
+    "web/lib/mint-allocation-protocol.mjs",
+    "web/lib/official-launch-policy.mjs",
+    "web/lib/official-launch-readiness.mjs",
+    "web/lib/platform-policy.mjs",
+    "web/lib/platform-settings.mjs",
+    "web/lib/public-rewards-phase.mjs",
+    "web/lib/release-scope.mjs",
+    "web/lib/rewards-policy.mjs",
+    "web/lib/token-website.mjs",
+    "web/lib/wallet-transaction-policy.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/previous-official-mints-DITpxH59.js": {
+   "source": [
+    "web/lib/previous-official-mints.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/protocol-headers-De2985Ry.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/public-creator-buy-CbObxDIQ.js": {
+   "source": [
+    "web/lib/public-creator-buy.mjs",
+    "web/lib/rewards-launch.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/public-sol-creator-buy-Dy3HmFU4.js": {
+   "source": [
+    "web/lib/official-creator-buy-quote.mjs",
+    "web/lib/public-sol-creator-buy.mjs",
+    "web/lib/sol-direct-route.mjs",
+    "web/lib/sol-route-lookup.mjs",
+    "web/lib/sol-route-scope.mjs",
+    "web/lib/sol-token-net-guard.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/public-zone-hq3NE5M7.js": {
+   "source": [
+    "web/lib/silo/public-zone.ts"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/query-DugiHe4Q.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/quote-assets-VDhmbwI0.js": {
+   "source": [
+    "web/lib/quote-assets.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/record-BGze3w87.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/refunder-tx-kQKlN2nw.js": {
+   "source": [
+    "web/lib/silo/atomic-swap/refunder-tx.mjs",
+    "web/lib/silo/atomic-swap/reverse-core.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/release-gate-CJXUtEZk.js": {
+   "source": [
+    "web/lib/silo/native-history.mjs",
+    "web/lib/silo/payment-journal.mjs",
+    "web/lib/silo/release-gate.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/repeat-Djju3rBF.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/reward-credit-illustration-Dcuek6SL.js": {
+   "source": [
+    "web/hooks/use-quote-prices.ts",
+    "web/lib/quote-price-client-store.mjs",
+    "web/lib/reward-credit-illustration.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/reward-credit-totals-DKYf2VGo.js": {
+   "source": [
+    "web/lib/reward-credit-totals.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/robinhood-mainnet-CqrgXu9s.js": {
+   "source": [
+    "web/lib/chain/robinhood-mainnet.ts"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/robinhood-testnet-RkwVoGJy.js": {
+   "source": [
+    "web/lib/chain/robinhood-testnet.ts"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/rotate-ccw-QibDWlki.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/search-h_zIQ0jW.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/share-2-7E1hUhqJ.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/shield-check-SlQue2Rx.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/silo-workspace-BD5N-C3s.js": {
+   "source": [
+    "web/components/silo-account-panel.tsx",
+    "web/components/silo-account-signing.tsx",
+    "web/components/silo-address-text.tsx",
+    "web/components/silo-amount-pad.tsx",
+    "web/components/silo-asset-card.tsx",
+    "web/components/silo-asset-icon.tsx",
+    "web/components/silo-atomic-panel.tsx",
+    "web/components/silo-atomic-pending-card.tsx",
+    "web/components/silo-atomic-reverse-panel.tsx",
+    "web/components/silo-backup-parts.tsx",
+    "web/components/silo-balance-visibility.tsx",
+    "web/components/silo-beta.tsx",
+    "web/components/silo-btc-zone.tsx",
+    "web/components/silo-cashout-privacy.tsx",
+    "web/components/silo-coin-picker.tsx",
+    "web/components/silo-conversion-panel.tsx",
+    "web/components/silo-conversion-solana-deposit.tsx",
+    "web/components/silo-custody-note.tsx",
+    "web/components/silo-device-unlock.tsx",
+    "web/components/silo-devnet-trade.tsx",
+    "web/components/silo-direct-jupiter-flow.tsx",
+    "web/components/silo-economics.tsx",
+    "web/components/silo-evm-send.tsx",
+    "web/components/silo-evm-zone.tsx",
+    "web/components/silo-gate-hero.tsx",
+    "web/components/silo-grainy.tsx",
+    "web/components/silo-hydrated.tsx",
+    "web/components/silo-inline-account-unlock.tsx",
+    "web/components/silo-jupiter-flow.tsx",
+    "web/components/silo-keyboard-fit.tsx",
+    "web/components/silo-keyboard-guard.tsx",
+    "web/components/silo-locked-deck.tsx",
+    "web/components/silo-managed-jupiter-flow.tsx",
+    "web/components/silo-moment.tsx",
+    "web/components/silo-money-animation.tsx",
+    "web/components/silo-move-private.tsx",
+    "web/components/silo-native-public-wallet.tsx",
+    "web/components/silo-native-workspace.tsx",
+    "web/components/silo-native-zone.tsx",
+    "web/components/silo-one-passphrase.tsx",
+    "web/components/silo-overview.tsx",
+    "web/components/silo-price.tsx",
+    "web/components/silo-receive-address.tsx",
+    "web/components/silo-release-checks.tsx",
+    "web/components/silo-saved-swap-activity.tsx",
+    "web/components/silo-secret-field.tsx",
+    "web/components/silo-send-screen.tsx",
+    "web/components/silo-shared-jupiter-flow.tsx",
+    "web/components/silo-shared-passphrase.tsx",
+    "web/components/silo-solana-activity.tsx",
+    "web/components/silo-solana-transfer.tsx",
+    "web/components/silo-swap-panel.tsx",
+    "web/components/silo-theme.tsx",
+    "web/components/silo-tokens.tsx",
+    "web/components/silo-unlock-home.tsx",
+    "web/components/silo-unlock-state.tsx",
+    "web/components/silo-workspace.tsx",
+    "web/components/silo-xmr-confirmations.tsx",
+    "web/components/silo-xmr-fee-estimate.tsx",
+    "web/components/silo-xmr-requests.tsx",
+    "web/lib/bounded-request-body.mjs",
+    "web/lib/silo-brand.ts",
+    "web/lib/silo/action-consent.mjs",
+    "web/lib/silo/address-groups.mjs",
+    "web/lib/silo/amount-pad.mjs",
+    "web/lib/silo/asset-look.mjs",
+    "web/lib/silo/atomic-driver.mjs",
+    "web/lib/silo/atomic-pending.mjs",
+    "web/lib/silo/atomic-reverse-driver.mjs",
+    "web/lib/silo/auto-reads.mjs",
+    "web/lib/silo/backup-budget.mjs",
+    "web/lib/silo/backup-reseal.mjs",
+    "web/lib/silo/backup-status.mjs",
+    "web/lib/silo/balance-visibility.mjs",
+    "web/lib/silo/beta-guard.mjs",
+    "web/lib/silo/beta-live-state.mjs",
+    "web/lib/silo/beta-terms.mjs",
+    "web/lib/silo/btc-client.mjs",
+    "web/lib/silo/btc-copy.mjs",
+    "web/lib/silo/btc-journal.mjs",
+    "web/lib/silo/btc-send.mjs",
+    "web/lib/silo/btc.mjs",
+    "web/lib/silo/cashout-privacy.mjs",
+    "web/lib/silo/conversion-attempt-meta.mjs",
+    "web/lib/silo/conversion-attempt.mjs",
+    "web/lib/silo/conversion-deposit-meta.mjs",
+    "web/lib/silo/conversion-identity.mjs",
+    "web/lib/silo/conversion-rate.mjs",
+    "web/lib/silo/conversion-recovery.mjs",
+    "web/lib/silo/conversion-ui.mjs",
+    "web/lib/silo/crosschain-deposit.mjs",
+    "web/lib/silo/crosschain-order.mjs",
+    "web/lib/silo/crosschain-store.mjs",
+    "web/lib/silo/device-unlock.mjs",
+    "web/lib/silo/devnet-trade/cpmm.mjs",
+    "web/lib/silo/devnet-trade/flow.mjs",
+    "web/lib/silo/evm-attempt.mjs",
+    "web/lib/silo/evm-cap.mjs",
+    "web/lib/silo/evm-send-ui.mjs",
+    "web/lib/silo/evm-transfer.mjs",
+    "web/lib/silo/evm.mjs",
+    "web/lib/silo/failure-reason.mjs",
+    "web/lib/silo/get-xmr-handoff.mjs",
+    "web/lib/silo/grain-rewards-state.mjs",
+    "web/lib/silo/grainy-content.mjs",
+    "web/lib/silo/idle-lock.mjs",
+    "web/lib/silo/jupiter-bounds.mjs",
+    "web/lib/silo/jupiter-client-flow.mjs",
+    "web/lib/silo/jupiter-direct-acceptance.mjs",
+    "web/lib/silo/jupiter-direct-client-flow.mjs",
+    "web/lib/silo/jupiter-direct-compact-context.mjs",
+    "web/lib/silo/jupiter-direct-historical.mjs",
+    "web/lib/silo/jupiter-direct-journal.mjs",
+    "web/lib/silo/jupiter-direct-receipt-broker.mjs",
+    "web/lib/silo/jupiter-direct-same-origin.mjs",
+    "web/lib/silo/jupiter-execution-service.mjs",
+    "web/lib/silo/jupiter-historical-terms.mjs",
+    "web/lib/silo/jupiter-journal.mjs",
+    "web/lib/silo/jupiter-managed-acceptance.mjs",
+    "web/lib/silo/jupiter-managed-client-flow.mjs",
+    "web/lib/silo/jupiter-managed-journal.mjs",
+    "web/lib/silo/jupiter-managed-unavailable.mjs",
+    "web/lib/silo/jupiter-mint-policy.mjs",
+    "web/lib/silo/jupiter-provider-v2.mjs",
+    "web/lib/silo/jupiter-shared-acceptance.mjs",
+    "web/lib/silo/jupiter-shared-client-flow.mjs",
+    "web/lib/silo/jupiter-shared-compact-context.mjs",
+    "web/lib/silo/jupiter-shared-historical.mjs",
+    "web/lib/silo/jupiter-shared-journal.mjs",
+    "web/lib/silo/jupiter-shared-receipt-broker.mjs",
+    "web/lib/silo/jupiter-shared-route-v2.mjs",
+    "web/lib/silo/jupiter-shared-same-origin.mjs",
+    "web/lib/silo/jupiter-target-roster.mjs",
+    "web/lib/silo/jupiter-target-search.mjs",
+    "web/lib/silo/jupiter-token-search.mjs",
+    "web/lib/silo/known-tokens.mjs",
+    "web/lib/silo/large-share.mjs",
+    "web/lib/silo/legacy-envelopes.mjs",
+    "web/lib/silo/local-store.mjs",
+    "web/lib/silo/managed-expiry-proof.mjs",
+    "web/lib/silo/managed-unresolved-journal.mjs",
+    "web/lib/silo/money-animation.mjs",
+    "web/lib/silo/move-private.mjs",
+    "web/lib/silo/native-capabilities.mjs",
+    "web/lib/silo/native-keyring-store.mjs",
+    "web/lib/silo/native-keyring-testnet.held.mjs",
+    "web/lib/silo/native-keyring.mjs",
+    "web/lib/silo/native-origin.mjs",
+    "web/lib/silo/native-solana-provider.ts",
+    "web/lib/silo/native-submission-presentation.mjs",
+    "web/lib/silo/native-transfer-costs.mjs",
+    "web/lib/silo/new-receive.mjs",
+    "web/lib/silo/offline-recovery.mjs",
+    "web/lib/silo/one-passphrase-flow.mjs",
+    "web/lib/silo/one-unlock.mjs",
+    "web/lib/silo/passphrase-strength.mjs",
+    "web/lib/silo/positive-history-recovery.mjs",
+    "web/lib/silo/quote-age.mjs",
+    "web/lib/silo/receive-issuance.mjs",
+    "web/lib/silo/receive-qr.mjs",
+    "web/lib/silo/record-runner.mjs",
+    "web/lib/silo/release-probe-result.mjs",
+    "web/lib/silo/session-lock.mjs",
+    "web/lib/silo/solana-amount.mjs",
+    "web/lib/silo/solana-transfer-acceptance.mjs",
+    "web/lib/silo/solana-transfer-client-flow.mjs",
+    "web/lib/silo/solana-transfer-journal.mjs",
+    "web/lib/silo/solana-transfer-review-contract.mjs",
+    "web/lib/silo/solana-transfer-review.mjs",
+    "web/lib/silo/swap-cost-summary.mjs",
+    "web/lib/silo/swap-refusal.mjs",
+    "web/lib/silo/swap-token-notice.mjs",
+    "web/lib/silo/sync/authority.mjs",
+    "web/lib/silo/sync/browser-verifiers.mjs",
+    "web/lib/silo/sync/client.mjs",
+    "web/lib/silo/sync/codec.mjs",
+    "web/lib/silo/sync/combined-wallets.mjs",
+    "web/lib/silo/sync/coverage.mjs",
+    "web/lib/silo/sync/enroll.mjs",
+    "web/lib/silo/sync/journal-bridge.mjs",
+    "web/lib/silo/sync/legacy-journals.mjs",
+    "web/lib/silo/sync/local-store.mjs",
+    "web/lib/silo/sync/manifest.mjs",
+    "web/lib/silo/sync/merge.mjs",
+    "web/lib/silo/sync/native-wallet-restore.mjs",
+    "web/lib/silo/sync/native-wallets.mjs",
+    "web/lib/silo/sync/network-profile.mjs",
+    "web/lib/silo/sync/objects.mjs",
+    "web/lib/silo/sync/outcome.mjs",
+    "web/lib/silo/sync/product-account.mjs",
+    "web/lib/silo/sync/readers-variants.mjs",
+    "web/lib/silo/sync/readers.mjs",
+    "web/lib/silo/sync/signed-request.mjs",
+    "web/lib/silo/sync/signing-gate.mjs",
+    "web/lib/silo/sync/solana-history.mjs",
+    "web/lib/silo/sync/vault-identity.mjs",
+    "web/lib/silo/sync/vault-keys.mjs",
+    "web/lib/silo/sync/xmr-intent.mjs",
+    "web/lib/silo/unified-backup.mjs",
+    "web/lib/silo/xmr-account-actions.mjs",
+    "web/lib/silo/xmr-watch-pool.mjs",
+    "web/lib/theme/theme-core.mjs",
+    "web/lib/trading/silo-connection.mjs"
+   ],
+   "npmPackages": [
+    "@noble/hashes",
+    "@scure/base",
+    "@scure/bip32",
+    "@scure/bip39",
+    "@scure/btc-signer",
+    "lucide-react",
+    "micro-packed",
+    "qrcode-generator",
+    "viem"
+   ]
+  },
+  "/_next/static/chunks/site-config-s3rn5BmO.js": {
+   "source": [
+    "web/lib/monero-record-status.mjs",
+    "web/lib/site-config.ts"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/site-footer-BrIYc1eU.js": {
+   "source": [
+    "web/components/site-footer.tsx"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/site-header-BCS2Ekth.js": {
+   "source": [
+    "web/components/discord-link.tsx",
+    "web/components/github-link.tsx",
+    "web/components/site-header.tsx",
+    "web/components/x-link.tsx",
+    "web/lib/grain-family.ts"
+   ],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/site-wallet-DK5aKCG8.js": {
+   "source": [
+    "web/components/open-in-wallet.tsx",
+    "web/components/site-wallet.tsx",
+    "web/components/ui/dialog.tsx",
+    "web/components/wallet-logos.tsx",
+    "web/lib/chain/evm-transaction-safety.ts",
+    "web/lib/chain/evm-wallet-adapter.ts",
+    "web/lib/site-wallet-client.ts",
+    "web/lib/wallet-picker.mjs"
+   ],
+   "npmPackages": [
+    "@radix-ui/react-compose-refs",
+    "@radix-ui/react-dialog",
+    "@radix-ui/react-slot",
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/site-wallet-session-Di9zLuoi.js": {
+   "source": [
+    "web/lib/site-wallet-session.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/sol-9fuWIAs9.js": {
+   "source": [
+    "web/lib/silo/atomic-swap/keys.mjs",
+    "web/lib/silo/atomic-swap/secret-send.mjs",
+    "web/lib/silo/atomic-swap/sol.mjs"
+   ],
+   "npmPackages": [
+    "@noble/hashes"
+   ]
+  },
+  "/_next/static/chunks/sol-payment-assets-P9hj3NWV.js": {
+   "source": [
+    "web/lib/sol-payment-assets.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/sol-route-lookup-policy-Bej_RbR1.js": {
+   "source": [
+    "web/lib/sol-route-lookup-policy.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/solana-transfer-dAZQMTkN.js": {
+   "source": [
+    "web/lib/silo/solana-genesis.mjs",
+    "web/lib/silo/solana-transfer.mjs"
+   ],
+   "npmPackages": [
+    "@solana/spl-token"
+   ]
+  },
+  "/_next/static/chunks/streamed-icons-iR0iXXuI.js": {
+   "source": [],
+   "npmPackages": [
+    "vinext"
+   ]
+  },
+  "/_next/static/chunks/sun-B2gxKsgU.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/swap-core-BlKckcVJ.js": {
+   "source": [
+    "web/lib/silo/atomic-swap/swap-core.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/theme-toggle-BY-dCABi.js": {
+   "source": [
+    "web/components/theme-toggle.tsx"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/token-units-BBdNbvVc.js": {
+   "source": [
+    "web/lib/token-units.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/use-site-wallet-uuNnsqax.js": {
+   "source": [
+    "web/components/use-site-wallet.ts"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/utils-B6KiDbIe.js": {
+   "source": [
+    "web/lib/utils.ts"
+   ],
+   "npmPackages": [
+    "clsx",
+    "tailwind-merge"
+   ]
+  },
+  "/_next/static/chunks/wallet-7py_jCr9.js": {
+   "source": [
+    "web/lib/wallet-adapters.mjs",
+    "web/lib/wallet.ts"
+   ],
+   "npmPackages": [
+    "@wallet-standard/app"
+   ]
+  },
+  "/_next/static/chunks/wallet-connection-intent-krktPsCD.js": {
+   "source": [
+    "web/lib/wallet-connection-intent.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/wallet-DMBMlsfl.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/wallet-session-BGZ1qt3K.js": {
+   "source": [
+    "web/lib/chain/wallet-session.ts"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/wallet-session-CVrzJ3YG.js": {
+   "source": [
+    "web/lib/wallet-session.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/x-C5SjbkuM.js": {
+   "source": [],
+   "npmPackages": [
+    "lucide-react"
+   ]
+  },
+  "/_next/static/chunks/xmr-adapter-D3LW4Gdt.js": {
+   "source": [
+    "web/lib/silo/xmr-adapter.mjs",
+    "web/lib/silo/xmr-address-review.mjs",
+    "web/lib/silo/xmr-node-network.mjs",
+    "web/lib/silo/xmr-unsigned-fee-read.mjs",
+    "web/lib/silo/xmr-unsigned-fee.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/xmr-request-DLIwbHI3.js": {
+   "source": [
+    "web/lib/silo/xmr-confirmations.mjs",
+    "web/lib/silo/xmr-request.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/zec-adapter-C8r5k7gv.js": {
+   "source": [
+    "web/lib/silo/zec-adapter.mjs",
+    "web/lib/silo/zec-balances.mjs",
+    "web/lib/silo/zec-legacy.mjs"
+   ],
+   "npmPackages": []
+  },
+  "/_next/static/chunks/zec-browser-sdk-CIGytkYo.js": {
+   "source": [
+    "web/lib/silo/zec-browser-sdk.mjs",
+    "web/lib/silo/zec-sdk-manifest.json"
+   ],
+   "npmPackages": []
+  }
+ }
+}

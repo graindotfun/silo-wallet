@@ -96,7 +96,7 @@ export function createProductAccountController({binding,legacyStorage,newWalletR
   catch{assert(revision);notify({vaultExistence:'unknown'});}
   return state.vaultExistence;
  }
- function newWalletPermission(){return newWalletReviewEnabled===true&&reviewedOrigin==='https://grain-silo.omer-034.workers.dev'&&currentOrigin()===reviewedOrigin;}
+ function newWalletPermission(){return newWalletReviewEnabled===true&&reviewedOrigin==='https://review-retired.invalid'&&currentOrigin()===reviewedOrigin;}
  async function localEncryptedBackup(chain,revision){
   if(chain!=='solana')throw held();const store=await openStore(chain);temporary.add(store);
   try{assert(revision);const envelope=await store.read();assert(revision);if(!envelope)throw Error('No staged encrypted wallet exists.');return assertNativeSyncBackup({schema:'silo-sync-native-public-v1',wallets:[envelope]},{network:profile.native}).wallets[0];}

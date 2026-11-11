@@ -18,3 +18,17 @@ test('wrong passphrase, foreign record and malformed encrypted recovery refuse w
 test('retired conversion journal refuses queued saves and never reopens',async()=>{
  const journal=await createSiloConversionRecovery({passphrase});const pending=journal.remember('synthetic-late');journal.close();await assert.rejects(pending,/locked/);await assert.rejects(journal.backup(),/locked/);assert.throws(()=>journal.handles(),/locked/);
 });
+test('r5: an ACTIVE SOL -> XMR swap record with its secrets is in the wallet backup, restores intact, and is never plaintext in the backup',async()=>{
+ const {newReverseRecord}=await import('../lib/silo/atomic-swap/bob-flow.mjs');
+ const swapId='ab'.repeat(32);
+ const quote={direction:'sol-xmr',quoteId:'q',swapId,xmrAtomic:'1000000000',lamports:1,solPerXmr:7,spreadBps:200,A:'aa'.repeat(32),proofA:{R:'00',s:'00'},claimer:'11111111111111111111111111111111',expiresAt:9999999999};
+ let record;try{record=newReverseRecord({owner:'11111111111111111111111111111112',quote,network:'devnet'});}catch{record={kind:'silo-atomic-reverse-v1',swapId,b:'cd'.repeat(32),v:'ef'.repeat(32),status:'locking'};}
+ record={...record,swapId,status:'locking',lockAttemptAt:1700000000};
+ const journal=await createSiloConversionRecovery({passphrase});await journal.saveAtomic(record);
+ const snapshot=await journal.backup(),text=JSON.stringify(snapshot);
+ assert.ok(!text.includes(record.b)&&!text.includes(record.v),'secrets are encrypted inside the backup');
+ const restored=await createSiloConversionRecovery({passphrase,snapshot});
+ const back=restored.atomicRecords().find(r=>r.swapId===swapId);
+ assert.equal(back.b,record.b);assert.equal(back.v,record.v);assert.equal(back.status,'locking');assert.equal(back.lockAttemptAt,1700000000);
+ await assert.rejects(createSiloConversionRecovery({passphrase:'a different passphrase for the wrong restore',snapshot}));
+});
