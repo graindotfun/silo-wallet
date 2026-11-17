@@ -268,3 +268,4 @@ html[data-theme="dark"] .public-tape .is-sell .ledger-side i{background:var(--se
 
 /* A failed RH verification stays visible without opening an actionable swap sheet. */
 @media(max-width:760px){.token-market-page[data-network="robinhood"] .rh-verification-pending{position:static;transform:none;visibility:visible;max-height:none;border-radius:14px!important;box-shadow:none}}
+html[data-theme="light"] .market-live-status[data-live]{color:var(--grain-orange-ink)}

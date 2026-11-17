@@ -17,12 +17,12 @@ test('brand colours only for verified assets; a fake "USDC" stays cream; wXMR is
  assert.equal(siloChainLook(8453).key,'base');assert.equal(siloChainLook(999),SILO_FALLBACK_LOOK);
  assert.equal(SILO_ASSET_LOOKS.xmr.fill,'#ff6600');assert.notEqual(SILO_ASSET_LOOKS.grain.fill,'#ff6600','GRAIN never reads as Monero');
 });
-test('Home builds every card from the registry, Monero first, and marks unverified tokens in the card name',()=>{
+// 10 Nov 2026 (owner, direction C): Monero and Solana are plain ledger rows on Home (tests/silo-home-move.test.mjs); token and
+// other-network cards still take their look from the registry.
+test('Home builds every remaining card from the registry, Monero row first, and marks unverified tokens in the card name',()=>{
  const overview=readFileSync(new URL('../components/silo-overview.tsx',import.meta.url),'utf8');
- assert.match(overview,/look=\{xmrOff\?SILO_FALLBACK_LOOK:SILO_ASSET_LOOKS\.xmr\}/);
- assert.match(overview,/look=\{SILO_ASSET_LOOKS\.sol\}/);
  assert.match(overview,/look=siloAssetLook\(symbol,verified\)/);
  assert.match(overview,/look=\{siloChainLook\(evm\.chainId\)\}/);
  assert.match(overview,/Unverified · not official \$\{label\.imitates\}/);
- assert.ok(overview.indexOf('<SiloAssetCard id="xmr"')<overview.indexOf('<SiloAssetCard id="sol"'));
+ assert.ok(overview.indexOf('{xmrRow}{solRow}')>0);
 });

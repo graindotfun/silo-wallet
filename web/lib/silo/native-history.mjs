@@ -24,7 +24,9 @@ export function xmrHistory(rows,checked=false,selfTransfers=new Set()){
   const confirmed=tx.getIsConfirmed?.(),failed=tx.getIsFailed?.();if((confirmed!==undefined&&typeof confirmed!=='boolean')||(failed!==undefined&&typeof failed!=='boolean'))throw Error('History status was not checked.');
   const confirmations=height(tx.getNumConfirmations?.()),mined=confirmed===true,minedHeight=height(tx.getHeight?.());if(mined&&(minedHeight===null||confirmations===null||confirmations===0))throw Error('History mining state was not checked.');
   const outgoing=atomic(tx.getOutgoingAmount?.(),XMR_MAX),selfTransfer=outgoing!==null&&(outgoing==='0'||selfTransfers.has(tx.getHash()));
-  return {id:tx.getHash(),height:minedHeight,incoming:atomic(tx.getIncomingAmount?.(),XMR_MAX),outgoing,selfTransfer,fee:atomic(tx.getFee?.(),XMR_MAX),balanceDelta:null,confirmations:checked&&confirmed!==undefined?confirmations:null,status:!checked||confirmed===undefined?'not checked':failed===true?'reported-failed':mined&&confirmations!==null&&confirmations>=10?'confirmed':'pending'};
+  // The mined block's time in seconds (the wallet already holds it); null when unmined or not a plain positive integer. Display only: it orders Activity rows.
+  const blockSeconds=mined?tx.getBlock?.()?.getTimestamp?.():null,timestamp=Number.isSafeInteger(blockSeconds)&&blockSeconds>0?blockSeconds:null;
+  return {id:tx.getHash(),height:minedHeight,timestamp,incoming:atomic(tx.getIncomingAmount?.(),XMR_MAX),outgoing,selfTransfer,fee:atomic(tx.getFee?.(),XMR_MAX),balanceDelta:null,confirmations:checked&&confirmed!==undefined?confirmations:null,status:!checked||confirmed===undefined?'not checked':failed===true?'reported-failed':mined&&confirmations!==null&&confirmations>=10?'confirmed':'pending'};
  })};
 }
 /** ZEC account balance change is not an inferred sent/received amount. */

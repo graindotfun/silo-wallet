@@ -147,7 +147,7 @@ export function SiloEvmSend({session,chain,sending=true}:{session:SiloNativeSess
    <label>To<input value={to} onChange={event=>setTo(event.target.value.trim())} placeholder="0x…" autoComplete="off" spellCheck={false} disabled={step==='checking'}/></label>
    <label>Amount ({chain.symbol})<input value={amount} onChange={event=>setAmount(event.target.value.trim())} inputMode="decimal" placeholder="0.0" autoComplete="off" disabled={step==='checking'}/></label>
    <p className="exposure-note">Only send to a normal wallet address on {chain.name}. Sends to smart contracts are not supported. Beta: small amounts only.</p>
-   <button className="silo-primary" disabled={step==='checking'||!to||!amount} onClick={()=>void review()}>{step==='checking'?'Checking…':'Review'}</button>
+   <button className="silo-primary" disabled={step==='checking'||!to||!amount} aria-busy={step==='checking'||undefined} onClick={()=>void review()}>{step==='checking'?'Checking…':'Review'}</button>
   </>}
   {(step==='review'||step==='signing')&&prepared&&<>
    <dl className="silo-disclosure">
@@ -162,13 +162,13 @@ export function SiloEvmSend({session,chain,sending=true}:{session:SiloNativeSess
    </dl>
    <p className="exposure-note">Silo adds no fee. Check the address: a transfer cannot be undone. Beta limit ${prepared.capUsd} per transfer, counting the amount plus the largest expected fee. Silo checks it again when the signed transfer is sent.</p>
    <p className="exposure-note">Dollar amounts are estimates at the current market price (about a minute old) and can differ when the transfer is confirmed. The execution fee is capped in the network&apos;s own units: at most {prepared.maxFeeGwei??'?'} gwei per gas, 21,000 gas.{prepared.l1FeeWei&&prepared.l1FeeWei!=='0'?' The Ethereum data fee is not capped by the transfer itself.':''}</p>
-   <div className="exposure-actions"><button className="silo-primary" disabled={step==='signing'} onClick={()=>void confirm()}>{step==='signing'?'Sending…':'Confirm and send'}</button><button disabled={step==='signing'} onClick={again}>Cancel</button></div>
+   <div className="exposure-actions"><button className="silo-primary" disabled={step==='signing'} aria-busy={step==='signing'||undefined} onClick={()=>void confirm()}>{step==='signing'?'Sending…':'Confirm and send'}</button><button disabled={step==='signing'} onClick={again}>Cancel</button></div>
   </>}
   {step==='resolve'&&<>
    {attempt
     ?<><p role="status"><strong>A transfer is not resolved yet.</strong> Silo could not confirm whether it reached the network. It may still arrive. You cannot start another payment until this one is resolved, so a second payment cannot start by mistake. This record is kept in this browser only.</p>
      <p className="exposure-note">Transaction: <code>{attempt.hash}</code>{link&&<> · <a href={link} target="_blank" rel="noopener noreferrer">View on explorer</a></>}</p>
-     <div className="exposure-actions"><button className="silo-primary" disabled={busy} onClick={()=>void check()}>{busy?'Checking…':'Check status'}</button>{sending&&<button disabled={busy} onClick={()=>void resend()}>Send the same transfer again</button>}</div>
+     <div className="exposure-actions"><button className="silo-primary" disabled={busy} aria-busy={busy||undefined} onClick={()=>void check()}>{busy?'Checking…':'Check status'}</button>{sending&&<button disabled={busy} aria-busy={busy||undefined} onClick={()=>void resend()}>Send the same transfer again</button>}</div>
      {clearPanel}</>
     :corrupt
      ?<><p role="status"><strong>A saved transfer record cannot be read.</strong> Sending is paused for this wallet. The record may belong to a transfer that is still on its way, so look at this wallet on a block explorer first. If you are sure nothing is pending, you can clear it: the unreadable text is saved whole in a list in this browser before it is removed.</p>{clearPanel}</>
@@ -184,7 +184,7 @@ export function SiloEvmSend({session,chain,sending=true}:{session:SiloNativeSess
       :result?.mined
        ?<p role="status"><strong>In a block, confirming</strong> ({result.confirmations??0} of {result.required??'several'}).</p>
        :<p role="status"><strong>Submitted.</strong> The network accepted it; it is not confirmed yet. Sending stays paused until it is final.</p>}
-   {attempt&&<button disabled={busy} onClick={()=>void checkResult()}>{busy?'Checking…':'Check result'}</button>}
+   {attempt&&<button disabled={busy} aria-busy={busy||undefined} onClick={()=>void checkResult()}>{busy?'Checking…':'Check result'}</button>}
    <p className="exposure-note">Transaction: <code>{sentHash}</code>{link&&<> · <a href={link} target="_blank" rel="noopener noreferrer">View on explorer</a></>}</p>
    {attempt?<>{sending&&<p className="exposure-note">Another payment can start once this one is final.</p>}{clearPanel}</>:<button onClick={again}>Send another</button>}
   </>}

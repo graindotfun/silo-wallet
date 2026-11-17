@@ -3,8 +3,11 @@ import {sessionRpcFetch} from '@/lib/browser-rpc-session.mjs';
 import {useCallback,useEffect,useRef,useState,useSyncExternalStore} from 'react';
 import {atomicIdlePhase,atomicRateText,atomicRecordActive,atomicSendBy,atomicTargetConfirmations,createAtomicDriver,ATOMIC_POLL_MS} from '@/lib/silo/atomic-driver.mjs';
 import {SiloAssetIcon} from '@/components/silo-asset-icon';
+import {SiloConfirmMeter,SiloWaitBar,SiloWaitDot} from '@/components/silo-wait';
 import {publishAtomicPending} from '@/lib/silo/atomic-pending.mjs';
+import {atomicForwardStatus,atomicForwardFinal} from '@/lib/silo/atomic-status-copy.mjs';
 import {siloUnits} from '@/lib/silo/amounts.mjs';
+import {ATOMIC_DIRECTION_TEXT,atomicChipAmounts,atomicOverCap,atomicQuoteBody} from '@/lib/silo/atomic-amount.mjs';
 /** "Swap XMR to SOL, no bridge (beta)". The user sends XMR to a joint Monero address; the maker has already locked SOL in a Solana program;
  * the claim reveals the user's secret on chain and delivers the SOL to her own Silo Solana address. If the maker refunds, the revealed
  * maker secret lets her recover the XMR. This panel NEVER signs with the user's Solana wallet key: the only transaction is the claim,
@@ -17,7 +20,6 @@ type View={record:SwapRecord;phase:string;confirmations:number|null;notice?:stri
 // Round-3 design (owner-approved for preparation, 4 Nov 2026; HANDOFF-SPEC.md). Every number on this screen comes from the live
 // maker quote (solPerXmr, spreadBps, lamports, gasLamports, priceSource) or the swap record; CLAIM_FEE is the protocol constant.
 const CLAIM_FEE=5000,DEADLINE_MARGIN_S=300;
-const FINAL_TEXT:Record<string,string>={'sol-received':'Done. Your SOL arrived at your Silo Solana address.','xmr-recovered':'The claim deadline passed and the maker refunded the SOL lock. No SOL arrived for this swap.',cancelled:'Cancelled before any XMR was sent. Nothing was spent.','quote-expired':'This offer expired before any XMR was sent. Nothing was spent.','bad-terms':'The on-chain lock did not match your offer, so no XMR was sent. Nothing was spent.','too-late-to-lock':'It was too late to lock XMR safely, so none was sent. Nothing was spent.','maker-answer-rejected':'The offer did not check out, so no XMR was sent. Nothing was spent.'};
 type Now={tone:'wait'|'act'|'warn';kicker:string;title:string;body:string;meter?:number;facts?:[string,string][];next:string;notice?:string};
 type Stop={id:string;label:string;detail?:string;state:'done'|'now'|'next'|'stop'};
 const KEEP:[string,string]=['Needs','Silo open with Monero unlocked'];
@@ -94,7 +96,7 @@ export function SiloAtomicPanel({enabled=false,network='mainnet',programId=null,
  const solanaReady=typeof claimer==='string'&&claimer.length>0,walletReady=Boolean(bridge?.available);
  async function getQuote(){
   if(!amountValid||quoting)return;setQuoting(true);setError('');setQuote(null);
-  try{const result=await post('quote',{xmr:amount}) as SiloAtomicQuote;if(typeof result?.xmrAtomic!=='string'||!Number.isSafeInteger(result.lamports))throw Error('The quote could not be read.');setQuote(result);setClock(Date.now());}
+  try{const result=await post('quote',atomicQuoteBody(amount)) as SiloAtomicQuote;if(typeof result?.xmrAtomic!=='string'||!Number.isSafeInteger(result.lamports))throw Error('The quote could not be read.');setQuote(result);setClock(Date.now());}
   catch(failure){setError(failure instanceof Error&&(failure as {userFacing?:boolean}).userFacing?failure.message:'A quote is unavailable right now. Nothing was started.');}
   finally{setQuoting(false);}
  }
@@ -111,7 +113,9 @@ export function SiloAtomicPanel({enabled=false,network='mainnet',programId=null,
  const engaged=enabled&&(activeRecords.length>0||finished.length>0);
  useEffect(()=>{const app=root.current?.closest('.silo-app');if(!app)return undefined;if(engaged)app.setAttribute('data-sx-active','');else app.removeAttribute('data-sx-active');return()=>{app.removeAttribute('data-sx-active');};},[engaged]);
  // Home and Activity show a pending-swap card from this summary (lib/silo/atomic-pending.mjs). Empty while Silo is locked.
- const pendingKey=JSON.stringify(enabled?activeRecords.map(record=>{const t1=Number(record.t1);return {swapId:record.swapId,short:record.swapId.slice(0,4).toUpperCase(),phase:views[record.swapId]?.phase??atomicIdlePhase(record),xmr:xmrText(record.quote.xmrAtomic),sol:sol(atomicYouGetLamports(record.quote)),claimBy:Number.isSafeInteger(t1)?t1-DEADLINE_MARGIN_S:null,sendBy:atomicSendBy(record)};}):[]);
+ // Published even while this direction is switched off, so a kept record still shows (read-only) on Home and Activity (748-M2).
+ const liveOf=(record:SwapRecord)=>{const view=views[record.swapId],target=atomicTargetConfirmations(record),conf=Math.max(0,Math.min(target,Number.isFinite(view?.confirmations)?view?.confirmations as number:Number(record.xmrConfirmations??0)||0));return {confirmations:(view?.phase??atomicIdlePhase(record))==='confirming'?conf:null,confirmTarget:target};};
+ const pendingKey=JSON.stringify(activeRecords.map(record=>{const t1=Number(record.t1);return {...{swapId:record.swapId,short:record.swapId.slice(0,4).toUpperCase(),phase:views[record.swapId]?.phase??atomicIdlePhase(record),xmr:xmrText(record.quote.xmrAtomic),sol:sol(atomicYouGetLamports(record.quote)),claimBy:Number.isSafeInteger(t1)?t1-DEADLINE_MARGIN_S:null,sendBy:atomicSendBy(record)},...liveOf(record)};}));
  useEffect(()=>{publishAtomicPending(JSON.parse(pendingKey));},[pendingKey]);
  useEffect(()=>()=>publishAtomicPending([]),[]);
  const nowFor=(view:View):Now=>{
@@ -119,15 +123,16 @@ export function SiloAtomicPanel({enabled=false,network='mainnet',programId=null,
   const xmr=xmrText(record.quote.xmrAtomic),t1=Number(record.t1),claimBy=Number.isFinite(t1)?t1-DEADLINE_MARGIN_S:null,deadline:[string,string]=['Claim deadline',untilText(claimBy,clock)];
   const leave=`You can close this. Your SOL waits for you until ${clockText(claimBy)}. Open Silo to collect it.`;
   const n=Math.max(0,Math.min(target,Number.isFinite(view.confirmations)?view.confirmations as number:Number(record.xmrConfirmations??0)||0));
+  const plain=atomicForwardStatus(view.phase,{xmr,target,confirmations:n}),body=[plain.detail,plain.eta].filter(Boolean).join(' ');
   switch(view.phase){
-   case 'checking-lock':return {tone:'wait',kicker:'Now',title:'Checking the SOL lock on Solana',body:'The maker’s lock was found. Silo checks it on an independent Solana node before you send anything.',next:'You send the XMR once the check passes.'};
-   case 'awaiting-xmr':return {tone:'act',kicker:`Your step · send by ${untilText(atomicSendBy(record),clock)}`,title:`Send exactly\u00a0${xmr}\u00a0XMR`,body:'The payment is ready in your Monero wallet, with its network fee. Nothing is sent until you confirm there.',facts:[['Keep','Silo open until you confirm the payment']],next:`${target} Monero confirmations, then Silo claims your SOL. Once the XMR is sent you can close Silo.`};
-   case 'confirming':return {tone:'wait',kicker:'Monero confirmations',title:`${n} of ${target} confirmations`,meter:n,body:`Usually about ${target*2+15} minutes in all, sometimes longer. No action needed.`,facts:[deadline],next:`At ${target} confirmations Silo claims your SOL: right away while it is open, otherwise the next time you open and unlock it, before the claim deadline.`,notice:leave};
-   case 'claiming':return {tone:'wait',kicker:'Now',title:'Claiming your SOL',body:'The claim was sent to Solana. While Silo is open and unlocked it checks that the claim landed and retries.',facts:[deadline],next:'The SOL shows at your Silo Solana address.',notice:'You can close this, but nothing runs while Silo is closed or locked. If the claim has not landed yet, open and unlock Silo before the deadline so it can send it again.'};
-   case 'awaiting-refund':return {tone:'warn',kicker:`Claim deadline passed at ${clockText(Number.isFinite(t1)?t1-DEADLINE_MARGIN_S:null)}`,title:'Waiting for the maker’s refund',body:'The SOL can no longer be claimed. Your XMR comes back only if the maker returns the SOL lock and reveals its key part; expiry alone does not return it. Once the maker has, open and unlock Silo and it returns the XMR.',facts:[['Maker can refund from',(()=>{const from=view.refundFrom??(Number.isFinite(t1)?t1:null),left=leftText(from,clock);return left?`${clockText(from)} · in ${left.replace(' left','')}`:clockText(from);})()],KEEP],next:'Silo returns your XMR to your Monero wallet.'};
-   case 'recovering':return {tone:'wait',kicker:'Refund in progress',title:'Returning your XMR',body:'The maker refunded the SOL lock, so your XMR can come back. Silo does this while it is open with your Monero wallet unlocked; if you close or lock it, it continues only after you open and unlock it again.',facts:[KEEP],next:'The XMR shows in your Monero wallet after Monero confirmations.'};
-   case 'stopped':return {tone:'wait',kicker:'Now',title:'The maker cancelled this offer',body:'Do not send more XMR. While Silo is open and unlocked it watches for a late payment, then closes this swap.',facts:[KEEP],next:'If you did send XMR, it comes back only if the maker returns the SOL lock.'};
-   default:return {tone:'wait',kicker:'Now',title:'Waiting for the maker to lock the SOL',body:'No action needed. Nothing has left your wallet.',next:'You send the XMR once the lock is checked.'};
+   case 'checking-lock':return {tone:'wait',kicker:'Now',title:plain.headline,body:body,next:plain.nextAction};
+   case 'awaiting-xmr':return {tone:'act',kicker:`Your step · send by ${untilText(atomicSendBy(record),clock)}`,title:plain.headline,body:body,facts:[['Keep','Silo open until you confirm the payment']],next:plain.nextAction};
+   case 'confirming':return {tone:'wait',kicker:'Monero confirmations',title:plain.headline,meter:n,body:body,facts:[deadline],next:plain.nextAction,notice:leave};
+   case 'claiming':return {tone:'wait',kicker:'Now',title:plain.headline,body:body,facts:[deadline],next:plain.nextAction,notice:'You can close this, but nothing runs while Silo is closed or locked. If the claim has not landed yet, open and unlock Silo before the deadline so it can send it again.'};
+   case 'awaiting-refund':return {tone:'warn',kicker:`Claim deadline passed at ${clockText(Number.isFinite(t1)?t1-DEADLINE_MARGIN_S:null)}`,title:plain.headline,body:body,facts:[['Maker can refund from',(()=>{const from=view.refundFrom??(Number.isFinite(t1)?t1:null),left=leftText(from,clock);return left?`${clockText(from)} · in ${left.replace(' left','')}`:clockText(from);})()],KEEP],next:plain.nextAction};
+   case 'recovering':return {tone:'wait',kicker:'Refund in progress',title:plain.headline,body:body,facts:[KEEP],next:plain.nextAction};
+   case 'stopped':return {tone:'wait',kicker:'Now',title:plain.headline,body:body,facts:[KEEP],next:plain.nextAction};
+   default:return {tone:'wait',kicker:'Now',title:plain.headline,body:body,next:plain.nextAction};
   }
  };
  const refundPhase=(view:View)=>view.phase==='awaiting-refund'||view.phase==='recovering';
@@ -154,16 +159,17 @@ export function SiloAtomicPanel({enabled=false,network='mainnet',programId=null,
    <button type="button" className="sx-text" onClick={()=>clear(record.swapId)}>Start another swap</button></div>;
   if(final){const refunded=result==='xmr-recovered';return <div className="sx-main" key={record.swapId} data-swap={record.swapId.slice(0,8)} aria-label="Swap result">
    <p className="sx-sum"><span className="sx-id">Swap {id8}</span></p>
-   <div className="silo-inset sx-done sx-ended" data-now-card><p className="sx-word" role="status">{refunded?'XMR sent back':'Nothing was sent'}</p><p className="sx-done-amt sx-x">{refunded?<span className="sx-approx">≈</span>:null}{xmr}<span className="sx-unit">XMR</span></p><p className="sx-done-t">{refunded?'to your Monero wallet, less one Monero network fee. It shows there after Monero confirmations.':'still in your Monero wallet'}</p><p className="sx-fine">{FINAL_TEXT[result]??'This swap is finished.'}</p></div>
+   <div className="silo-inset sx-done sx-ended" data-now-card><p className="sx-word" role="status">{refunded?'XMR sent back':'Nothing was sent'}</p><p className="sx-done-amt sx-x">{refunded?<span className="sx-approx">≈</span>:null}{xmr}<span className="sx-unit">XMR</span></p><p className="sx-done-t">{refunded?'to your Monero wallet, less one Monero network fee. It shows there after Monero confirmations.':'still in your Monero wallet'}</p><p className="sx-fine">{atomicForwardFinal(result).detail}</p></div>
    <button type="button" className="silo-primary sx-go" data-primary onClick={()=>{if(refunded)location.hash='#wallets/xmr';else clear(record.swapId);}}>{refunded?'See your XMR':'Get a new offer'}</button>
    {refunded&&<button type="button" className="sx-go" onClick={()=>{location.hash='#activity/xmr';}}>View in Activity</button>}</div>;}
   const now=nowFor(view),stops=stopsFor(view),stepAt=Math.max(1,stops.findIndex(stop=>stop.state==='now')+1),done=stops.filter(stop=>stop.state==='done'||stop.state==='stop').length;
   return <div className="sx-main" key={record.swapId} data-swap={record.swapId.slice(0,8)} aria-label="Swap progress">
    <p className="sx-sum"><span className="sx-id">Swap {id8}</span>{refundPhase(view)?<span className="sx-amounts"><span className="sx-x">{xmr} XMR</span> <span className="sx-mute">· no SOL for this swap</span></span>:<span className="sx-flow sx-amounts"><span className="sx-x">{xmr} XMR</span><span aria-label="to">→</span><span className="sx-s">{youGet} SOL</span></span>}</p>
    <div className="sx-strip"><span className="sx-segs" aria-hidden="true">{stops.map(stop=><i key={stop.id} data-state={stop.state}/>)}</span><span className="sx-strip-t">Step {stepAt} of {stops.length}</span></div>
-   <div className={now.tone==='act'?'silo-window sx-now':'silo-inset sx-now'} data-zone={now.tone==='act'?'private':undefined} data-tone={now.tone} data-now-card>
-    <p className="sx-now-k">{now.kicker}</p><p className="sx-now-t" role="status">{now.title}</p>
-    {now.meter!==undefined&&<span className="sx-meter" role="meter" aria-valuemin={0} aria-valuemax={atomicTargetConfirmations(record)} aria-valuenow={now.meter} aria-label={`${now.meter} of ${atomicTargetConfirmations(record)} Monero confirmations`}>{Array.from({length:atomicTargetConfirmations(record)},(_,i)=><i key={i} data-on={i<(now.meter as number)?'':undefined} data-now={i===now.meter?'':undefined}/>)}</span>}
+   <div className={now.tone==='act'?'silo-window sx-now':'silo-inset sx-now'} data-zone={now.tone==='act'?'private':undefined} data-wait={now.tone==='wait'?'':undefined} aria-busy={now.tone==='wait'?true:undefined} data-tone={now.tone} data-now-card>
+    {now.tone==='wait'&&<SiloWaitBar/>}
+    <p className="sx-now-k">{now.kicker}</p><p className="sx-now-t" role="status">{now.tone==='wait'&&<SiloWaitDot/>}{now.title}</p>
+    {now.meter!==undefined&&<SiloConfirmMeter className="sx-meter silo-wait-meter" value={now.meter} target={atomicTargetConfirmations(record)} label={`${now.meter} of ${atomicTargetConfirmations(record)} Monero confirmations`}/>}
     <p className="sx-now-b">{now.body}</p>
     {now.tone==='act'&&<button type="button" className="silo-primary sx-go" data-primary onClick={()=>{location.hash='#wallets/xmr';}}>Review in Monero wallet</button>}
     {view.resumedPhase&&view.resumedPhase===view.phase&&<p className="sx-now-n">Picked up where it left off. The deadline still applies.</p>}
@@ -187,19 +193,24 @@ export function SiloAtomicPanel({enabled=false,network='mainnet',programId=null,
   {!solanaReady&&<p className="sx-notice" role="status">Open your Silo Solana wallet first. The SOL arrives there.</p>}
   {!walletReady&&<p className="sx-notice" role="status">Your Monero wallet is open but not ready to send yet (Wallets, then Monero). Saved swaps continue as soon as it is.</p>}
   {shown.length===0&&<div className="sx-main">
+   <p className="sx-lead" data-line="what">{ATOMIC_DIRECTION_TEXT['xmr-sol'].lead}</p>
    <div className="sx-pair">
-    <div className="silo-window sx-leg" data-zone="private"><div className="sx-leg-head"><span>You send</span><span id="sx-cap">{capXmr?`Max ${capXmr} XMR in the beta`:'XMR'}</span></div>
-     <div className="sx-leg-row"><label className="sx-amount">Amount in XMR<input inputMode="decimal" enterKeyHint="done" data-amount-pad="" data-decimals={12} data-symbol="XMR" placeholder="0" value={amount} size={Math.max(1,(amount||'0').length)} aria-describedby="sx-cap" disabled={busy||quoting} onChange={event=>{setAmount(event.target.value.trim());setQuote(null);setError('');}}/><span className="sx-unit" aria-hidden="true">XMR</span></label><SiloAssetIcon asset="xmr"/></div></div>
-    <p className={`sx-rate${quoted?'':' sx-rate-empty'}`}>{quoted?<><span>Market 1 XMR ≈ <b>{atomicRateText(q.solPerXmr)} SOL</b></span><span className="sx-rate-t" role="timer" aria-label={`Offer valid for ${countdown(q.expiresAt-clock/1000)}`}>{countdown(q.expiresAt-clock/1000)}</span></>:expired?<span role="status">Offer expired. Nothing was started.</span>:'Rate after you get an offer'}</p>
+    <div className="silo-window sx-leg sx-input" data-zone="private"><div className="sx-leg-head"><span id="sx-amount-label">How much XMR do you want to send</span></div>
+     <div className="sx-leg-row"><label className="sx-amount"><span className="sx-vh">How much XMR do you want to send</span><input inputMode="decimal" enterKeyHint="done" data-amount-pad="" data-decimals={12} data-symbol="XMR" placeholder="0" value={amount} size={Math.max(1,(amount||'0').length)} aria-describedby="sx-cap" disabled={busy||quoting} onChange={event=>{setAmount(event.target.value.trim());setQuote(null);setError('');}}/><span className="sx-unit" aria-hidden="true">XMR</span></label><SiloAssetIcon asset="xmr"/></div>
+     <div className="sx-chips" role="group" aria-label="Quick amounts">{atomicChipAmounts(capXmr).map(value=><button key={value} type="button" className="sx-chip" data-on={amount===value?'':undefined} disabled={busy||quoting} onClick={()=>{setAmount(value);setQuote(null);setError('');}}>{value}</button>)}</div>
+     <p id="sx-cap" className="sx-cap" data-line="cap" data-over={atomicOverCap(amount,capXmr)?'':undefined}>{capXmr?`Max ${capXmr} XMR per swap in the beta.`:'Small amounts only in the beta.'}</p></div>
+    <div className={`sx-leg sx-get${quoted?' sx-quoted':''}`}><div className="sx-leg-head"><span>You get</span><span>{quoted?`After the ${spread}% maker spread`:'In your Silo Solana wallet'}</span></div>
+     <div className="sx-leg-row">{quoted?<p className="sx-big" aria-label={`${sol(atomicYouGetLamports(q))} SOL`}>{sol(atomicYouGetLamports(q))}<span className="sx-unit">SOL</span></p>:<p className="sx-est">You will see the exact SOL amount in the offer.</p>}<SiloAssetIcon asset="sol"/></div></div>
+    <p className="sx-rate">{quoted?<><span>Market 1 XMR ≈ <b>{atomicRateText(q.solPerXmr)} SOL</b></span><span className="sx-rate-t" role="timer" aria-label={`Offer valid for ${countdown(q.expiresAt-clock/1000)}`}>Valid {countdown(q.expiresAt-clock/1000)}</span></>:expired?<span role="status">Offer expired. Nothing was started.</span>:'Rate shown after you get an offer.'}</p>
     {quoted&&<p className="sx-rate sx-fee-line">{spread}% spread{gas?` + ${sol(gas)} SOL gas`:''}</p>}
-    <div className={`sx-leg sx-get${quoted?' sx-quoted':''}`}><div className="sx-leg-head"><span>You get</span><span>{quoted?`After the ${spread}% maker spread`:'To your Silo Solana address'}</span></div>
-     <div className="sx-leg-row">{quoted?<p className="sx-big" aria-label={`${sol(atomicYouGetLamports(q))} SOL`}>{sol(atomicYouGetLamports(q))}<span className="sx-unit">SOL</span></p>:<p className="sx-big sx-none" aria-label="Not quoted yet">–<span className="sx-unit">SOL</span></p>}<SiloAssetIcon asset="sol"/></div></div>
    </div>
-   {quoted?<button type="button" className="silo-primary sx-go" data-primary disabled={busy||!solanaReady||!walletReady} onClick={()=>void swap()}>{busy?'Starting…':'Start swap'}</button>
-    :<button type="button" className="silo-primary sx-go" data-primary disabled={!amountValid||quoting||busy||!solanaReady||!walletReady} onClick={()=>void getQuote()}>{quoting?'Getting offer…':expired?'Get a new offer':'Get offer'}</button>}
-   <ul className="sx-brief" aria-label="Before you start"><li><b>Nothing leaves your wallet</b> until you confirm the XMR in your Monero wallet.</li><li>Cancelling leaves Silo locked and pauses swap processing. Open your Monero wallet before the claim deadline so Silo can try the SOL claim. After the deadline, getting your XMR back needs the maker to return the SOL lock and reveal its key part; expiry alone does not return your XMR.</li></ul>
+   {quoted?<button type="button" className="silo-primary sx-go" data-primary disabled={busy||!solanaReady||!walletReady} aria-busy={busy||undefined} onClick={()=>void swap()}>{busy?'Starting…':'Start swap'}</button>
+    :<button type="button" className="silo-primary sx-go" data-primary disabled={!amountValid||quoting||busy||!solanaReady||!walletReady} aria-busy={quoting||undefined} onClick={()=>void getQuote()}>{quoting?'Getting offer…':expired?'Get a new offer':'Get offer'}</button>}
+   <p className="sx-safety" data-line="safety"><b>Nothing leaves your wallet</b> until you confirm the XMR in your Monero wallet. After that, open Silo again before the claim deadline.</p>
+   <p className="sx-note" data-line="note">{ATOMIC_DIRECTION_TEXT['xmr-sol'].note}</p>
    {error&&<p role="alert" className="exposure-error">{error}</p>}
-   {quoted&&<section className="sx-terms sx-costs" aria-labelledby="sx-costs-h"><h3 id="sx-costs-h">What this offer costs</h3><dl className="sx-kv">
+   <details className="sx-more sx-how"><summary><span>How it works</span></summary><div className="sx-how-body">
+    {quoted&&<section className="sx-terms sx-costs" aria-labelledby="sx-costs-h"><h3 id="sx-costs-h">What this offer costs</h3><dl className="sx-kv">
     <div className="is-key"><dt>You get about</dt><dd>{sol(atomicYouGetLamports(q))} SOL</dd></div>
     <div className="is-key"><dt>Maker spread</dt><dd>{spread}%<small>About {spreadSol} SOL, already taken off what you get.</small></dd></div>
     <div className="is-key"><dt>Network gas</dt><dd>{gas?`${sol(gas)} SOL`:'0.000005 SOL'}<small>{gas?`The claim costs 0.000005 SOL, paid from the maker’s ${sol(gas)} SOL fee allowance. The rest of the allowance is included in what you get.`:'The claim costs 0.000005 SOL.'}</small></dd></div>
@@ -207,10 +218,12 @@ export function SiloAtomicPanel({enabled=false,network='mainnet',programId=null,
     <div><dt>Monero network fee</dt><dd>Shown in your Monero wallet’s review, before you confirm.</dd></div>
     <div><dt>Service fee</dt><dd>None besides the maker spread.</dd></div>
    </dl></section>}
-   <section className="sx-terms sx-steps" aria-labelledby="sx-terms-h"><h3 id="sx-terms-h">How it works</h3>
+    <p>{ATOMIC_DIRECTION_TEXT['xmr-sol'].line}</p>
+    <p>Cancelling leaves Silo locked and pauses swap processing. Open your Monero wallet before the claim deadline so Silo can try the SOL claim. After the deadline, getting your XMR back needs the maker to return the SOL lock and reveal its key part; expiry alone does not return your XMR.</p>
     <ol className="sx-steplist"><li><b>The maker locks the SOL.</b> It waits on Solana for your XMR.</li><li><b>You send the XMR and confirm it.</b> You confirm in your Monero wallet. The maker cancels after about 30 minutes without it, and nothing is spent.</li><li><b>Keep Silo open until you confirm.</b> After that you can close it. The swap is saved, encrypted, in your wallet.</li><li><b>Open and unlock Silo before the claim deadline.</b> Silo then tries the SOL claim. Miss it and your XMR comes back only if the maker returns the SOL lock and reveals its key part.</li></ol>
+    <dl className="sx-kv">{TERMS.slice(0,3).map(([term,text])=><div key={term}><dt>{term}</dt><dd>{text}</dd></div>)}</dl>
     <p className="sx-beta">{TERMS[3][1]}</p>
-    <details className="sx-more"><summary>Details</summary><dl className="sx-kv">{TERMS.slice(0,3).map(([term,text])=><div key={term}><dt>{term}</dt><dd>{text}</dd></div>)}</dl></details></section>
+   </div></details>
   </div>}
   {shown.length>0&&error&&<p role="alert" className="exposure-error">{error}</p>}
   {shown.map(swapView)}

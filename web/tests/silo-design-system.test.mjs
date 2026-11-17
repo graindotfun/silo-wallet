@@ -23,7 +23,7 @@ test('brand orange: hover never lightens or darkens, no filters, accent never mi
 });
 test('headlines: lower-case source copy, never a CSS text-transform on headings',()=>{
  for(const {selector,body} of rules)if(/(^|[\s,>])h[1-4]\b/.test(selector))assert.doesNotMatch(body,/text-transform/,selector);
- assert.match(overview,/view==='overview'\?'home':view==='activity'\?'activity':view==='swap'\?'swap'/);
+ assert.match(overview,/view==='overview'\?siloHomeHeadline\(\{anyOpen,concealed,totalText:[^}]*\}\):view==='move'\?'move to private':view==='activity'\?'activity':view==='swap'\?'swap'/);
  assert.match(overview,/className="silo-stop"/);
  // The full stop is orange on dark and the darker orange text token on light (white-on-orange is 2.94:1).
  assert.match(css,/\.silo-stop\{color:var\(--silo-accent-text\)\}/);
@@ -35,7 +35,7 @@ test('round 2: the primary action is the inverse pill, orange is the Private win
  assert.match(css,/\.silo-app \.silo-button\[data-variant=primary\]\{background:var\(--silo-primary\)/);
  assert.doesNotMatch(css,/background:var\(--silo-accent\)/,'no button or control is filled with the accent');
  const orangeFills=[...css.matchAll(/([^{}]+)\{[^{}]*background:var\(--grain-orange\)[^{}]*\}/g)].map(match=>match[1].trim());
- for(const selector of orangeFills)assert.match(selector,/silo-window\[data-zone=private\]|zone-mark|split-bar|silo-zone-head|silo-next\[data-tone=private\]|silo-xmr|silo-zec|silo-secret-caret|silo-backup-banner|^\.silo-money$/,`orange fill outside the Private zone: ${selector}`);
+ for(const selector of orangeFills)assert.match(selector,/silo-window\[data-zone=private\]|zone-mark|split-bar|silo-zone-head|silo-next\[data-tone=private\]|silo-xmr|silo-zec|silo-secret-caret|silo-backup-banner|silo-move-go|^\.silo-money$/,`orange fill outside the Private zone: ${selector}`);
  assert.match(css,/\.silo-window\[data-zone=private\]\{background:var\(--grain-orange\);color:#101010/);
  assert.match(css,/\.silo-window\[data-zone=public\]\{border:2px solid var\(--silo-public\)\}/);
  assert.match(css,/\.silo-window\[data-zone=soon\]\{border:2px dashed/);
@@ -58,9 +58,11 @@ test('zones: Private is orange, Public an outline, Off and Soon dashed; status i
 });
 // 23 Oct (owner: the simplest wallet; Opus UX consultation): one column, Monero first. 6 Nov (owner, r8 Home): the total leads,
 // then one stack of asset cards on their own colours (Monero, Solana, tokens, other networks), Swap when open, recent activity.
-test('Home: header sentence, total, asset stack (Monero, Solana, tokens, other networks), Swap when open, recent activity; one column',()=>{
- const home=overview.slice(overview.indexOf('const home=<div className="silo-home">'));
- const order=['className="silo-total"','className="silo-asset-stack"','data-zone={xmrOff?\'soon\':\'private\'}','className="silo-window silo-window-public"','aria-label="Solana actions"','tokenRows.map(','evm!==null&&shown(\'evm\')','silo-recent-title'].map(marker=>home.indexOf(marker));
+// 10 Nov (owner, direction C): the headline and private/public line lead (page header), then the swap in progress, one row per wallet
+// (Monero, Solana), Move to private, then the token and other-network cards, Swap when open, recent activity.
+test('Home: headline, swap in progress, wallet rows (Monero, Solana), Move to private, tokens and other networks, Swap when open, recent activity; one column',()=>{
+ const home=overview.slice(overview.indexOf(' const xmrRow='));
+ const order=['data-zone={xmrOff?\'soon\':\'private\'}','aria-label="Solana actions"','{pendingSwapCompact}','className="silo-ledger"','className="silo-asset-stack"','tokenRows.map(','evm!==null&&shown(\'evm\')','silo-recent-title'].map(marker=>home.indexOf(marker));
  assert.equal(home.indexOf('className="silo-home-side"'),-1,'no side column on Home');
  assert.ok(order.every(index=>index>0),`every Home part is present: ${order}`);
  assert.deepEqual([...order].sort((a,b)=>a-b),order);

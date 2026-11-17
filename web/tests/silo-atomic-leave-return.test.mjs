@@ -34,9 +34,14 @@ test('the pending summary holds no key material, only display fields',()=>{
 
 test('Home and Activity render the pending card only when the no-bridge swap is enabled, and it opens the swap',()=>{
  const overview=read('components/silo-overview.tsx'),card=read('components/silo-atomic-pending-card.tsx');
- assert.ok(overview.includes("const pendingSwap=atomicEnabled?<SiloAtomicPendingCard onOpen={()=>setTask('atomic')}/>:null;"));
- assert.match(overview,/<div className="silo-home-main">\n   \{pendingSwap\}/);
+ // Home shows the short card (owner, 10 Nov 2026); Activity keeps the independent detailed card (PR 756) next to the NOW row, which opens the swap.
+ // 748-M2: shown whenever a swap is in progress; a direction switched off in this build shows it read-only.
+ assert.ok(overview.includes("const pendingSwap=<SiloAtomicPendingCard paused={swapsPaused} onOpen={()=>setTask('atomic')}/>,pendingSwapCompact=<SiloAtomicPendingCard compact paused={swapsPaused} onOpen={()=>setTask('atomic')}/>;"));
  assert.match(overview,/\{view==='activity'&&pendingSwap\}/);
- assert.ok(card.includes('open and unlock it again before')&&!card.includes('by itself'),'the pending card says the user must reopen and unlock Silo');
+ assert.match(card,/data-compact-line/,'the compact card keeps the required action and deadline line');
+ assert.match(overview,/<div className="silo-home-main">\n   \{pendingSwapCompact\}/);
+ assert.match(overview,/onOpenSwap=\{atomicEnabled\?\(\)=>setTask\('atomic'\):undefined\}/);
+ const words=read('lib/silo/atomic-status-copy.mjs');
+ assert.ok(card.includes('atomicForwardCardStatus')&&words.includes('open and unlock it again before')&&!card.includes('by itself')&&!words.includes('by itself'),'the pending card says the user must reopen and unlock Silo');
  assert.doesNotMatch(card,/[Kk]eep this page open|localStorage|sessionStorage/,'nothing is stored in plain text while locked');
 });

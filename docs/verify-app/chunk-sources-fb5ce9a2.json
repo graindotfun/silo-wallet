@@ -1,0 +1,1455 @@
+{
+ "schema": "silo-chunk-sources-v1",
+ "sourceCommit": "fb5ce9a2dafbf6f7f768f159703272a3b4f0f5a2",
+ "note": "Read from source maps of an analysis rebuild with build.sourcemap hidden. Chunk names of that rebuild differ from live names for 22 chunks, so entries use the rebuild names.",
+ "chunks": {
+  "/_next/static/chunks/alice-flow-DSTu9dI6.js": {
+   "source": [
+    "web/lib/silo/atomic-swap/alice-flow.mjs"
+   ]
+  },
+  "/_next/static/chunks/amounts-lEbtVj0I.js": {
+   "source": [
+    "web/lib/silo/amounts.mjs"
+   ]
+  },
+  "/_next/static/chunks/appearance-control-PH5reBOE.js": {
+   "source": [
+    "web/components/appearance-control.tsx"
+   ]
+  },
+  "/_next/static/chunks/asset-src-BFn_w7Gu.js": {
+   "source": [
+    "web/lib/asset-src.mjs"
+   ]
+  },
+  "/_next/static/chunks/authority-ledger-view-CHWbGjV4.js": {
+   "source": [
+    "web/lib/authority-ledger-freshness.mjs",
+    "web/components/authority-ledger-view.tsx"
+   ]
+  },
+  "/_next/static/chunks/blockhash-window-BDy3Sos1.js": {
+   "source": [
+    "web/lib/signing-attempt.mjs",
+    "web/lib/blockhash-window.mjs"
+   ]
+  },
+  "/_next/static/chunks/bob-flow-Cj3S_LlD.js": {
+   "source": [
+    "web/lib/silo/atomic-swap/bob-flow.mjs"
+   ]
+  },
+  "/_next/static/chunks/bounded-json-D1kAcdl1.js": {
+   "source": [
+    "web/lib/silo/bounded-json.mjs"
+   ]
+  },
+  "/_next/static/chunks/brand-colors-vI13Q3jv.js": {
+   "source": [
+    "web/lib/brand-colors.mjs"
+   ]
+  },
+  "/_next/static/chunks/brand-presentation-BZB_Kjx1.js": {
+   "source": [
+    "web/lib/brand-presentation.ts"
+   ]
+  },
+  "/_next/static/chunks/browser-buffer-C1hkexiU.js": {
+   "source": [
+    "web/lib/browser-buffer.mjs"
+   ]
+  },
+  "/_next/static/chunks/browser-rpc-session-BAG2pk4a.js": {
+   "source": [
+    "web/lib/browser-rpc-session.mjs"
+   ]
+  },
+  "/_next/static/chunks/browser-sdk-DKSX85k_.js": {
+   "source": [
+    "web/lib/silo/xmr-sdk-manifest.json",
+    "web/lib/silo/browser-sdk.mjs"
+   ]
+  },
+  "/_next/static/chunks/build-commit-CsE59alT.js": {
+   "source": [
+    "web/lib/build-commit.ts"
+   ]
+  },
+  "/_next/static/chunks/button-B902Um1n.js": {
+   "source": [
+    "web/components/ui/button.tsx"
+   ]
+  },
+  "/_next/static/chunks/catalog-listing-status-C7Zenm3G.js": {
+   "source": [
+    "web/components/catalog-listing-status.tsx"
+   ]
+  },
+  "/_next/static/chunks/chain-context-chrome-Cta4DkfK.js": {
+   "source": [
+    "web/components/contract-address-bar.tsx",
+    "web/components/price-tab.tsx",
+    "web/components/chain-context-chrome.tsx"
+   ]
+  },
+  "/_next/static/chunks/chain-logo-CQeOGf8M.js": {
+   "source": [
+    "web/lib/chain-display.ts",
+    "web/components/chain-logo.tsx"
+   ]
+  },
+  "/_next/static/chunks/claim-identity-BOwJasIT.js": {
+   "source": [
+    "web/components/claim-identity.tsx"
+   ]
+  },
+  "/_next/static/chunks/copy-text-BjjRffTE.js": {
+   "source": [
+    "web/components/copy-text.tsx"
+   ]
+  },
+  "/_next/static/chunks/creator-buy-display-BYoSt0jg.js": {
+   "source": [
+    "web/lib/tape-ledger.mjs",
+    "web/components/native-tape.tsx",
+    "web/lib/creator-buy-display.mjs"
+   ]
+  },
+  "/_next/static/chunks/creator-desk-DiOqUwwo.js": {
+   "source": [
+    "web/lib/creator-earnings.mjs",
+    "web/components/canonical-identity-desk.tsx",
+    "web/components/creator-desk.tsx"
+   ]
+  },
+  "/_next/static/chunks/crew-Cd2U4XOl.js": {
+   "source": [
+    "web/lib/crew.mjs"
+   ]
+  },
+  "/_next/static/chunks/crew-record-s3haVclc.js": {
+   "source": [
+    "web/components/crew-record.tsx"
+   ]
+  },
+  "/_next/static/chunks/disclosures-A0aaFqDf.js": {
+   "source": [
+    "web/lib/silo/local-envelope.mjs",
+    "web/lib/silo/disclosures.mjs"
+   ]
+  },
+  "/_next/static/chunks/docs-content-LLzxAboe.js": {
+   "source": [
+    "web/lib/docs-config.ts",
+    "web/components/wallets-faq.tsx",
+    "web/components/docs-content.tsx"
+   ]
+  },
+  "/_next/static/chunks/economics-breakdown-CDCBHn6n.js": {
+   "source": [
+    "web/hooks/use-blockhash-countdown.ts",
+    "web/lib/economics-breakdown.mjs",
+    "web/components/economics-breakdown.tsx"
+   ]
+  },
+  "/_next/static/chunks/error-CKEJOwtR.js": {
+   "source": [
+    "web/app/error.tsx"
+   ]
+  },
+  "/_next/static/chunks/error-D_a0cgso.js": {
+   "source": [
+    "web/app/app/error.tsx"
+   ]
+  },
+  "/_next/static/chunks/es2015-BT2qvVCg.js": {
+   "source": [
+    "web/lib/brand-assets.ts"
+   ]
+  },
+  "/_next/static/chunks/evm-one-approval-launch-Bkl3ZqZ1.js": {
+   "source": [
+    "web/lib/chain/v3-launch-preview.ts",
+    "web/lib/chain/evm-direct-metadata.ts",
+    "web/lib/chain/evm-one-approval-launch.ts"
+   ]
+  },
+  "/_next/static/chunks/evm-wallet-D4cqdm3k.js": {
+   "source": [
+    "web/lib/chain/evm-wallet.ts"
+   ]
+  },
+  "/_next/static/chunks/exposure-report-BBrz5jKj.js": {
+   "source": [
+    "web/lib/exposure-report.mjs"
+   ]
+  },
+  "/_next/static/chunks/fame-panel-DXK_j3sY.js": {
+   "source": [
+    "web/lib/wallet-fame.mjs",
+    "web/components/fame-panel.tsx"
+   ]
+  },
+  "/_next/static/chunks/fee-policy-DOlxhtAn.js": {
+   "source": [
+    "web/lib/market-execution-hold.mjs",
+    "web/lib/rewards-split-policy.mjs",
+    "web/lib/transaction-addresses.mjs",
+    "web/lib/fee-policy.mjs"
+   ]
+  },
+  "/_next/static/chunks/fees-CXJuSK0x.js": {
+   "source": [
+    "web/lib/fee-instructions.mjs",
+    "web/lib/fees.ts"
+   ]
+  },
+  "/_next/static/chunks/field-scan-Bq_GhWEI.js": {
+   "source": [
+    "web/components/field-scan.tsx"
+   ]
+  },
+  "/_next/static/chunks/format-sol-D-r2STLf.js": {
+   "source": [
+    "web/lib/format-sol.ts"
+   ]
+  },
+  "/_next/static/chunks/gate-hero-CA3Bcq1q.js": {
+   "source": [
+    "web/lib/silo/brand-motion/physics.mjs",
+    "web/lib/silo/brand-motion/gate-hero.mjs"
+   ]
+  },
+  "/_next/static/chunks/generate-vanity-mint-DJTyjCNB.js": {
+   "source": [
+    "web/lib/generate-vanity-mint.ts"
+   ]
+  },
+  "/_next/static/chunks/graduated-fees-C1jrjLGj.js": {
+   "source": [
+    "web/lib/graduated-fee-instructions.mjs",
+    "web/lib/graduated-fees.ts"
+   ]
+  },
+  "/_next/static/chunks/graduation-coverage-Dk5Cogin.js": {
+   "source": [
+    "web/components/graduation-coverage.tsx"
+   ]
+  },
+  "/_next/static/chunks/grain-select-CUONHaAG.js": {
+   "source": [
+    "web/components/grain-select.tsx"
+   ]
+  },
+  "/_next/static/chunks/grainpet-entry-CIhemiVe.js": {
+   "source": [
+    "web/lib/grainpet-client.ts",
+    "web/components/grainpet-entry.tsx"
+   ]
+  },
+  "/_next/static/chunks/grainpet-entry-DV_Or3tl.js": {
+   "source": [
+    "web/lib/grainpet-entry.mjs"
+   ]
+  },
+  "/_next/static/chunks/grainy-art.generated-D-x949vG.js": {
+   "source": [
+    "web/lib/silo/grainy-art.generated.mjs"
+   ]
+  },
+  "/_next/static/chunks/header-image-RG9vspSH.js": {
+   "source": [
+    "web/lib/header-image.mjs"
+   ]
+  },
+  "/_next/static/chunks/holder-reward-receipts-BcvYd-Ib.js": {
+   "source": [
+    "web/lib/reward-receipt-view.mjs",
+    "web/components/holder-reward-receipts.tsx"
+   ]
+  },
+  "/_next/static/chunks/homepage-DbEpVy0c.js": {
+   "source": [
+    "web/components/rules-badge.tsx",
+    "web/lib/holder-payouts.mjs",
+    "web/lib/public-overview.mjs",
+    "web/components/site-overview.tsx",
+    "web/lib/launch-desk-status.mjs",
+    "web/components/use-launch-status.ts",
+    "web/components/launch-desk.tsx",
+    "web/components/silo-family.tsx",
+    "web/components/launch-network-home-select.tsx",
+    "web/components/homepage.tsx"
+   ]
+  },
+  "/_next/static/chunks/identity-amendment-DKeGoXZv.js": {
+   "source": [
+    "web/lib/identity-amendment.mjs"
+   ]
+  },
+  "/_next/static/chunks/identity-name-1eD0R4To.js": {
+   "source": [
+    "web/components/identity-name.tsx"
+   ]
+  },
+  "/_next/static/chunks/identity-seal-BxSo1f3E.js": {
+   "source": [
+    "web/lib/identity-seal.mjs"
+   ]
+  },
+  "/_next/static/chunks/image-validation-Ct0CIaeK.js": {
+   "source": [
+    "web/lib/image-validation.mjs"
+   ]
+  },
+  "/_next/static/chunks/infrastructure-lookup-client-CT-jY0rq.js": {
+   "source": [
+    "web/lib/infrastructure-lookup-client.mjs"
+   ]
+  },
+  "/_next/static/chunks/infrastructure-signing-policy-CCRO3dMM.js": {
+   "source": [
+    "web/lib/infrastructure-signing-policy.mjs"
+   ]
+  },
+  "/_next/static/chunks/input-CjUBRqiH.js": {
+   "source": [
+    "web/components/ui/input.tsx"
+   ]
+  },
+  "/_next/static/chunks/integrity-BFnrcZYZ.js": {
+   "source": [
+    "web/lib/silo/integrity.mjs"
+   ]
+  },
+  "/_next/static/chunks/intent-BnYhsg83.js": {
+   "source": [
+    "web/lib/trading/intent.mjs"
+   ]
+  },
+  "/_next/static/chunks/jupiter-build-execution-YnsKHbcj.js": {
+   "source": [
+    "web/lib/silo/revenue-policy.mjs",
+    "web/lib/silo/swap-policy.mjs",
+    "web/lib/silo/swap-referral.mjs",
+    "web/lib/silo/jupiter-route-policy.mjs",
+    "web/lib/silo/jupiter-clmm-route.mjs",
+    "web/lib/silo/jupiter-execution.mjs",
+    "web/lib/silo/jupiter-build-execution.mjs"
+   ]
+  },
+  "/_next/static/chunks/jupiter-route-v2-pHQtHScG.js": {
+   "source": [
+    "web/lib/jupiter-route-v2.mjs"
+   ]
+  },
+  "/_next/static/chunks/keep-case-Y_RPmpHU.js": {
+   "source": [
+    "web/components/keep-case.tsx"
+   ]
+  },
+  "/_next/static/chunks/kinetic-text-C9yu04s3.js": {
+   "source": [
+    "web/components/kinetic-text.tsx"
+   ]
+  },
+  "/_next/static/chunks/launch-CpGCEVDS.js": {
+   "source": [
+    "web/lib/classic-sol-policy.mjs",
+    "web/lib/classic-sol-review.mjs",
+    "web/lib/transaction-status.mjs",
+    "web/lib/rebroadcast.mjs",
+    "web/lib/rewards-network-profile.mjs",
+    "web/lib/rewards-issuance.mjs",
+    "web/lib/wallet-signing.mjs",
+    "web/lib/launch.ts"
+   ]
+  },
+  "/_next/static/chunks/launch-disclosure-mLcavE4C.js": {
+   "source": [
+    "web/components/launch-disclosure.tsx"
+   ]
+  },
+  "/_next/static/chunks/launch-identity-C4DBen-4.js": {
+   "source": [
+    "web/lib/launch-identity.mjs"
+   ]
+  },
+  "/_next/static/chunks/launch-identity-authorization-LqlIZea3.js": {
+   "source": [
+    "web/lib/launch-identity-authorization.mjs"
+   ]
+  },
+  "/_next/static/chunks/launch-image-proof-D0AdRyIB.js": {
+   "source": [
+    "web/components/launch-image-proof.tsx"
+   ]
+  },
+  "/_next/static/chunks/launch-instructions-DSRGqd8E.js": {
+   "source": [
+    "web/vendor/bigint-buffer-js/index.cjs",
+    "web/lib/launch-rules.mjs",
+    "web/lib/launch-instructions.mjs"
+   ]
+  },
+  "/_next/static/chunks/launch-network-chip-jCJsbJmK.js": {
+   "source": [
+    "web/lib/chain/launch-network-handoff.ts",
+    "web/components/launch-network-chip.tsx"
+   ]
+  },
+  "/_next/static/chunks/launch-network-options-kRc8EKPx.js": {
+   "source": [
+    "web/lib/chain/robinhood-mainnet-draft.ts",
+    "web/components/launch-network-options.tsx"
+   ]
+  },
+  "/_next/static/chunks/launch-network-picker-BI55Dr4r.js": {
+   "source": [
+    "web/lib/chain/launch-network-picker.ts",
+    "web/components/launch-network-logo.tsx"
+   ]
+  },
+  "/_next/static/chunks/launch-network-picker-C0UjZiP3.js": {
+   "source": [
+    "web/components/launch-network-picker.tsx"
+   ]
+  },
+  "/_next/static/chunks/launch-proof-CphIAKQf.js": {
+   "source": [
+    "web/components/launch-proof.tsx"
+   ]
+  },
+  "/_next/static/chunks/launch-room-BQkV4wzn.js": {
+   "source": [
+    "web/components/launch-room.tsx"
+   ]
+  },
+  "/_next/static/chunks/launch-steps-Dr6coEap.js": {
+   "source": [
+    "web/components/launch-steps.tsx"
+   ]
+  },
+  "/_next/static/chunks/launch-submission-journal-B882KxQ6.js": {
+   "source": [
+    "web/lib/chain/launch-submission-journal.ts"
+   ]
+  },
+  "/_next/static/chunks/launch-tax-copy-DZB9KTgC.js": {
+   "source": [
+    "web/lib/launch-tax-copy.mjs"
+   ]
+  },
+  "/_next/static/chunks/launch-token-preview-card-D2Egl1Bj.js": {
+   "source": [
+    "web/lib/grain-stage-policy.mjs",
+    "web/components/grain-stage.tsx",
+    "web/components/launch-token-preview-card.tsx"
+   ]
+  },
+  "/_next/static/chunks/launch-workspace-DCWPb266.js": {
+   "source": [
+    "web/components/launch-transfer-tax.tsx",
+    "web/lib/client-module-loading.mjs",
+    "web/components/launch-creator-buy-review.tsx",
+    "web/components/protected-launch-workspace.tsx",
+    "web/components/ui/tabs.tsx",
+    "web/lib/launch-pending-recovery.mjs",
+    "web/components/launch-workspace.tsx"
+   ]
+  },
+  "/_next/static/chunks/legacy-rewards-notice-DOXqwW_h.js": {
+   "source": [
+    "web/lib/rewards-legacy-retirement-public.mjs",
+    "web/components/legacy-rewards-notice.tsx"
+   ]
+  },
+  "/_next/static/chunks/market-core-CN7ulX0M.js": {
+   "source": [
+    "web/lib/rewards-snapshot.mjs",
+    "web/lib/transfer-tax.mjs",
+    "web/lib/rewards-market.mjs",
+    "web/lib/market-core.mjs"
+   ]
+  },
+  "/_next/static/chunks/metadata-shared-D2Kz0lsJ.js": {
+   "source": [
+    "web/lib/metadata-shared.ts"
+   ]
+  },
+  "/_next/static/chunks/mint-allocation-browser-CHEBs4dz.js": {
+   "source": [
+    "web/lib/mint-allocation-browser.ts"
+   ]
+  },
+  "/_next/static/chunks/monero-creator-message-0kBhoV9F.js": {
+   "source": [
+    "web/lib/monero-creator-text-v2.mjs",
+    "web/lib/monero-record-format.mjs",
+    "web/lib/monero-creator-message.mjs"
+   ]
+  },
+  "/_next/static/chunks/monero-creator-signature-DVLbfp22.js": {
+   "source": [
+    "web/components/monero-creator-signature.tsx"
+   ]
+  },
+  "/_next/static/chunks/monero-creator-signing-rplYu5M9.js": {
+   "source": [
+    "web/lib/monero-creator-message-policy.mjs",
+    "web/lib/monero-creator-signing.mjs"
+   ]
+  },
+  "/_next/static/chunks/monero-owner-review-DbkLDW26.js": {
+   "source": [
+    "web/lib/operations-approver.mjs",
+    "web/lib/monero-operator-approval-message.mjs",
+    "web/lib/monero-native-scope-binding.mjs",
+    "web/lib/monero-native-relay-window.mjs",
+    "web/lib/monero-construction-message.mjs",
+    "web/lib/monero-construction-review.mjs",
+    "web/lib/monero-owner-review.mjs",
+    "web/components/monero-owner-review.tsx"
+   ]
+  },
+  "/_next/static/chunks/monero-prelaunch-browser-CHZEh6Az.js": {
+   "source": [
+    "web/lib/monero-prelaunch-identity.mjs",
+    "web/lib/monero-prelaunch-browser.mjs"
+   ]
+  },
+  "/_next/static/chunks/monero-record-panel-t2IDX033.js": {
+   "source": [
+    "web/components/monero-record-panel.tsx"
+   ]
+  },
+  "/_next/static/chunks/nacl-fast-D_YsUAA5.js": {
+   "source": [
+    "web/__vite-browser-external"
+   ]
+  },
+  "/_next/static/chunks/networks-SnAGT3q3.js": {
+   "source": [
+    "web/lib/chain/networks.ts"
+   ]
+  },
+  "/_next/static/chunks/official-artwork-CWiiss0i.js": {
+   "source": [
+    "web/lib/official-artwork.mjs"
+   ]
+  },
+  "/_next/static/chunks/official-ca-refresh-Dbnw6dC1.js": {
+   "source": [
+    "web/lib/official-ca-refresh.mjs"
+   ]
+  },
+  "/_next/static/chunks/official-launch-client-BRoxA_7t.js": {
+   "source": [
+    "web/lib/official-launch-client.mjs"
+   ]
+  },
+  "/_next/static/chunks/official-launch-review-message-CXfoalr7.js": {
+   "source": [
+    "web/lib/official-launch-review-message.mjs"
+   ]
+  },
+  "/_next/static/chunks/official-lookup-extension-D8mnRKWf.js": {
+   "source": [
+    "web/lib/official-lookup-extension.mjs"
+   ]
+  },
+  "/_next/static/chunks/official-lookup-extension-client-DFXHxr84.js": {
+   "source": [
+    "web/lib/official-lookup-extension-client.mjs"
+   ]
+  },
+  "/_next/static/chunks/official-metadata-client-VVD2hoki.js": {
+   "source": [
+    "web/lib/official-metadata-client.mjs"
+   ]
+  },
+  "/_next/static/chunks/official-metadata-m5zhv2Ez.js": {
+   "source": [
+    "web/lib/official-metadata.mjs"
+   ]
+  },
+  "/_next/static/chunks/official-profile-DOrCgbTY.js": {
+   "source": [
+    "web/lib/official-profile.mjs"
+   ]
+  },
+  "/_next/static/chunks/operations-BX2bhjEq.js": {
+   "source": [
+    "web/lib/operations.ts"
+   ]
+  },
+  "/_next/static/chunks/owner-lookup-extension-CywMaT3I.js": {
+   "source": [
+    "web/components/owner-lookup-extension.tsx"
+   ]
+  },
+  "/_next/static/chunks/owner-message-D1bA5Y4-.js": {
+   "source": [
+    "web/lib/owner-message.ts"
+   ]
+  },
+  "/_next/static/chunks/owner-official-launch-CBdLr4aR.js": {
+   "source": [
+    "web/lib/official-owner-choices.mjs",
+    "web/components/owner-official-launch.tsx"
+   ]
+  },
+  "/_next/static/chunks/owner-provenance-error-CKnx-THA.js": {
+   "source": [
+    "web/lib/owner-provenance-error.mjs"
+   ]
+  },
+  "/_next/static/chunks/owner-setup-CPXVgTQh.js": {
+   "source": [
+    "web/lib/pilot-policy.mjs",
+    "web/lib/owner-setup.mjs"
+   ]
+  },
+  "/_next/static/chunks/owner-signing-C-Vgqj4z.js": {
+   "source": [
+    "web/lib/owner-admission-close.mjs",
+    "web/lib/rewards-setup-review.mjs",
+    "web/lib/treasury-claim-authority.mjs",
+    "web/lib/owner-claim-handoff.mjs",
+    "web/lib/lp-fee-automation.mjs",
+    "web/lib/owner-lp-custody-handoff.mjs",
+    "web/lib/pilot-review.mjs",
+    "web/lib/owner-pending-refusal.mjs",
+    "web/lib/owner-signing.ts"
+   ]
+  },
+  "/_next/static/chunks/owner-signing-CpD9G6O2.js": {
+   "source": [
+    "web/components/pilot-renewal.tsx",
+    "web/components/owner-signing.tsx"
+   ]
+  },
+  "/_next/static/chunks/page-BSePsWbA.js": {
+   "source": [
+    "web/app/owner/sol-acceptance/page.tsx"
+   ]
+  },
+  "/_next/static/chunks/page-BWGdFGjD.js": {
+   "source": [
+    "web/components/treasury-automation-status.tsx",
+    "web/components/treasury-public-record.tsx",
+    "web/components/priority-fee-review.tsx",
+    "web/app/treasury/page.tsx"
+   ]
+  },
+  "/_next/static/chunks/page-B_h2Koov.js": {
+   "source": [
+    "web/components/ui/label.tsx",
+    "web/components/ui/field.tsx",
+    "web/components/graduated-fees.tsx",
+    "web/app/fees/page.tsx"
+   ]
+  },
+  "/_next/static/chunks/page-Du2t0dYR.js": {
+   "source": [
+    "web/components/official-token-settings.tsx",
+    "web/app/platform/page.tsx"
+   ]
+  },
+  "/_next/static/chunks/pilot-replacement-DHCIt1ky.js": {
+   "source": [
+    "web/lib/pilot-replacement.mjs"
+   ]
+  },
+  "/_next/static/chunks/pilot-review-IUwRj1Hi.js": {
+   "source": [
+    "web/components/pilot-review.tsx"
+   ]
+  },
+  "/_next/static/chunks/platform-CnopGv9H.js": {
+   "source": [
+    "web/lib/platform.ts"
+   ]
+  },
+  "/_next/static/chunks/platform-settings-Bkkiq_9v.js": {
+   "source": [
+    "web/lib/official-launch-policy.mjs",
+    "web/lib/finalized-official-inventory-identity.mjs",
+    "web/lib/official-launch-readiness.mjs",
+    "web/lib/wallet-transaction-policy.mjs",
+    "web/lib/token-website.mjs",
+    "web/lib/launch-post-link.mjs",
+    "web/lib/metadata-publication.mjs",
+    "web/lib/platform-policy.mjs",
+    "web/lib/mint-allocation-protocol.mjs",
+    "web/lib/public-rewards-phase.mjs",
+    "web/lib/release-scope.mjs",
+    "web/lib/rewards-policy.mjs",
+    "web/lib/platform-settings.mjs"
+   ]
+  },
+  "/_next/static/chunks/platform-setup-CRN6dfmB.js": {
+   "source": [
+    "web/lib/platform-setup.mjs"
+   ]
+  },
+  "/_next/static/chunks/previous-official-mints-DITpxH59.js": {
+   "source": [
+    "web/lib/previous-official-mints.mjs"
+   ]
+  },
+  "/_next/static/chunks/previous-token-banner-BAVMW7yX.js": {
+   "source": [
+    "web/components/previous-token-banner.tsx"
+   ]
+  },
+  "/_next/static/chunks/price-format-oRNOjgrL.js": {
+   "source": [
+    "web/lib/price-format.ts"
+   ]
+  },
+  "/_next/static/chunks/priority-fee-Dhxktit0.js": {
+   "source": [
+    "web/lib/priority-fee.mjs"
+   ]
+  },
+  "/_next/static/chunks/pro-chart-_uXDpi4q.js": {
+   "source": [
+    "web/lib/trade-indicative-polling.mjs",
+    "web/components/trade-fields.tsx",
+    "web/lib/pro-chart-data.mjs",
+    "web/components/pro-chart.tsx"
+   ]
+  },
+  "/_next/static/chunks/protected-launch-browser-Bvdj_4fq.js": {
+   "source": [
+    "web/lib/protected-launch-economics.mjs",
+    "web/lib/protected-launch-program.mjs",
+    "web/lib/protected-launch-review.mjs",
+    "web/lib/protected-funding-review.mjs",
+    "web/lib/protected-launch-browser.ts"
+   ]
+  },
+  "/_next/static/chunks/public-creator-buy-CK6dweVE.js": {
+   "source": [
+    "web/lib/rewards-launch.mjs",
+    "web/lib/public-creator-buy.mjs"
+   ]
+  },
+  "/_next/static/chunks/public-receipt--Iz8Qi8t.js": {
+   "source": [
+    "web/lib/receipt-summary.mjs",
+    "web/components/public-receipt.tsx"
+   ]
+  },
+  "/_next/static/chunks/public-sol-creator-buy-AmosvDD8.js": {
+   "source": [
+    "web/lib/official-creator-buy-quote.mjs",
+    "web/lib/sol-route-scope.mjs",
+    "web/lib/sol-route-lookup.mjs",
+    "web/lib/sol-direct-route.mjs",
+    "web/lib/sol-token-net-guard.mjs",
+    "web/lib/public-sol-creator-buy.mjs"
+   ]
+  },
+  "/_next/static/chunks/public-zone-CLOpbt24.js": {
+   "source": [
+    "web/lib/silo/public-zone.ts"
+   ]
+  },
+  "/_next/static/chunks/quote-assets-VDhmbwI0.js": {
+   "source": [
+    "web/lib/quote-assets.mjs"
+   ]
+  },
+  "/_next/static/chunks/receipts-view-BQjKulJp.js": {
+   "source": [
+    "web/lib/public-receipts.mjs",
+    "web/components/receipts-view.tsx"
+   ]
+  },
+  "/_next/static/chunks/refunder-tx-kQKlN2nw.js": {
+   "source": [
+    "web/lib/silo/atomic-swap/reverse-core.mjs",
+    "web/lib/silo/atomic-swap/refunder-tx.mjs"
+   ]
+  },
+  "/_next/static/chunks/registration-poll-lzbfHJu9.js": {
+   "source": [
+    "web/lib/registration-poll.mjs"
+   ]
+  },
+  "/_next/static/chunks/release-gate-B3qDyl06.js": {
+   "source": [
+    "web/lib/silo/native-history.mjs",
+    "web/lib/silo/payment-journal.mjs",
+    "web/lib/silo/release-gate.mjs"
+   ]
+  },
+  "/_next/static/chunks/reward-credit-illustration-Dcuek6SL.js": {
+   "source": [
+    "web/lib/quote-price-client-store.mjs",
+    "web/hooks/use-quote-prices.ts",
+    "web/lib/reward-credit-illustration.mjs"
+   ]
+  },
+  "/_next/static/chunks/reward-credit-totals-DKYf2VGo.js": {
+   "source": [
+    "web/lib/reward-credit-totals.mjs"
+   ]
+  },
+  "/_next/static/chunks/rewards-deployment-CAOJGJVD.js": {
+   "source": [
+    "web/lib/rewards-deployment.mjs"
+   ]
+  },
+  "/_next/static/chunks/rewards-live-Cx66UGut.js": {
+   "source": [
+    "web/lib/rewards-card-options.mjs",
+    "web/lib/rewards-card.mjs",
+    "web/lib/rewards-live-prices.mjs",
+    "web/components/rewards/share-canvas.ts",
+    "web/app/rewards/rewards.module.css",
+    "web/components/rewards/share-popup.tsx",
+    "web/components/rewards/rewards-live.tsx"
+   ]
+  },
+  "/_next/static/chunks/rewards-payout-choice-PgmzvU9V.js": {
+   "source": [
+    "web/lib/rewards-payout-choice/messages.mjs",
+    "web/components/rewards-payout-choice.tsx"
+   ]
+  },
+  "/_next/static/chunks/robinhood-adapter-iGutpoHV.js": {
+   "source": [
+    "web/lib/chain/adapter.ts",
+    "web/lib/chain/robinhood-adapter.ts"
+   ]
+  },
+  "/_next/static/chunks/robinhood-create-BI6G1atQ.js": {
+   "source": [
+    "web/lib/chain/robinhood-mainnet-v3.ts",
+    "web/lib/chain/robinhood-mainnet-v3-metadata.ts",
+    "web/lib/chain/robinhood-mainnet-v2.ts",
+    "web/lib/chain/robinhood-mainnet-fees.ts",
+    "web/lib/chain/robinhood-market.ts",
+    "web/lib/chain/robinhood-create.ts"
+   ]
+  },
+  "/_next/static/chunks/robinhood-create-CYUipYQe.js": {
+   "source": [
+    "web/components/robinhood-create.tsx"
+   ]
+  },
+  "/_next/static/chunks/robinhood-factory-BMlD0zjR.js": {
+   "source": [
+    "web/lib/chain/robinhood-factory.ts"
+   ]
+  },
+  "/_next/static/chunks/robinhood-mainnet-CqrgXu9s.js": {
+   "source": [
+    "web/lib/chain/robinhood-mainnet.ts"
+   ]
+  },
+  "/_next/static/chunks/robinhood-mainnet-create-C0MBueV4.js": {
+   "source": [
+    "web/lib/chain/robinhood-mainnet-create.ts"
+   ]
+  },
+  "/_next/static/chunks/robinhood-mainnet-create-CDGS8hto.js": {
+   "source": [
+    "web/lib/chain/robinhood-mainnet-monero-authorization.ts",
+    "web/components/robinhood-mainnet-create.tsx"
+   ]
+  },
+  "/_next/static/chunks/robinhood-mainnet-launch-v2-CDm30afl.js": {
+   "source": [
+    "web/lib/chain/robinhood-mainnet-launch-profiles.ts",
+    "web/lib/chain/launch-progress.ts",
+    "web/lib/chain/one-approval-launch-client.ts",
+    "web/lib/chain/one-approval-launch-journal.ts",
+    "web/components/robinhood-mainnet-launch-v2.tsx"
+   ]
+  },
+  "/_next/static/chunks/robinhood-mainnet-registration-DNssnihH.js": {
+   "source": [
+    "web/lib/chain/robinhood-mainnet-wallet.ts",
+    "web/lib/chain/robinhood-mainnet-display.ts",
+    "web/lib/retired-evm-launches.mjs",
+    "web/lib/chain/robinhood-mainnet-registration.ts"
+   ]
+  },
+  "/_next/static/chunks/robinhood-market-CShGHStG.js": {
+   "source": [
+    "web/lib/chain/robinhood-history.ts",
+    "web/components/robinhood-market.tsx"
+   ]
+  },
+  "/_next/static/chunks/robinhood-provenance-CAiAA_LU.js": {
+   "source": [
+    "web/components/robinhood-provenance.tsx"
+   ]
+  },
+  "/_next/static/chunks/robinhood-registration-CZHuUkeg.js": {
+   "source": [
+    "web/lib/chain/robinhood-registration.ts"
+   ]
+  },
+  "/_next/static/chunks/robinhood-testnet-RkwVoGJy.js": {
+   "source": [
+    "web/lib/chain/robinhood-testnet.ts"
+   ]
+  },
+  "/_next/static/chunks/robinhood-token-workspace-BrOssBcS.js": {
+   "source": [
+    "web/lib/chain/robinhood-mainnet-factories.ts",
+    "web/lib/chain/robinhood-mainnet-v3-market.ts",
+    "web/lib/chain/robinhood-mainnet-market.ts",
+    "web/components/robinhood-mainnet-history.tsx",
+    "web/lib/chain/robinhood-market-display.ts",
+    "web/lib/chain/robinhood-mainnet-payments.ts",
+    "web/lib/chain/robinhood-mainnet-indicative.ts",
+    "web/lib/wallet-submission-journal.mjs",
+    "web/components/robinhood-mainnet-market.tsx",
+    "web/lib/quote-freshness.mjs",
+    "web/components/robinhood-market-module.tsx",
+    "web/components/robinhood-token-workspace.tsx"
+   ]
+  },
+  "/_next/static/chunks/room-message-B_u28sm3.js": {
+   "source": [
+    "web/lib/room-message.mjs"
+   ]
+  },
+  "/_next/static/chunks/rpc-submissions-V9a9k0Oy.js": {
+   "source": [
+    "web/lib/abuse-budget.mjs",
+    "web/lib/rpc-submissions.mjs"
+   ]
+  },
+  "/_next/static/chunks/silo-workspace-DghEobx5.js": {
+   "source": [
+    "web/components/silo-secret-field.tsx",
+    "web/lib/silo/idle-lock.mjs",
+    "web/lib/silo/passphrase-strength.mjs",
+    "web/lib/silo/retired-review-origin.mjs",
+    "web/lib/silo/sync/codec.mjs",
+    "web/lib/silo/sync/vault-keys.mjs",
+    "web/lib/silo/sync/authority.mjs",
+    "web/lib/silo/sync/objects.mjs",
+    "web/lib/silo/sync/manifest.mjs",
+    "web/lib/silo/sync/vault-identity.mjs",
+    "web/lib/silo/sync/native-wallets.mjs",
+    "web/lib/silo/sync/network-profile.mjs",
+    "web/lib/silo/sync/combined-wallets.mjs",
+    "web/lib/silo/sync/legacy-journals.mjs",
+    "web/lib/silo/sync/merge.mjs",
+    "web/lib/silo/sync/outcome.mjs",
+    "web/lib/silo/sync/coverage.mjs",
+    "web/lib/silo/sync/enroll.mjs",
+    "web/lib/silo/crosschain-store.mjs",
+    "web/lib/silo/conversion-recovery.mjs",
+    "web/lib/silo/sync/client.mjs",
+    "web/lib/silo/sync/signed-request.mjs",
+    "web/lib/silo/sync/local-store.mjs",
+    "web/lib/bounded-request-body.mjs",
+    "web/lib/silo/solana-transfer-review-contract.mjs",
+    "web/lib/silo/positive-history-recovery.mjs",
+    "web/lib/silo/solana-transfer-journal.mjs",
+    "web/lib/silo/sync/xmr-intent.mjs",
+    "web/lib/silo/jupiter-historical-terms.mjs",
+    "web/lib/silo/jupiter-execution-service.mjs",
+    "web/lib/silo/jupiter-bounds.mjs",
+    "web/lib/silo/jupiter-journal.mjs",
+    "web/lib/silo/jupiter-shared-route-v2.mjs",
+    "web/lib/silo/jupiter-mint-policy.mjs",
+    "web/lib/silo/jupiter-shared-compact-context.mjs",
+    "web/lib/silo/jupiter-shared-acceptance.mjs",
+    "web/lib/silo/jupiter-shared-journal.mjs",
+    "web/lib/silo/jupiter-direct-compact-context.mjs",
+    "web/lib/silo/jupiter-direct-acceptance.mjs",
+    "web/lib/silo/jupiter-direct-journal.mjs",
+    "web/lib/silo/managed-expiry-proof.mjs",
+    "web/lib/silo/managed-unresolved-journal.mjs",
+    "web/lib/silo/jupiter-provider-v2.mjs",
+    "web/lib/silo/jupiter-managed-acceptance.mjs",
+    "web/lib/silo/jupiter-managed-journal.mjs",
+    "web/lib/silo/jupiter-shared-historical.mjs",
+    "web/lib/silo/jupiter-shared-receipt-broker.mjs",
+    "web/lib/silo/jupiter-direct-historical.mjs",
+    "web/lib/silo/jupiter-direct-receipt-broker.mjs",
+    "web/lib/silo/sync/solana-history.mjs",
+    "web/lib/silo/sync/readers.mjs",
+    "web/lib/silo/sync/readers-variants.mjs",
+    "web/lib/silo/sync/journal-bridge.mjs",
+    "web/lib/silo/sync/signing-gate.mjs",
+    "web/lib/silo/solana-transfer-acceptance.mjs",
+    "web/lib/silo/solana-transfer-client-flow.mjs",
+    "web/lib/silo/jupiter-managed-unavailable.mjs",
+    "web/lib/silo/swap-refusal.mjs",
+    "web/lib/silo/jupiter-managed-client-flow.mjs",
+    "web/lib/silo/native-keyring-testnet.held.mjs",
+    "web/lib/silo/btc.mjs",
+    "web/lib/silo/btc-send.mjs",
+    "web/lib/silo/evm.mjs",
+    "web/lib/silo/evm-transfer.mjs",
+    "web/lib/silo/native-keyring.mjs",
+    "web/lib/silo/sync/native-wallet-restore.mjs",
+    "web/lib/silo/native-keyring-store.mjs",
+    "web/lib/silo/new-receive.mjs",
+    "web/lib/silo/crosschain-order.mjs",
+    "web/lib/silo/crosschain-deposit.mjs",
+    "web/lib/silo/sync/browser-verifiers.mjs",
+    "web/lib/silo/sync/product-account.mjs",
+    "web/components/silo-account-panel.tsx",
+    "web/components/silo-inline-account-unlock.tsx",
+    "web/lib/silo/atomic-pending.mjs",
+    "web/lib/silo/native-submission-presentation.mjs",
+    "web/lib/silo/failure-reason.mjs",
+    "web/lib/silo/one-unlock.mjs",
+    "web/components/silo-shared-passphrase.tsx",
+    "web/lib/silo/device-unlock.mjs",
+    "web/components/silo-device-unlock.tsx",
+    "web/lib/silo/conversion-ui.mjs",
+    "web/lib/silo/money-animation.mjs",
+    "web/components/silo-money-animation.tsx",
+    "web/lib/silo/balance-visibility.mjs",
+    "web/components/silo-balance-visibility.tsx",
+    "web/components/silo-xmr-fee-estimate.tsx",
+    "web/lib/silo/address-groups.mjs",
+    "web/components/silo-address-text.tsx",
+    "web/components/silo-custody-note.tsx",
+    "web/lib/silo/large-share.mjs",
+    "web/components/silo-wait.tsx",
+    "web/components/silo-xmr-confirmations.tsx",
+    "web/lib/silo/native-transfer-costs.mjs",
+    "web/lib/silo/native-capabilities.mjs",
+    "web/lib/silo/get-xmr-handoff.mjs",
+    "web/lib/silo/local-store.mjs",
+    "web/lib/silo/backup-status.mjs",
+    "web/lib/silo/backup-budget.mjs",
+    "web/lib/silo/conversion-deposit-meta.mjs",
+    "web/components/silo-hydrated.tsx",
+    "web/components/silo-gate-hero.tsx",
+    "web/lib/silo/auto-reads.mjs",
+    "web/lib/silo/beta-terms.mjs",
+    "web/lib/silo/brand-theme-color.mjs",
+    "web/lib/silo/beta-live-state.mjs",
+    "web/components/silo-beta.tsx",
+    "web/lib/silo/beta-guard.mjs",
+    "web/lib/silo/unified-backup.mjs",
+    "web/components/silo-backup-parts.tsx",
+    "web/lib/silo/offline-recovery.mjs",
+    "web/lib/silo/receive-issuance.mjs",
+    "web/lib/silo/session-lock.mjs",
+    "web/lib/silo/receive-qr.mjs",
+    "web/components/silo-receive-address.tsx",
+    "web/components/silo-xmr-requests.tsx",
+    "web/components/silo-asset-icon.tsx",
+    "web/components/silo-native-workspace.tsx",
+    "web/lib/silo/grain-rewards-state.mjs",
+    "web/components/silo-price.tsx",
+    "web/lib/silo/move-private.mjs",
+    "web/components/silo-move-private.tsx",
+    "web/components/silo-account-signing.tsx",
+    "web/lib/silo/xmr-account-actions.mjs",
+    "web/lib/silo/xmr-watch-pool.mjs",
+    "web/lib/silo/backup-reseal.mjs",
+    "web/lib/silo/one-passphrase-flow.mjs",
+    "web/components/silo-native-zone.tsx",
+    "web/lib/silo/atomic-driver.mjs",
+    "web/lib/silo/atomic-reverse-terms.mjs",
+    "web/lib/silo/atomic-reverse-return.mjs",
+    "web/lib/silo/atomic-status-copy.mjs",
+    "web/lib/silo/atomic-amount.mjs",
+    "web/components/silo-atomic-panel.tsx",
+    "web/lib/silo/record-runner.mjs",
+    "web/lib/silo/atomic-reverse-driver.mjs",
+    "web/components/silo-atomic-reverse-panel.tsx",
+    "web/components/silo-move-private-screen.tsx",
+    "web/lib/silo/solana-amount.mjs",
+    "web/lib/silo/cashout-privacy.mjs",
+    "web/components/silo-cashout-privacy.tsx",
+    "web/lib/silo/convert-status-copy.mjs",
+    "web/lib/silo/conversion-identity.mjs",
+    "web/lib/silo/conversion-attempt.mjs",
+    "web/components/silo-coin-picker.tsx",
+    "web/lib/silo/conversion-rate.mjs",
+    "web/lib/silo/conversion-attempt-meta.mjs",
+    "web/components/silo-conversion-panel.tsx",
+    "web/lib/silo/solana-transfer-review.mjs",
+    "web/components/silo-conversion-solana-deposit.tsx",
+    "web/lib/trading/silo-connection.mjs",
+    "web/lib/silo/jupiter-target-roster.mjs",
+    "web/lib/silo/jupiter-target-search.mjs",
+    "web/lib/silo/jupiter-token-search.mjs",
+    "web/lib/silo/swap-cost-summary.mjs",
+    "web/lib/silo/release-probe-result.mjs",
+    "web/components/silo-release-checks.tsx",
+    "web/lib/silo/quote-age.mjs",
+    "web/lib/silo/jupiter-direct-client-flow.mjs",
+    "web/lib/silo/jupiter-direct-same-origin.mjs",
+    "web/components/silo-direct-jupiter-flow.tsx",
+    "web/lib/silo/jupiter-shared-client-flow.mjs",
+    "web/lib/silo/jupiter-shared-same-origin.mjs",
+    "web/components/silo-shared-jupiter-flow.tsx",
+    "web/lib/silo/swap-token-notice.mjs",
+    "web/components/silo-managed-jupiter-flow.tsx",
+    "web/lib/silo/jupiter-client-flow.mjs",
+    "web/components/silo-jupiter-flow.tsx",
+    "web/components/silo-swap-panel.tsx",
+    "web/components/silo-atomic-pending-card.tsx",
+    "web/components/silo-keyboard-guard.tsx",
+    "web/lib/theme/theme-core.mjs",
+    "web/components/silo-theme.tsx",
+    "web/lib/silo/known-tokens.mjs",
+    "web/components/silo-tokens.tsx",
+    "web/lib/silo/activity-feed.mjs",
+    "web/components/silo-activity-feed.tsx",
+    "web/components/silo-keyboard-fit.tsx",
+    "web/lib/silo/amount-pad.mjs",
+    "web/components/silo-amount-pad.tsx",
+    "web/components/silo-asset-card.tsx",
+    "web/lib/silo/asset-look.mjs",
+    "web/components/silo-send-screen.tsx",
+    "web/lib/silo-brand.ts",
+    "web/components/silo-unlock-state.tsx",
+    "web/components/silo-locked-deck.tsx",
+    "web/components/silo-unlock-home.tsx",
+    "web/lib/silo/legacy-envelopes.mjs",
+    "web/components/silo-one-passphrase.tsx",
+    "web/lib/silo/home-summary.mjs",
+    "web/components/silo-overview.tsx",
+    "web/components/silo-economics.tsx",
+    "web/components/silo-moment.tsx",
+    "web/lib/silo/native-origin.mjs",
+    "web/components/silo-native-public-wallet.tsx",
+    "web/lib/silo/btc-client.mjs",
+    "web/lib/silo/btc-journal.mjs",
+    "web/lib/silo/btc-copy.mjs",
+    "web/components/silo-btc-zone.tsx",
+    "web/components/silo-saved-swap-activity.tsx",
+    "web/components/silo-solana-activity.tsx",
+    "web/lib/silo/send-status-copy.mjs",
+    "web/lib/silo/action-consent.mjs",
+    "web/components/silo-solana-transfer.tsx",
+    "web/lib/silo/devnet-trade/cpmm.mjs",
+    "web/lib/silo/devnet-trade/flow.mjs",
+    "web/components/silo-devnet-trade.tsx",
+    "web/lib/silo/evm-send-ui.mjs",
+    "web/lib/silo/evm-attempt.mjs",
+    "web/lib/silo/evm-cap.mjs",
+    "web/components/silo-evm-send.tsx",
+    "web/components/silo-evm-zone.tsx",
+    "web/lib/silo/native-solana-provider.ts",
+    "web/lib/silo/grainy-content.mjs",
+    "web/components/silo-grainy.tsx",
+    "web/components/silo-workspace.tsx"
+   ]
+  },
+  "/_next/static/chunks/simulation-cost-GGlSmQzG.js": {
+   "source": [
+    "web/lib/simulation-cost.mjs"
+   ]
+  },
+  "/_next/static/chunks/site-config-CjrD9fBc.js": {
+   "source": [
+    "web/lib/monero-record-status.mjs",
+    "web/lib/site-config.ts"
+   ]
+  },
+  "/_next/static/chunks/site-footer-DnUUw8oT.js": {
+   "source": [
+    "web/components/site-footer.tsx"
+   ]
+  },
+  "/_next/static/chunks/site-header-XyKlqJCF.js": {
+   "source": [
+    "web/components/x-link.tsx",
+    "web/components/discord-link.tsx",
+    "web/components/github-link.tsx",
+    "web/lib/grain-family.ts",
+    "web/components/site-header.tsx"
+   ]
+  },
+  "/_next/static/chunks/site-wallet-CzgxVl7z.js": {
+   "source": [
+    "web/lib/chain/evm-transaction-safety.ts",
+    "web/lib/chain/evm-wallet-adapter.ts",
+    "web/lib/site-wallet-client.ts",
+    "web/lib/wallet-picker.mjs",
+    "web/components/ui/dialog.tsx",
+    "web/components/open-in-wallet.tsx",
+    "web/components/wallet-logos.tsx",
+    "web/components/site-wallet.tsx"
+   ]
+  },
+  "/_next/static/chunks/site-wallet-session-Di9zLuoi.js": {
+   "source": [
+    "web/lib/site-wallet-session.mjs"
+   ]
+  },
+  "/_next/static/chunks/sol-9fuWIAs9.js": {
+   "source": [
+    "web/lib/silo/atomic-swap/keys.mjs",
+    "web/lib/silo/atomic-swap/secret-send.mjs",
+    "web/lib/silo/atomic-swap/sol.mjs"
+   ]
+  },
+  "/_next/static/chunks/sol-indicative-client-CyUw6IsX.js": {
+   "source": [
+    "web/lib/sol-indicative-client.mjs"
+   ]
+  },
+  "/_next/static/chunks/sol-payment-assets-P9hj3NWV.js": {
+   "source": [
+    "web/lib/sol-payment-assets.mjs"
+   ]
+  },
+  "/_next/static/chunks/sol-route-lookup-policy-Bej_RbR1.js": {
+   "source": [
+    "web/lib/sol-route-lookup-policy.mjs"
+   ]
+  },
+  "/_next/static/chunks/sol-trade-client-CHfY7gkB.js": {
+   "source": [
+    "web/lib/sol-trade-client.mjs"
+   ]
+  },
+  "/_next/static/chunks/solana-transfer-dAZQMTkN.js": {
+   "source": [
+    "web/lib/silo/solana-genesis.mjs",
+    "web/lib/silo/solana-transfer.mjs"
+   ]
+  },
+  "/_next/static/chunks/swap-core-BlKckcVJ.js": {
+   "source": [
+    "web/lib/silo/atomic-swap/swap-core.mjs"
+   ]
+  },
+  "/_next/static/chunks/textarea-C7i8lejY.js": {
+   "source": [
+    "web/components/ui/textarea.tsx"
+   ]
+  },
+  "/_next/static/chunks/theme-toggle-BY-dCABi.js": {
+   "source": [
+    "web/components/theme-toggle.tsx"
+   ]
+  },
+  "/_next/static/chunks/token-discovery-CU0gN_oU.js": {
+   "source": [
+    "web/components/token-tile.tsx",
+    "web/components/grain-ui.tsx",
+    "web/components/graduation-road-mini.tsx",
+    "web/lib/token-market.ts",
+    "web/hooks/use-live-now.ts",
+    "web/components/token-discovery.tsx"
+   ]
+  },
+  "/_next/static/chunks/token-header-FQp6izmN.js": {
+   "source": [
+    "web/components/ui/dropdown-menu.tsx",
+    "web/lib/token-launch-post.mjs",
+    "web/components/token-launch-post.tsx",
+    "web/lib/token-colour.mjs",
+    "web/components/token-field.tsx",
+    "web/components/token-header.tsx"
+   ]
+  },
+  "/_next/static/chunks/token-image-B6sPmD-T.js": {
+   "source": [
+    "web/components/token-image.tsx"
+   ]
+  },
+  "/_next/static/chunks/token-trade-BB3Ymr7o.js": {
+   "source": [
+    "web/lib/official-creator-buy.mjs",
+    "web/lib/creator-profile.mjs",
+    "web/components/creator-profile.tsx",
+    "web/components/reality-check.tsx",
+    "web/components/token-project-context.tsx",
+    "web/components/use-live-market.ts",
+    "web/lib/live-chart.mjs",
+    "web/components/live-market-chart.tsx",
+    "web/lib/chart-candles.mjs",
+    "web/components/candlestick-market-chart.tsx",
+    "web/components/chart-preferences.tsx",
+    "web/components/grains-chart.tsx",
+    "web/components/chart-boundary.tsx",
+    "web/lib/native-market.mjs",
+    "web/lib/market-metric.mjs",
+    "web/components/market-module.tsx",
+    "web/components/graduation-status.tsx",
+    "web/lib/load-trading.ts",
+    "web/lib/token-control-summary.mjs",
+    "web/components/token-control-summary.tsx",
+    "web/lib/sol-route-display.mjs",
+    "web/lib/sol-trade-speculation.mjs",
+    "web/components/token-trade.tsx"
+   ]
+  },
+  "/_next/static/chunks/token-units-BBdNbvVc.js": {
+   "source": [
+    "web/lib/token-units.mjs"
+   ]
+  },
+  "/_next/static/chunks/trade-BDulGk5z.js": {
+   "source": [
+    "web/lib/trade-indicative.mjs",
+    "web/lib/trade.ts"
+   ]
+  },
+  "/_next/static/chunks/trade-core-CKsaxsVT.js": {
+   "source": [
+    "web/lib/trade-core.mjs"
+   ]
+  },
+  "/_next/static/chunks/trade-wallet-notice-oi58_OCV.js": {
+   "source": [
+    "web/components/trade-wallet-notice.tsx"
+   ]
+  },
+  "/_next/static/chunks/trading-native-0BViC0n2.js": {
+   "source": [
+    "web/lib/trading/receipt.mjs",
+    "web/lib/trading/watchlist.mjs",
+    "web/components/trading/trading-workspace.tsx",
+    "web/components/trading/trading-native.tsx"
+   ]
+  },
+  "/_next/static/chunks/trading-venue-DpNZ-zni.js": {
+   "source": [
+    "web/lib/token-time.ts",
+    "web/components/graduation-info.tsx",
+    "web/lib/trading-venue.ts"
+   ]
+  },
+  "/_next/static/chunks/treasury-Csjyi_mk.js": {
+   "source": [
+    "web/lib/treasury-budget.mjs",
+    "web/lib/treasury.ts"
+   ]
+  },
+  "/_next/static/chunks/treasury-read-8hTt7qpT.js": {
+   "source": [
+    "web/lib/treasury-read.ts"
+   ]
+  },
+  "/_next/static/chunks/treasury-sol-client-DEwkFtOZ.js": {
+   "source": [
+    "web/lib/treasury-sol-client.mjs"
+   ]
+  },
+  "/_next/static/chunks/use-shared-wallet-_XbWGg-T.js": {
+   "source": [
+    "web/components/use-shared-wallet.ts"
+   ]
+  },
+  "/_next/static/chunks/use-site-wallet-uuNnsqax.js": {
+   "source": [
+    "web/components/use-site-wallet.ts"
+   ]
+  },
+  "/_next/static/chunks/use-transaction-receipt-DKsO6Pct.js": {
+   "source": [
+    "web/components/use-transaction-receipt.ts"
+   ]
+  },
+  "/_next/static/chunks/user-identity-VRM65XoI.js": {
+   "source": [
+    "web/components/user-identity.tsx"
+   ]
+  },
+  "/_next/static/chunks/utils-B6KiDbIe.js": {
+   "source": [
+    "web/lib/utils.ts"
+   ]
+  },
+  "/_next/static/chunks/vanity-mint-BTMgpOQe.js": {
+   "source": [
+    "web/lib/vanity-mint.ts"
+   ]
+  },
+  "/_next/static/chunks/vanity-suffix-zbf-S22I.js": {
+   "source": [
+    "web/lib/vanity-suffix.ts"
+   ]
+  },
+  "/_next/static/chunks/viewer-polling-CQGlCDlj.js": {
+   "source": [
+    "web/lib/viewer-polling.mjs"
+   ]
+  },
+  "/_next/static/chunks/wallet-7py_jCr9.js": {
+   "source": [
+    "web/lib/wallet-adapters.mjs",
+    "web/lib/wallet.ts"
+   ]
+  },
+  "/_next/static/chunks/wallet-availability-CtzJt0EX.js": {
+   "source": [
+    "web/components/wallet-availability.tsx"
+   ]
+  },
+  "/_next/static/chunks/wallet-connection-intent-krktPsCD.js": {
+   "source": [
+    "web/lib/wallet-connection-intent.mjs"
+   ]
+  },
+  "/_next/static/chunks/wallet-identity-BekJLyqK.js": {
+   "source": [
+    "web/lib/wallet-identity.mjs"
+   ]
+  },
+  "/_next/static/chunks/wallet-session-CVrzJ3YG.js": {
+   "source": [
+    "web/lib/wallet-session.mjs"
+   ]
+  },
+  "/_next/static/chunks/wallet-session-DAvzFbB_.js": {
+   "source": [
+    "web/lib/chain/wallet-session.ts"
+   ]
+  },
+  "/_next/static/chunks/wxmr-wallet-note-DoFQaAmO.js": {
+   "source": [
+    "web/components/wxmr-wallet-note.tsx"
+   ]
+  },
+  "/_next/static/chunks/wxmr-warning-BdrRZIiP.js": {
+   "source": [
+    "web/components/wxmr-warning.tsx"
+   ]
+  },
+  "/_next/static/chunks/xmr-adapter-UlyuxyIx.js": {
+   "source": [
+    "web/lib/silo/xmr-address-review.mjs",
+    "web/lib/silo/xmr-node-network.mjs",
+    "web/lib/silo/xmr-unsigned-fee.mjs",
+    "web/lib/silo/xmr-unsigned-fee-read.mjs",
+    "web/lib/silo/xmr-adapter.mjs"
+   ]
+  },
+  "/_next/static/chunks/xmr-request-DLIwbHI3.js": {
+   "source": [
+    "web/lib/silo/xmr-confirmations.mjs",
+    "web/lib/silo/xmr-request.mjs"
+   ]
+  },
+  "/_next/static/chunks/zec-adapter-DxSrIqrh.js": {
+   "source": [
+    "web/lib/silo/zec-balances.mjs",
+    "web/lib/silo/zec-legacy.mjs",
+    "web/lib/silo/zec-adapter.mjs"
+   ]
+  },
+  "/_next/static/chunks/zec-browser-sdk-CIGytkYo.js": {
+   "source": [
+    "web/lib/silo/zec-sdk-manifest.json",
+    "web/lib/silo/zec-browser-sdk.mjs"
+   ]
+  }
+ }
+}

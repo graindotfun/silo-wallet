@@ -1,6 +1,7 @@
 'use client';
 /* eslint-disable @next/next/no-html-link-for-pages, @next/next/no-img-element -- Native navigation and supplied local SVG artwork. */
 import {SiloAtomicPendingCard} from '@/components/silo-atomic-pending-card';
+import {requestAtomicDirection} from '@/lib/silo/atomic-pending.mjs';
 import {useEffect,useState,useSyncExternalStore,type KeyboardEvent,type ReactNode} from 'react';
 import {useSiloBalanceVisibility,SiloReviewVisibilityNotice} from './silo-balance-visibility';
 import {ArrowUpRight,ArrowDownLeft,ArrowLeftRight,ChevronRight,ChevronLeft,Eye,EyeOff,House,Settings2,History,LockKeyhole,Check,AlertTriangle,CircleDashed,PauseCircle} from 'lucide-react';
@@ -13,22 +14,25 @@ import {xmrConfirmationState,xmrEtaText,xmrLockedAmount,xmrPendingIncoming,xmrNe
 import {useSiloTokens,siloTokenRows,siloTokenLabel,siloTokenAmount,siloShortMint,SiloUnverified} from './silo-tokens';
 import type {SiloBalanceState} from './silo-native-zone';
 import type {SiloEvmReport} from './silo-evm-zone';
-import type {SiloActivityPage} from './silo-solana-activity';
+import type {SiloActivityPage,SiloRefreshOutcome} from './silo-solana-activity';
+import {SiloActivityFeed,type SiloSolanaActivityStatus} from './silo-activity-feed';
 import {BUILD_COMMIT} from '@/lib/build-commit';
 import {SiloBetaBadge,type SiloBeta} from './silo-beta';
 import {useSiloKeyboardFit} from './silo-keyboard-fit';
 import {SiloAmountPad} from './silo-amount-pad';
 import {SiloSendScreen} from './silo-send-screen';
 import {SiloAssetCard,SiloNetworkRow} from './silo-asset-card';
-import {SILO_ASSET_LOOKS,SILO_FALLBACK_LOOK,siloAssetLook,siloChainLook} from '@/lib/silo/asset-look.mjs';
+import {SILO_FALLBACK_LOOK,siloAssetLook,siloChainLook} from '@/lib/silo/asset-look.mjs';
 import {SILO_TAGLINE} from '@/lib/silo-brand';
 import {SiloUnlockHome} from './silo-unlock-home';
 import {useSiloUnlockState} from './silo-unlock-state';
 import {SiloOnePassphrase} from './silo-one-passphrase';
 import {SiloDeviceUnlockOffer,SiloDeviceUnlockSetting} from './silo-device-unlock';
+import {siloHomeHeadline,siloHomeSplit} from '@/lib/silo/home-summary.mjs';
+import {SILO_MOVE_HASH} from './silo-move-private-screen';
 type Holdings={network?:'mainnet-beta'|'devnet';lamports:string|null;holdings:{mint:string;amount:string;decimals:number}[]};
-export type SiloXmrHistoryRow={id:string;height:number|null;incoming:string|null;outgoing:string|null;selfTransfer?:boolean;balanceDelta:string|null;fee:string|null;confirmations:number|null;status:string};
-type View='overview'|'wallets'|'send'|'swap'|'activity'|'settings';
+export type SiloXmrHistoryRow={id:string;height:number|null;incoming:string|null;outgoing:string|null;selfTransfer?:boolean;balanceDelta:string|null;fee:string|null;confirmations:number|null;status:string;timestamp?:number|null};
+type View='overview'|'wallets'|'send'|'swap'|'activity'|'settings'|'move';
 type Task='swap'|'cashout'|'atomic';
 type Page='index'|'backup'|'devices'|'display'|'fees'|'build'|'about';
 type Reason={key:string;text:string;next?:{label:string;go:()=>void}};
@@ -37,7 +41,7 @@ const views=[{id:'overview' as View,label:'Home',icon:House},{id:'swap' as View,
 const pages:Page[]=['index','backup','devices','display','fees','build','about'];
 const networks=['xmr','sol','zec','evm'];
 const subscribeNavigation=(changed:()=>void)=>{window.addEventListener('hashchange',changed);return()=>window.removeEventListener('hashchange',changed);};
-const navigationSnapshot=()=>/^#settings\/(xmr|sol|zec|evm)$/.test(location.hash)?'#settings/devices':/^#(overview|wallets|send|swap|activity|settings)\/(xmr|sol|zec|evm|index|backup|devices|display|fees|build|about|cashout)$/.test(location.hash)||location.hash==='#swap/atomic'?location.hash:'#overview/xmr';
+const navigationSnapshot=()=>/^#settings\/(xmr|sol|zec|evm)$/.test(location.hash)?'#settings/devices':/^#(overview|wallets|send|swap|activity|settings)\/(xmr|sol|zec|evm|index|backup|devices|display|fees|build|about|cashout)$/.test(location.hash)||location.hash==='#swap/atomic'||location.hash===SILO_MOVE_HASH?location.hash:'#overview/xmr';
 const pageTitle:Record<Page,string>={index:'settings',backup:'backup',devices:'devices',display:'display',fees:'fees and privacy',build:'this build',about:'about'};
 const pageLine:Record<Page,string>={index:'Backup, devices, display, fees and what this build can do.',backup:'Your encrypted wallet is kept in this browser.',devices:'Sign in on another device, then unlock and approve it separately.',display:'How the wallet looks and what it shows on screen.',fees:'What stays public, what costs money and what this wallet cannot promise.',build:'What works in this build and what is held.',about:'Beta, not externally audited. Use small amounts.'};
 function dayLabel(time:number|null){if(time===null)return 'Time not recorded';const day=new Date(time),today=new Date(),start=(date:Date)=>Date.UTC(date.getUTCFullYear(),date.getUTCMonth(),date.getUTCDate());const delta=Math.round((start(today)-start(day))/86400000);return delta===0?'Today':delta===1?'Yesterday':day.toISOString().slice(0,10);}
@@ -48,7 +52,7 @@ function solanaActivity(page:SiloActivityPage|null):Activity[]{
   const title=row.status==='failed'?'Failed transaction':row.status==='receipt-unavailable'?'Receipt unavailable':row.status==='unknown'?'Unknown transaction details':row.classification==='jupiter-unverified'?'Jupiter activity · swap details unverified':row.classification==='transfer'?'Transfer observation':'Other on-chain activity';
   const net=row.nativeNetRaw,value=net!==null?`${net.startsWith('-')?'−':'+'}${siloUnits(net.replace(/^-/,''),9)} SOL`:null;
   const state=row.status==='finalized'?'ok':row.status==='failed'?'danger':'held';
-  return {id:row.signature,when:row.blockTime===null?null:row.blockTime*1000,title,detail:'Solana · public · observed SOL balance change',value,state,word:row.status==='finalized'?'Confirmed':row.status==='failed'?'Failed':'Not confirmed yet',network:'sol' as const};
+  return {id:row.signature,when:row.blockTime===null?null:row.blockTime*1000,title,detail:'Solana · public · observed SOL balance change',value,state,word:row.status==='finalized'?'Confirmed':row.status==='failed'?'Failed':'Details unavailable',network:'sol' as const};
  });
 }
 /** Row subtitle: unchanged wording once checked, with n/10 and an approximate wait while still confirming. */
@@ -68,7 +72,7 @@ function monero(rows:SiloXmrHistoryRow[]|null,decimals=12):Activity[]{
   return {id:row.id,when:null,title,detail:xmrActivityDetail(row.confirmations,row.status),value:`${value} XMR`,state:failed?'held':row.confirmations!==null&&row.confirmations>=10?'ok':'held',word:failed?'Not confirmed yet':row.confirmations!==null&&row.confirmations>=10?'Confirmed':'Not confirmed yet',network:'xmr' as const};
  });
 }
-export function SiloOverview({atomicEnabled=false,solanaOpen=false,launchpad='',prices=false,children,xmr,zec,publicReport,evm=null,test,zecSoon=true,solanaNetwork='mainnet-beta',releaseHeld=false,swapMode='held',activityPage=null,xmrHistory=null,backupNeeded=false,conversionLive=false}:{backupNeeded?:boolean;atomicEnabled?:boolean;conversionLive?:boolean;solanaOpen?:boolean;launchpad?:string;beta?:SiloBeta|null;releaseHeld?:boolean;swapMode?:'preview'|'held'|'execute';children:ReactNode;xmr:SiloBalanceState;zec:SiloBalanceState;publicReport:Holdings|null;evm?:SiloEvmReport|null;test:boolean;zecSoon?:boolean;solanaNetwork?:'mainnet-beta'|'devnet';solanaTransfersEnabled?:boolean;prices?:boolean;activityPage?:SiloActivityPage|null;xmrHistory?:SiloXmrHistoryRow[]|null}){
+export function SiloOverview({moveEnabled=false,atomicEnabled=false,solanaOpen=false,launchpad='',prices=false,children,xmr,zec,publicReport,evm=null,test,zecSoon=true,solanaNetwork='mainnet-beta',releaseHeld=false,evmStart='off',swapMode='held',activityPage=null,xmrHistory=null,solanaActivityStatus='off',solanaOwner=null,backupNeeded=false,conversionLive=false,onRefreshSolana,onRefreshXmr=null,onLoadOlder=null}:{moveEnabled?:boolean;evmStart?:'off'|'held'|'ready';onRefreshSolana?:()=>SiloRefreshOutcome|Promise<SiloRefreshOutcome>;onRefreshXmr?:(()=>Promise<SiloRefreshOutcome>)|null;onLoadOlder?:(()=>void)|null;solanaActivityStatus?:SiloSolanaActivityStatus;solanaOwner?:string|null;backupNeeded?:boolean;atomicEnabled?:boolean;conversionLive?:boolean;solanaOpen?:boolean;launchpad?:string;beta?:SiloBeta|null;releaseHeld?:boolean;swapMode?:'preview'|'held'|'execute';children:ReactNode;xmr:SiloBalanceState;zec:SiloBalanceState;publicReport:Holdings|null;evm?:SiloEvmReport|null;test:boolean;zecSoon?:boolean;solanaNetwork?:'mainnet-beta'|'devnet';solanaTransfersEnabled?:boolean;prices?:boolean;activityPage?:SiloActivityPage|null;xmrHistory?:SiloXmrHistoryRow[]|null}){
  useSiloKeyboardGuard();
  const unlockRows=useSiloUnlockState().state.rows,deckShown=unlockRows.length>0&&unlockRows.every(row=>row.status!=='open');
  const {appearance}=useSiloTheme();
@@ -112,7 +116,8 @@ export function SiloOverview({atomicEnabled=false,solanaOpen=false,launchpad='',
  const parts=[xmrValue,solValue].filter((part):part is [number|null,number|null|undefined]=>part!==null);
  const total=parts.length&&parts.every(([value,usd])=>value!=null&&usd!=null)?parts.reduce((sum,[value,usd])=>sum+(value as number)*(usd as number),0):null;
  const privateUsd=xmrValue&&xmrValue[0]!=null&&xmrValue[1]!=null?xmrValue[0]*xmrValue[1]:null;
- const privateShare=total!==null&&total>0&&privateUsd!==null&&solValue!==null?Math.min(100,Math.max(0,Math.round(privateUsd/total*100))):null;
+ const publicUsd=solValue&&solValue[0]!=null&&solValue[1]!=null?solValue[0]*solValue[1]:null;
+ const solAmount=publicReport&&publicReport.lamports!==null?siloUnits(publicReport.lamports,9):null;
 
  // What this build can actually do. Off-in-this-build is a different state from Locked: nothing exists to unlock.
  const xmrOff=xmr.coverage==='not enabled',zecOff=!zecSoon&&zec.coverage==='not enabled';
@@ -130,13 +135,15 @@ export function SiloOverview({atomicEnabled=false,solanaOpen=false,launchpad='',
  // One small badge in the header says which network the wallet is on; the real-funds fact lives in its label and the review step, not in a row of copy.
  const solanaReal=solanaMainnet,moneroReal=!test,networkBadgeLabel=solanaReal&&moneroReal?'Mainnet':!solanaReal&&!moneroReal?'Test network':'Mixed networks',
   networkBadgeNote=`Monero: ${moneroReal?'Mainnet · real funds':'Stagenet · test funds'}. Solana: ${solanaReal?'Mainnet · real funds':'Devnet · test funds'}.${solanaReal||moneroReal?' This uses real funds.':' This uses test funds; test balances are separate from mainnet.'}`;
- const title=view==='overview'?'home':view==='activity'?'activity':view==='swap'?'swap':view==='settings'?pageTitle[page]:view==='send'?'send':({xmr:'monero',sol:'solana',evm:'evm'} as Record<string,string>)[network]??'wallets';
+ const anyOpen=(!xmrOff&&xmr.opened)||Boolean(publicReport)||solanaOpen;
+ const title=view==='overview'?siloHomeHeadline({anyOpen,concealed,totalText:total!==null?siloUsd(total):null}):view==='move'?'move to private':view==='activity'?'activity':view==='swap'?'swap':view==='settings'?pageTitle[page]:view==='send'?'send':({xmr:'monero',sol:'solana',evm:'evm'} as Record<string,string>)[network]??'wallets';
  // One sentence that says what is true now, from the same state the screens below use.
  const monerosentence=xmrOff?'Monero is off in this build.':releaseHeld&&!xmr.opened?'Monero is held in this build.':xmr.syncError?'Monero sync failed. The balance is not checked.':synced?'Monero is synced.':xmr.coverage==='working'?'Monero is syncing.':xmr.opened?'Monero is open. Syncing starts automatically; the saved balance is not final until then.':'Monero is locked.';
  const solanasentence=publicReport?'Solana is connected and public.':'Solana is not checked.';
- const homeLine=`${xmrOff?'Monero off':releaseHeld&&!xmr.opened?'Monero held':xmr.syncError?'Monero sync failed':synced?'Monero synced':xmr.coverage==='working'?'Monero syncing':xmr.opened?'Monero open':'Monero locked'} · ${publicReport?'Solana open':'Solana not opened'}`;
- const stateLine=view==='overview'?homeLine
-  :view==='activity'||view==='swap'||view==='send'?''
+ // Home: one sentence per room, from the same reads as the rows below (display only).
+ const homeSplit=siloHomeSplit({concealed,xmr:{amount:currentXmrAmount!==null?siloUnits(currentXmrAmount,12):null,usd:privateUsd!==null?siloUsd(privateUsd):null,state:monerosentence},sol:{amount:solAmount,usd:publicUsd!==null?siloUsd(publicUsd):null,state:publicReport?'Solana is not checked.':solanaOpen?'Solana is open. Its balance is not loaded yet.':'Solana is not open.'}});
+ const stateLine=view==='overview'?homeSplit
+  :view==='activity'||view==='swap'||view==='send'||view==='move'?''
   :view==='settings'?pageLine[page]
   :network==='xmr'?`${monerosentence} Native XMR in your Monero wallet.`:network==='sol'?'Solana trades and balances are visible on-chain.':'EVM networks are public. View, receive and, where enabled, send.';
 
@@ -165,51 +172,51 @@ export function SiloOverview({atomicEnabled=false,solanaOpen=false,launchpad='',
  const activityRows=(items:Activity[])=>{let last='';return items.map(item=>{const day=dayLabel(item.when),heading=day!==last;last=day;return <div key={`${item.network}:${item.id}`} className="silo-activity-item">{heading&&<p className="silo-day">{day}</p>}<div className="silo-account silo-activity-row" data-state={item.state}><SiloAssetIcon asset={item.network==='sol'?'sol':'xmr'}/><span className="silo-account-name">{item.title}<small>{item.detail}</small></span><span className="silo-account-value">{item.value===null?'—':concealed?<span aria-label="Amount hidden">••••</span>:item.value}<small className="silo-state-word" data-state={item.state}>{item.word}</small></span></div></div>;});};
 
  const lastChecked=xmr.lastCheckedAt!=null&&Number.isSafeInteger(xmr.lastCheckedAt)&&xmr.lastCheckedAt>=0&&xmr.lastCheckedAt<=8640000000000000?<p className="silo-last-checked">Monero last checked: {new Date(xmr.lastCheckedAt).toISOString()}{!synced?' · historical check; current balance is not checked.':''}</p>:null;
- const pendingSwap=atomicEnabled?<SiloAtomicPendingCard onOpen={()=>setTask('atomic')}/>:null;
+ // Activity keeps the full, independent swap card (deadlines and the step to take); Home shows the compact one.
+ // Shown whenever a swap is in progress, also while its direction is switched off in this build: then read-only, with the paused line (748-M2).
+ const swapsPaused={'xmr-sol':!atomicEnabled,'sol-xmr':!moveEnabled};
+ const pendingSwap=<SiloAtomicPendingCard paused={swapsPaused} onOpen={()=>setTask('atomic')}/>,pendingSwapCompact=<SiloAtomicPendingCard compact paused={swapsPaused} onOpen={()=>setTask('atomic')}/>;
  // r8 Home: which card is open (the first opened wallet, Monero before Solana, until a person chooses), and the network filter.
  const solUnverified=backupNeeded&&!solanaOpen&&!publicReport;
  const [chosenCard,setChosenCard]=useState<string|null>(null),[filter,setFilter]=useState('all');
  const defaultCard=!xmrOff&&xmr.opened?'xmr':publicReport||solanaOpen?'sol':'xmr';
  const isOpen=(id:string)=>(chosenCard??defaultCard)===id;
  const toggle=(id:string)=>setChosenCard(isOpen(id)?'':id);
- const chips:{id:string;label:string;icon?:'xmr'|'sol'|'eth'|'base'|'bnb'|'evm';locked?:boolean}[]=[{id:'all',label:'All'},{id:'xmr',label:'Monero',icon:'xmr',locked:!xmrOff&&!xmr.opened},{id:'sol',label:'Solana',icon:'sol'},...(evm!==null?[{id:'evm',label:evm.chainName,icon:(evm.chainId===8453?'base':evm.chainId===56?'bnb':evm.chainId===1?'eth':'evm') as 'base'}]:[])];
+ // EVM on Home before any EVM wallet exists (owner, 11 Nov 2026): a card and a chip that open the existing EVM network page, or the held wording.
+ const evmPrompt=evm===null&&evmStart!=='off';
+ const chips:{id:string;label:string;icon?:'xmr'|'sol'|'eth'|'base'|'bnb'|'evm';locked?:boolean}[]=[{id:'all',label:'All'},{id:'xmr',label:'Monero',icon:'xmr',locked:!xmrOff&&!xmr.opened},{id:'sol',label:'Solana',icon:'sol'},...(evm!==null?[{id:'evm',label:evm.chainName,icon:(evm.chainId===8453?'base':evm.chainId===56?'bnb':evm.chainId===1?'eth':'evm') as 'base'}]:evmPrompt?[{id:'evm',label:'EVM',icon:'evm' as const}]:[])];
  const shown=(network:string)=>filter==='all'||filter===network;
  const cards=['xmr','sol',...tokenRows.map(row=>row.mint),...(evm!==null?['evm']:[])];
+ const xmrRow=shown('xmr')&&<section className="silo-ledger-row" data-zone={xmrOff?'soon':'private'} aria-labelledby="silo-row-xmr">
+  <button type="button" className="silo-ledger-head" onClick={()=>openNetwork('xmr')}><SiloAssetIcon asset="xmr"/><span className="silo-ledger-name"><strong id="silo-row-xmr">Monero</strong><small>Private{!xmrOff&&!xmr.opened&&<LockKeyhole size={13} aria-label="locked"/>}</small></span>
+   <span className="silo-ledger-amt">{xmrOff?'Off':!xmr.opened?'Locked':concealed?<span aria-label="Amount hidden">••••</span>:currentXmrAmount!==null?`${siloUnits(currentXmrAmount,12)} XMR`:showSaved?<span className="silo-hero-saved" aria-label="Saved balance, not final until the sync finishes">{siloUnits(xmr.cachedAmount as string,12)} XMR</span>:status}<small>{!concealed&&privateUsd!==null?`≈ ${siloUsd(privateUsd)}`:''}</small></span></button>
+  <p className="silo-window-sub">{xmrOff?'Off in this build':!xmr.opened?(releaseHeld?'Held in this build':'Locked. Not opened on this device.'):`${status}${xmr.syncError?'':synced?(concealed||!lockedNote?'':` · available ${available}${lockedNote}`):showSaved&&!concealed?` · saved balance from ${savedAgo(xmr.cachedAt)}, not final until synced`:''}`}</p>
+  {privateReady?<div className="silo-actions" role="group" aria-label="Private actions">
+   {action('Receive','secondary',true,()=>goXmr('receive'),ArrowDownLeft)}
+   {action('Send','secondary',true,()=>navigate('send','xmr'),ArrowUpRight)}
+  </div>:privateReasons[0]?.key==='open'&&<div className="silo-actions" role="group" aria-label="Private actions">{action('Open Monero wallet','secondary',true,()=>openNetwork('xmr'),LockKeyhole)}</div>}
+  {privateReasons.length>0&&privateReasons[0].key!=='open'&&<ul className="silo-whynot" id="silo-private-why">{privateReasons.map(reason=><li key={reason.key}>{reason.text}{reason.next&&<> <button type="button" onClick={reason.next.go}>{reason.next.label}</button></>}</li>)}</ul>}
+ </section>;
+ const solRow=shown('sol')&&<section className="silo-ledger-row" data-zone="public" aria-labelledby="silo-row-sol">
+  <button type="button" className="silo-ledger-head" onClick={()=>openNetwork('sol')}><SiloAssetIcon asset="sol"/><span className="silo-ledger-name"><strong id="silo-row-sol">Solana</strong><small>Public</small></span>
+   <span className="silo-ledger-amt">{publicReport?(concealed?<span aria-label="Amount hidden">••••</span>:solAmount!==null?`${solAmount} SOL`:'Not checked'):solanaOpen?'Open':solUnverified?'Open · verify backup':'Not connected'}<small>{!concealed&&publicUsd!==null?`≈ ${siloUsd(publicUsd)}`:''}</small></span></button>
+  <p className="silo-window-sub">{publicReport?`Connected${publicReport.holdings.length?` · ${publicReport.holdings.length} token${publicReport.holdings.length===1?'':'s'}`:''}`:solanaOpen?'Open · balance not loaded yet':solUnverified?'Open. Verify your encrypted backup to receive and send.':'Not opened on this device.'}</p>
+  <div className="silo-actions" role="group" aria-label="Solana actions">{publicReport||solanaOpen?<>{action('Receive','secondary',true,()=>{openNetwork('sol');requestAnimationFrame(()=>document.getElementById('silo-sol-receive')?.scrollIntoView({behavior:'smooth',block:'start'}));},ArrowDownLeft)}{action('Send','secondary',true,()=>navigate('send','sol'),ArrowUpRight)}</>:action(solUnverified?'Verify backup':'Open Solana wallet','secondary',true,()=>openNetwork('sol'),LockKeyhole)}</div>
+ </section>;
+ const extraCards=tokenRows.length>0||evm!==null||evmPrompt;
+ // Home (owner, 10 Nov 2026, direction C): the headline and the private/public line sit in the page header (title and stateLine above);
+ // then the swap in progress, one row per wallet (Monero, Solana) with balance and estimate, and one primary "Move to private".
+ // Every action the r8 cards held is still here: Receive and Send per wallet, open/verify, the reasons, tokens, other networks, Sell, Activity.
  const home=<div className="silo-home">
   <div className="silo-home-main">
-   {pendingSwap}
-   {total!==null&&<section className="silo-total" aria-labelledby="silo-total-title">
-    <div className="silo-total-row"><span id="silo-total-title" className="silo-label">Total</span><span className="silo-total-amt"><span className="sr-only">Estimated value </span>{concealed?<span aria-label="Amount hidden">••••••</span>:siloUsd(total)}</span><span className="silo-fine">Loaded XMR/SOL only · locked wallets, tokens and EVM excluded</span></div>
-    {privateShare!==null&&!concealed&&<div className="silo-split"><div className="silo-split-bar" aria-hidden="true"><i data-zone="private" style={{flex:`${Math.max(privateShare,1)} 1 0`}}/><i data-zone="public" style={{flex:`${Math.max(100-privateShare,1)} 1 0`}}/></div><ul className="silo-split-legend"><li><span className="silo-zone-mark" data-zone="private" aria-hidden="true"/>Private <b>{privateShare}%</b></li><li><span className="silo-zone-mark" data-zone="public" aria-hidden="true"/>Public <b>{100-privateShare}%</b></li></ul></div>}
-   </section>}
+   {pendingSwapCompact}
+   {total!==null&&<p className="silo-fine silo-home-total-note">Total counts XMR and SOL only.</p>}
    {lastChecked}
-   {/* r8 Home (owner, 6 Nov 2026): every asset is a card on its own colour (lib/silo/asset-look.mjs), Monero first (owner, 23 Oct).
-       Each card's body says what its window said before: the same balances, notes, reasons and actions. Display only. */}
-   <section className="silo-asset-stack" aria-label="Your assets" data-deck-shown={deckShown?'true':undefined}>
-    {cards.length>=4&&<div className="silo-asset-filter" role="group" aria-label="Show assets on">{chips.map(chip=><button key={chip.id} type="button" aria-pressed={filter===chip.id} onClick={()=>setFilter(chip.id)}>{chip.icon&&<SiloAssetIcon asset={chip.icon}/>}{chip.label}{chip.locked&&<LockKeyhole size={14} aria-label="locked"/>}</button>)}</div>}
-    <p className="silo-asset-count">{cards.length} asset{cards.length===1?'':'s'} · {chips.length-1} network{chips.length===2?'':'s'}</p>
-    {shown('xmr')&&<SiloAssetCard id="xmr" look={xmrOff?SILO_FALLBACK_LOOK:SILO_ASSET_LOOKS.xmr} symbol="XMR" name="Monero" locked={!xmrOff&&!xmr.opened} summary={xmrOff?'Off':!xmr.opened?'Locked':concealed?'••••':currentXmrAmount!==null?`${siloUnits(currentXmrAmount,12)} XMR`:status} open={isOpen('xmr')} onToggle={()=>toggle('xmr')}>
-     <div className="silo-window" data-zone={xmrOff?'soon':'private'}>
-     <div className="silo-window-label"><span className="silo-zone-mark" data-zone={xmrOff?'soon':'private'} aria-hidden="true"/><h3 id="silo-private-title" className="silo-window-name">Private · Monero</h3></div>
-     {xmr.opened&&<p className="silo-hero">{xmrOff||!xmr.opened?<span aria-label="Balance unavailable">—</span>:concealed?<span aria-label="Amount hidden">••••</span>:currentXmrAmount!==null?<span>{siloUnits(currentXmrAmount,12)}</span>:showSaved?<span className="silo-hero-saved" aria-label="Saved balance, not final until the sync finishes">{siloUnits(xmr.cachedAmount as string,12)}</span>:<span aria-label="Not checked">—</span>}<span className="silo-hero-unit">XMR</span></p>}
-     {xmr.opened&&<SiloNetworkRow icon="xmr" label="Private · Monero" state={xmrOff?'Off in this build':!xmr.opened?'Locked':status} on={synced}/>}
-     <p className="silo-window-sub">{xmrOff?'Off in this build':!xmr.opened?(releaseHeld?'Held in this build':'Locked. Not opened on this device.'):`${status}${xmr.syncError?'':synced?(concealed?'':` · available ${available}${lockedNote}`):showSaved&&!concealed?` · saved balance from ${savedAgo(xmr.cachedAt)}, not final until synced`:''} · ${test?'Stagenet · test funds':'Native XMR · Mainnet · real funds'}`}</p>
-     {privateReady?<div className="silo-actions" role="group" aria-label="Private actions">
-     {action('Receive','primary',true,()=>goXmr('receive'),ArrowDownLeft)}
-     {action('Send','secondary',true,()=>navigate('send','xmr'),ArrowUpRight)}
-    </div>:privateReasons[0]?.key==='open'&&<div className="silo-actions" role="group" aria-label="Private actions">{action('Open Monero wallet','primary',true,()=>openNetwork('xmr'),LockKeyhole)}</div>}
-    {privateReasons.length>0&&privateReasons[0].key!=='open'&&<ul className="silo-whynot" id="silo-private-why">{privateReasons.map(reason=><li key={reason.key}>{reason.text}{reason.next&&<> <button type="button" onClick={reason.next.go}>{reason.next.label}</button></>}</li>)}</ul>}
-     </div>
-    </SiloAssetCard>}
-    {shown('sol')&&<SiloAssetCard id="sol" look={SILO_ASSET_LOOKS.sol} symbol="SOL" name="Solana" summary={publicReport?(concealed?'••••':`${siloUnits(publicReport.lamports,9)} SOL`):solanaOpen?'Open':solUnverified?'Open · verify backup':'Not connected'} open={isOpen('sol')} onToggle={()=>toggle('sol')}>
-     <div className="silo-window silo-window-public" data-zone="public">
-     <div className="silo-window-label"><span className="silo-zone-mark" data-zone="public" aria-hidden="true"/><h3 id="silo-public-title-home" className="silo-window-name">Public · Solana</h3></div>
-     <p className="silo-hero">{publicReport||concealed?(concealed?<span aria-label="Amount hidden">••••</span>:<span>{siloUnits(publicReport?.lamports??null,9)}</span>):<span aria-label="Not checked">—</span>}<span className="silo-hero-unit">SOL</span></p>
-     <SiloNetworkRow icon="sol" label="Public · Solana" state={publicReport||solanaOpen?'Connected':solUnverified?'Open · backup not verified':'Not connected'} on={Boolean(publicReport||solanaOpen)}/>
-     <p className="silo-window-sub">{publicReport?`${publicReport.holdings.length?`${publicReport.holdings.length} token${publicReport.holdings.length===1?'':'s'} · `:''}${solanaNetwork==='devnet'?'Devnet · test funds':'Mainnet · real funds'}`:solanaOpen?'Open · balance not loaded yet':solUnverified?'Open. Verify your encrypted backup to receive and send.':'Not opened on this device.'}</p>
-     <div className="silo-actions" role="group" aria-label="Solana actions">{publicReport||solanaOpen?<>{action('Receive','primary',true,()=>{openNetwork('sol');requestAnimationFrame(()=>document.getElementById('silo-sol-receive')?.scrollIntoView({behavior:'smooth',block:'start'}));},ArrowDownLeft)}{action('Send','secondary',true,()=>navigate('send','sol'),ArrowUpRight)}</>:action(solUnverified?'Verify backup':'Open Solana wallet','primary',true,()=>openNetwork('sol'),LockKeyhole)}</div>
-     </div>
-    </SiloAssetCard>}
+   {(cards.length>=4||evmPrompt)&&<div className="silo-asset-filter" role="group" aria-label="Show assets on">{chips.map(chip=><button key={chip.id} type="button" aria-pressed={filter===chip.id} onClick={()=>setFilter(chip.id)}>{chip.icon&&<SiloAssetIcon asset={chip.icon}/>}{chip.label}{chip.locked&&<LockKeyhole size={14} aria-label="locked"/>}</button>)}</div>}
+   <section className="silo-ledger" aria-label="Your wallets">{xmrRow}{solRow}</section>
+   {moveEnabled&&<div className="silo-move-cta"><button type="button" className="silo-button" data-variant="primary" onClick={()=>{requestAtomicDirection('sol-xmr');navigate('move','private');}}>Move to private</button></div>}
+   {extraCards&&<section className="silo-asset-stack" aria-label="Your assets" data-deck-shown={deckShown?'true':undefined}>
+    <p className="silo-asset-count">{cards.length} asset{cards.length===1?'':'s'} · {chips.length-1-(evmPrompt?1:0)} network{chips.length-(evmPrompt?1:0)===2?'':'s'}</p>
     {shown('sol')&&tokenRows.map((row,index)=>{const label=siloTokenLabel(row),isGrain=Boolean(grain&&row.mint===grain.mint),symbol=isGrain?'GRAIN':label.symbol??'Token',verified=isGrain||label.verified,id=`tok-${index}`,look=siloAssetLook(symbol,verified);
      const send=()=>{navigate('send','sol');requestAnimationFrame(()=>window.dispatchEvent(new CustomEvent('silo-send-asset',{detail:symbol==='USDC'&&verified?'usdc':{asset:'token',mint:row.mint,decimals:String(row.decimals)}})));};
      return <SiloAssetCard key={`${row.mint}:${index}`} id={id} look={look} symbol={symbol} name={isGrain?'Grainpad official token':verified?label.title:label.imitates?`Unverified · not official ${label.imitates}`:`Unverified · ${label.title}`} summary={concealed?'••••':isGrain?amount(row.amount,row.decimals,'GRAIN'):`${siloTokenAmount(row.shown)} ${label.symbol??'tokens'}`} open={isOpen(id)} onToggle={()=>toggle(id)}>
@@ -218,13 +225,18 @@ export function SiloOverview({atomicEnabled=false,solanaOpen=false,launchpad='',
       <p className="silo-window-sub"><span className="silo-token-title">{label.title}{label.verified?<Check className="silo-token-verified" size={14} aria-label="Verified token"/>:row.info?<SiloUnverified imitates={label.imitates}/>:null}</span>{' · '}<code>{siloShortMint(row.mint)}</code>{row.value!==null&&!concealed?` · ≈ ${siloUsd(row.value)}`:isGrain&&grain?.priceUsd!=null&&!concealed?` · ≈ ${siloUsd((siloDisplayAmount(row.amount,row.decimals)??0)*grain.priceUsd)}`:''}</p>
       <div className="silo-actions" role="group" aria-label={`${symbol} actions`}>{action('Receive','primary',true,()=>{openNetwork('sol');requestAnimationFrame(()=>document.getElementById('silo-sol-receive')?.scrollIntoView({behavior:'smooth',block:'start'}));},ArrowDownLeft)}{action('Send','secondary',true,send,ArrowUpRight)}{isGrain&&action('GRAIN details','secondary',true,openGrain,ChevronRight)}</div>
      </SiloAssetCard>;})}
+    {evmPrompt&&shown('evm')&&<SiloAssetCard id="evm" look={{...SILO_FALLBACK_LOOK,icon:'evm'}} symbol="EVM" name="Ethereum, Base and BNB Chain" summary={evmStart==='held'?'Held in this build':'Not created'} open={isOpen('evm')} onToggle={()=>toggle('evm')}>
+     <SiloNetworkRow icon="evm" label="Public · EVM" state={evmStart==='held'?'Held in this build':'Ethereum, Base and BNB Chain · view and receive; send where enabled'}/>
+     <p className="silo-window-sub">{evmStart==='held'?'EVM wallets are held in this build.':'No EVM wallet on this device yet.'}</p>
+     {evmStart==='ready'&&<div className="silo-actions" role="group" aria-label="EVM actions">{action('Create EVM wallet','primary',true,()=>openNetwork('evm'),ChevronRight)}</div>}
+    </SiloAssetCard>}
     {evm!==null&&shown('evm')&&<SiloAssetCard id="evm" look={siloChainLook(evm.chainId)} symbol={evm.symbol??'ETH'} name={evm.chainName} summary={amount(evm.amount??null,evm.decimals??18,evm.symbol??'')} open={isOpen('evm')} onToggle={()=>toggle('evm')}>
      <p className="silo-hero">{amount(evm.amount??null,evm.decimals??18,'')}<span className="silo-hero-unit">{evm.symbol}</span></p>
      <SiloNetworkRow icon={evm.chainId===8453?'base':evm.chainId===56?'bnb':evm.chainId===1?'eth':'evm'} label="Public · EVM" state={`${evm.chainName} · view and receive; send where enabled`}/>
      <p className="silo-window-sub">{`${evm.tokens} listed token${evm.tokens===1?'':'s'}`}</p>
      <div className="silo-actions" role="group" aria-label={`${evm.chainName} actions`}>{action('Open wallet','primary',true,()=>openNetwork('evm'),ChevronRight)}</div>
     </SiloAssetCard>}
-   </section>
+   </section>}
    {/* Swap and Cash out appear only when this build can do them; held features are simply absent (owner, 23 October 2026). */}
    {swapOpens&&<section className="silo-section silo-sell" aria-labelledby="silo-sell-title">
     <div className="silo-section-head"><h2 id="silo-sell-title"><span className="silo-label">Sell any Solana token to XMR</span></h2></div>
@@ -271,18 +283,19 @@ export function SiloOverview({atomicEnabled=false,solanaOpen=false,launchpad='',
   </aside>
   <main id="main-content" className="silo-main">
    {(backupNeeded||xmr.needsBackup===true)&&<div className="silo-backup-banner" role="status"><div><strong>Back up your wallet to protect your funds.</strong><span>Until you export an encrypted backup and verify it, this wallet exists only in this browser.</span></div><button type="button" onClick={()=>openNetwork(xmr.needsBackup===true?'xmr':'sol')}>Back up now</button></div>}
-   <header className="silo-page-header"><div className="silo-title"><div className="silo-brand-row"><span className="silo-mobile-logo"><img src="/brand/silo-logo.svg" alt="Silo" width={70} height={24}/></span><span className="silo-net-badge" data-mode={networkBadgeLabel==='Test network'?'test':'mainnet'} data-solana={solanaNetwork} role="note" title={networkBadgeNote} aria-label={networkBadgeNote}><i aria-hidden="true"/>{networkBadgeLabel}</span></div><div className="silo-title-text">{subpage&&<button type="button" className="silo-back" onClick={()=>navigate('settings','index')}><ChevronLeft size={18} aria-hidden="true"/>Settings</button>}{(view==='wallets'||view==='send')&&<button type="button" className="silo-back" onClick={()=>navigate('overview')}><ChevronLeft size={18} aria-hidden="true"/>Home</button>}<h1>{title}<span className="silo-stop" aria-hidden="true">.</span></h1>{stateLine&&<p className="silo-state-line">{stateLine}</p>}</div></div><div className="silo-header-right">{(xmr.opened||solanaOpen)&&<button className="silo-icon-button" onClick={()=>location.reload()} aria-label="Lock wallets"><LockKeyhole size={21} aria-hidden="true"/></button>}{/* Keys live only in this page's memory: reloading locks every wallet; saved payment records are kept. */}<button className="silo-icon-button" onClick={toggleConcealment} aria-pressed={concealed} aria-label={concealed?'Show balance amounts':'Hide balance amounts'}>{concealed?<EyeOff size={21} aria-hidden="true"/>:<Eye size={21} aria-hidden="true"/>}</button></div></header>
+   <header className="silo-page-header"><div className="silo-title"><div className="silo-brand-row"><span className="silo-mobile-logo"><img src="/brand/silo-logo.svg" alt="Silo" width={70} height={24}/></span><span className="silo-net-badge" data-mode={networkBadgeLabel==='Test network'?'test':'mainnet'} data-solana={solanaNetwork} role="note" title={networkBadgeNote} aria-label={networkBadgeNote}><i aria-hidden="true"/>{networkBadgeLabel}</span></div><div className="silo-title-text">{subpage&&<button type="button" className="silo-back" onClick={()=>navigate('settings','index')}><ChevronLeft size={18} aria-hidden="true"/>Settings</button>}{(view==='wallets'||view==='send'||view==='move')&&<button type="button" className="silo-back" onClick={()=>navigate('overview')}><ChevronLeft size={18} aria-hidden="true"/>Home</button>}<h1>{title}<span className="silo-stop" aria-hidden="true">.</span></h1>{stateLine&&<p className="silo-state-line">{stateLine}</p>}</div></div><div className="silo-header-right">{(xmr.opened||solanaOpen)&&<button className="silo-icon-button" onClick={()=>location.reload()} aria-label="Lock wallets"><LockKeyhole size={21} aria-hidden="true"/></button>}{/* Keys live only in this page's memory: reloading locks every wallet; saved payment records are kept. */}<button className="silo-icon-button" onClick={toggleConcealment} aria-pressed={concealed} aria-label={concealed?'Show balance amounts':'Hide balance amounts'}>{concealed?<EyeOff size={21} aria-hidden="true"/>:<Eye size={21} aria-hidden="true"/>}</button></div></header>
    {concealmentError&&persistenceFailed&&<p role="status">{concealmentError}</p>}<SiloReviewVisibilityNotice/>
    {/* Phone quick-access bar: the five things people do most, equal widths. Send is an action (it opens the same Monero Send as Home), not a place; Swap is always listed here and opens its own held or live screen. */}
    <nav className="silo-view-tabs" aria-label="Wallet navigation"><button aria-current={view==='overview'||view==='wallets'?'page':undefined} onClick={()=>showView('overview')}><House size={22} aria-hidden="true"/><span>Home</span></button><button aria-current={view==='send'?'page':undefined} onClick={()=>navigate('send',view==='send'?network:solanaOpen||!xmr.opened?'sol':'xmr')}><ArrowUpRight size={22} aria-hidden="true"/><span>Send</span></button>{views.slice(1).map(({id,label,icon:Icon})=><button key={id} aria-current={view===id?'page':undefined} onClick={()=>showView(id)}><Icon size={22} aria-hidden="true"/><span>{label}</span></button>)}</nav>
    {view==='overview'&&<SiloUnlockHome onOpenWallet={id=>openNetwork(id==='solana'?'sol':id)}/>}
    {view==='overview'&&<SiloDeviceUnlockOffer/>}
    {view==='overview'&&home}
+   {view==='move'&&!moveEnabled&&<p className="silo-fine" role="status">Moving SOL to private is not available in this build.</p>}
    {view==='send'&&<SiloSendScreen test={test} zone={network==='xmr'?'xmr':'sol'} solanaOpen={solanaOpen} solanaUnverified={solUnverified} solanaNetwork={solanaNetwork} xmrOpened={xmr.opened} xmrState={status} xmrAmount={currentXmrAmount===null?null:siloUnits(currentXmrAmount,12)} publicReport={publicReport??null} concealed={concealed} go={(next,zone)=>navigate(next,zone)}/>}
    {view==='swap'&&(!swapHeld||atomicEnabled)&&taskSelector}
    {view==='wallets'&&network==='evm'&&<div className="silo-network-tabs" role="group" aria-label="Choose wallet network">{[['xmr','Monero',xmrState],['sol','Solana',publicReport?'Connected':'Not checked'],['evm','EVM',evm?'Connected':'Not checked']].map(([id,label,state])=><div className="silo-network-choice" key={id}><button aria-label={label} aria-describedby={`silo-network-status-${id}`} aria-pressed={network===id} onClick={()=>setNetwork(id)}><SiloAssetIcon asset={id==='sol'?'sol':id==='evm'?'evm':'xmr'}/><strong>{label}</strong></button><small id={`silo-network-status-${id}`} className="silo-network-status">{state}</small></div>)}</div>}
    {view==='activity'&&pendingSwap}
-   {view==='activity'&&<div className="silo-activity-notes">{publicReport?<p className="silo-fine">Solana activity is public. Open a wallet from Home to see its history.</p>:<div className="silo-activity-empty"><History size={28} aria-hidden="true"/><strong>Nothing to show yet</strong><p>Solana activity is public. Open a wallet from Home to see its history.</p><button type="button" className="silo-activity-empty-go" onClick={()=>showView('overview')}>Go to Home</button></div>}</div>}
+   {view==='activity'&&<SiloActivityFeed activityPage={activityPage} xmrHistory={xmrHistory} owner={solanaOwner} solanaStatus={solanaActivityStatus} onRefresh={onRefreshSolana} onRefreshXmr={onRefreshXmr??undefined} onLoadOlder={onLoadOlder} onOpenSwap={atomicEnabled?()=>setTask('atomic'):undefined} swapsPaused={swapsPaused} concealed={concealed} dayLabel={dayLabel}/>}
    {view==='settings'&&page==='index'&&settingsIndex}
    {view==='settings'&&page==='about'&&aboutPage}
    {view==='settings'&&page==='build'&&<div className="silo-settings-groups">{capabilities}</div>}

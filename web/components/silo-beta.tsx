@@ -5,6 +5,7 @@ import {ShieldAlert,PauseCircle} from 'lucide-react';
 import {SiloGateHero} from './silo-gate-hero';
 import {SILO_AUTO_READS_NOTICE} from '@/lib/silo/auto-reads.mjs';
 import {SILO_BETA_TERMS} from '@/lib/silo/beta-terms.mjs';
+import {holdBrandThemeColor} from '@/lib/silo/brand-theme-color.mjs';
 import {initialBetaLiveState,betaLiveAnswered,betaLiveFailed,betaLiveTick,SILO_BETA_POLL_INTERVAL_MS,SILO_BETA_FETCH_TIMEOUT_MS} from '@/lib/silo/beta-live-state.mjs';
 /** The beta guards (invite-only or open) as the browser sees them: no hashes, no secret (lib/silo/beta-guard.mjs, siloBetaPublic). The live
  * copy carries when it was observed and until when it is good for; every payment boundary checks that against the clock
@@ -52,6 +53,9 @@ export function SiloBetaGate({invited,open=false,checkedAt=null,onAccepted,child
  const [code,setCode]=useState(''),[terms,setTerms]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[acceptedAt,setAcceptedAt]=useState<number|null>(null);
  // eslint-disable-next-line react-hooks/set-state-in-effect -- a later poll that denies this browser closes the gate again
  useEffect(()=>{if(acceptedAt!==null&&invited===false&&checkedAt!==null&&checkedAt>acceptedAt)setAcceptedAt(null);},[invited,checkedAt,acceptedAt]);
+ const gateShown=!(invited===true||acceptedAt!==null);
+ // The top bar matches the orange gate while it is on screen.
+ useEffect(()=>{if(!gateShown)return;return holdBrandThemeColor();},[gateShown]);
  if(invited===true||acceptedAt!==null)return <>{acceptedAt!==null&&<SiloOpening/>}{children}</>;
  async function redeem(){setBusy(true);setError('');try{const response=await fetch('/api/silo/invite',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(open?{enter:true,terms:SILO_BETA_TERMS}:{code,terms:SILO_BETA_TERMS})});if(!response.ok){const refusal=await response.json().then(body=>(body as {refusal?:string}|null)?.refusal,()=>null);setError(refusal==='daily-cap'?'Today\'s places in the beta are taken. Please come back tomorrow.':response.status===429?'Too many attempts. Try again in a minute.':open?'Silo could not be opened. Try again.':'This invite code was not accepted.');return;}setAcceptedAt(Date.now());await onAccepted?.();}catch{setError('The invitation could not be checked. Try again.');}finally{setBusy(false);}}
  // The signup page's look: the field works from the first frame; the logo assembles around it in under a second.
@@ -73,6 +77,7 @@ export function SiloBetaGate({invited,open=false,checkedAt=null,onAccepted,child
  * never in front of a later screen. Reduced motion shows nothing. */
 function SiloOpening(){
  const [show,setShow]=useState(()=>{try{return localStorage.getItem('grain-silo-opening-v1')===null;}catch{return false;}});
+ useEffect(()=>{if(!show)return;return holdBrandThemeColor();},[show]);
  useEffect(()=>{if(!show)return;try{localStorage.setItem('grain-silo-opening-v1','1');}catch{/* the moment simply plays again next time */}
   const done=()=>setShow(false),timer=setTimeout(done,4200);window.addEventListener('keydown',done,{once:true});return()=>{clearTimeout(timer);window.removeEventListener('keydown',done);};},[show]);
  if(!show)return null;
