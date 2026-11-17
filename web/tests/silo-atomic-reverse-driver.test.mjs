@@ -158,8 +158,8 @@ test('r5 D: when the Monero scan cannot complete, the refund does not come after
  w.advance(3600);v=await w.driver.tick(r);r=v.record;assert.notEqual(v.phase,'refunding','one hour in, a failed scan still holds the refund');
  w.advance(REV_T0_LEAD-3600-ABORT_LEAD-60);v=await w.driver.tick(r);r=v.record;assert.notEqual(v.phase,'refunding','just before t0 - ABORT_LEAD it still holds');
  w.advance(120);v=await w.driver.tick(r);assert.equal(v.phase,'refunding','at t0 - ABORT_LEAD the refund goes out');assert.deepEqual(w.chain.sent,['signed:lock','signed:refund']);
- const {readFileSync}=await import('node:fs');const text=readFileSync(new URL('../components/silo-atomic-reverse-panel.tsx',import.meta.url),'utf8');
- assert.match(text,/If Silo cannot check Monero[^']*about 15 minutes before the confirmation deadline[^']*almost 3 hours/);
+ const {REVERSE_TERMS}=await import('../lib/silo/atomic-reverse-terms.mjs');const text=Object.fromEntries(REVERSE_TERMS)['If the maker does not deliver'];
+ assert.match(text,/A failed or timed out Monero check proves nothing and does not alone start the 30 minute path; a refund the swap rules already require does not wait for it\. If no confirmation was sent and the payment does not allow confirming, Silo starts trying from about ten minutes before Confirm by, while Silo is open and unlocked; no promise on how long it takes to settle\./);assert.doesNotMatch(text,/15 minutes before/);
 });
 
 test('r6: a failed Monero scan is reported as scanFailed (never as "0 confirmations, no action needed"); a working scan is not',async()=>{
@@ -169,7 +169,9 @@ test('r6: a failed Monero scan is reported as scanFailed (never as "0 confirmati
  const good=world();let g=await good.driver.start({quote:good.quote,owner:good.owner});let gv=await good.driver.tick(g);g=gv.record;good.chain.escrow={A:good.quote.A,B:g.B,ready:false};
  good.W.xmr={atomic:'1000',confirmations:2};gv=await good.driver.tick(g);assert.equal(gv.phase,'xmr-confirming');assert.equal(!!gv.scanFailed,false);
  const {readFileSync}=await import('node:fs');const text=readFileSync(new URL('../components/silo-atomic-reverse-panel.tsx',import.meta.url),'utf8');
- assert.match(text,/if\(view\.scanFailed\)return \{tone:'warn',kicker:'Check failed',title:'Silo cannot check Monero right now'[^}]*almost 3 hours/);
+ const words=readFileSync(new URL('../lib/silo/atomic-reverse-terms.mjs',import.meta.url),'utf8');
+ assert.match(text,/if\(view\.scanFailed\)return \{tone:'warn',kicker:REVERSE_SCAN_FAILED_KICKER,title:plain\.headline/);
+ assert.match(words,/headline: REVERSE_SCAN_FAILED_HEADLINE,\s*detail: REVERSE_SCAN_FAILED_DETAIL/);
  assert.ok(!/if nothing arrives within 30 minutes/i.test(text),'no unconditional 30 minute promise is left');
 });
 
@@ -202,10 +204,13 @@ test('v2: the refund decision needs a finalized escrow: finalized view missing -
  w.goto(w.reg.t1+REFUND_AFTER_T1_S+10);v=await w.driver.tick(r);
  assert.equal(v.phase,'refunding');assert.ok(w.chain.sent.includes('signed:refund'),'no commit anywhere: refund after t1 + margin');
 });
-test('v2: the panel tells the user the honest worst case, up to 3 hours, in the terms and on the waiting-for-claim screen',async()=>{
+test('v2: the panel tells the user the honest worst case, 5 to 6 hours after the start, in the terms and on the waiting-for-claim screen',async()=>{
  const text=(await import('node:fs')).readFileSync(new URL('../components/silo-atomic-reverse-panel.tsx',import.meta.url),'utf8');
- assert.match(text,/If the maker does not finish[^\n]*up to 2 hours to start its claim[^\n]*up to 1 hour to finish it[^\n]*up to 3 hours/);
- assert.match(text,/case 'await-claim':[^\n]*your SOL comes back after up to 3 hours/);
+ const {REVERSE_TERMS}=await import('../lib/silo/atomic-reverse-terms.mjs');
+ assert.match(Object.fromEntries(REVERSE_TERMS)['If the maker does not finish'],/5 hours after you started[^\n]*1 hour to finish it[^\n]*past six hours/);
+ assert.match(text,/const TERMS=REVERSE_TERMS/);
+ assert.match(text,/case 'await-claim':/);
+ assert.match((await import('node:fs')).readFileSync(new URL('../lib/silo/atomic-reverse-terms.mjs',import.meta.url),'utf8'),/headline: 'The maker is claiming the SOL',\s*detail: '[^\n]*cannot come back before about 5 hours after you started[^\n]*past six hours/);
 });
 
 // ---- Astra 691-H1: b leaves only on coherent finalized evidence (the account and the block time of the SAME slot) ----

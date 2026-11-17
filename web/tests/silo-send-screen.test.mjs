@@ -22,7 +22,7 @@ test('the Solana form keeps its money path: same prepare/send/relay functions, R
 });
 test('Send is its own view with a back to Home; the real-funds band stays; the keys sit in the screen',()=>{
  assert.match(overview,/type View='overview'\|'wallets'\|'send'\|/);
- assert.match(overview,/\(view==='wallets'\|\|view==='send'\)&&<button type="button" className="silo-back"/);
+ assert.match(overview,/\(view==='wallets'\|\|view==='send'\|\|view==='move'\)&&<button type="button" className="silo-back"/);
  assert.doesNotMatch(css,/\[data-view=send\] [^{]*\.silo-network-band\{display:none\}/);
  assert.match(transfer,/data-pad-slot="silo-send-pad"/);
  assert.match(pad,/const INLINE='input\[data-amount-pad\]\[data-pad-slot\]'/);

@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from 'react';
 import {SiloSecretField} from './silo-secret-field';
 import {bindSiloIdleLock} from '@/lib/silo/idle-lock.mjs';
 import {siloPassphraseProblem} from '@/lib/silo/passphrase-strength.mjs';
+import {SILO_RETIRED_REVIEW_ORIGIN} from '@/lib/silo/retired-review-origin.mjs';
 import {openProductAccountController} from '@/lib/silo/sync/product-account.mjs';
 import type {NativeEnvelope} from '@/lib/silo/native-keyring.mjs';
 export type SiloProductAccount=Awaited<ReturnType<typeof openProductAccountController>>;
@@ -30,7 +31,7 @@ export function SiloAccountPanel({enabled=false,newWalletReviewEnabled=false,onC
  useEffect(()=>{
   mounted.current=true;const generation=epoch;let live=true,unsubscribe:(()=>void)|undefined;
   queueMicrotask(()=>{if(live){clearSecrets();setState(empty);setPending(false);setError('');}});
-  if(enabled)void openProductAccountController({enabled:true,networkProfile,newWalletReviewEnabled,reviewedOrigin:newWalletReviewEnabled?'https://review-retired.invalid':null,vaultIdentity}).then(account=>{if(!live){account.close();return;}controller.current=account;onController(account);unsubscribe=account.subscribe((value:Snapshot)=>{if(live)setState(value);});void account.restoreSession().catch(()=>{if(live)setError('The account session was not verified. Sign in again; local wallets were not changed.');});}).catch(()=>{if(live)setError('Account storage could not open. Local wallets and backups were not changed.');});
+  if(enabled)void openProductAccountController({enabled:true,networkProfile,newWalletReviewEnabled,reviewedOrigin:newWalletReviewEnabled?SILO_RETIRED_REVIEW_ORIGIN:null,vaultIdentity}).then(account=>{if(!live){account.close();return;}controller.current=account;onController(account);unsubscribe=account.subscribe((value:Snapshot)=>{if(live)setState(value);});void account.restoreSession().catch(()=>{if(live)setError('The account session was not verified. Sign in again; local wallets were not changed.');});}).catch(()=>{if(live)setError('Account storage could not open. Local wallets and backups were not changed.');});
   return()=>{live=false;mounted.current=false;generation.current++;unsubscribe?.();controller.current?.close();controller.current=null;onController(null);};
  // onController is a stable parent callback; component lifetime owns this binding.
  },[enabled,newWalletReviewEnabled,onController,vaultIdentity,networkProfile]);

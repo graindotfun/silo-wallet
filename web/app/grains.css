@@ -20,7 +20,7 @@ html[data-theme="dark"]{
  --primary:#fff;--primary-foreground:#101010;--secondary:#232323;--muted:#1d1d1d;--muted-foreground:#a3a3a3;--accent:#242424;--border:#333;--line:rgba(255,255,255,.15);--brand-line:#2e2e2e;
 }
 /* An orange block forces ink text and white inner cards in both themes. */
-.gx-onor{--gx-ink:#101010;--gx-mute:rgba(16,16,16,.66);--gx-rule:rgba(16,16,16,.24);--gx-soft:rgba(16,16,16,.07);--gx-soft2:rgba(16,16,16,.12);--gx-card:#fff;--gx-btn:#101010;--gx-btnfg:#fff;--gx-label:#101010;color:#101010}
+.gx-onor{--gx-ink:#101010;--gx-mute:rgba(16,16,16,.8);--gx-rule:rgba(16,16,16,.24);--gx-soft:rgba(16,16,16,.07);--gx-soft2:rgba(16,16,16,.12);--gx-card:#fff;--gx-btn:#101010;--gx-btnfg:#fff;--gx-label:#101010;color:#101010}
 /* A light island (a white card) inside any theme. */
 .gx-light{--gx-bg:#fff;--gx-ink:#101010;--gx-mute:rgba(16,16,16,.6);--gx-rule:rgba(16,16,16,.14);--gx-soft:rgba(16,16,16,.045);--gx-soft2:rgba(16,16,16,.085);--gx-card:#fff;--gx-btn:#101010;--gx-btnfg:#fff;--gx-label:var(--grain-orange-ink);color:#101010}
 
@@ -1258,3 +1258,8 @@ html[data-theme] body .launch-network-row.is-selected{border-color:var(--gx-ink)
 html[data-theme] body :is(.launch-network-row input,.launch-testnet-toggle input){accent-color:var(--gx-ink)}
 html[data-theme] body .wallet-install>p{text-transform:none;font:600 13px/1.4 var(--gx-sans);letter-spacing:.01em;color:var(--gx-mute)}html[data-theme] body .wallet-dialog-mark{border-radius:var(--gx-r-field,12px)}html[data-theme] body .wallet-logo{border-radius:var(--gx-r,8px)}
 html[data-theme] body .docs-index li a>span{color:var(--gx-mute)}
+/* Contrast (WCAG 1.4.3, review GP-11): quiet chips on a dark neutral, black or orange tile use the tile's own ink, and muted
+ * text in the cream skin uses that skin's existing --gx-mute (#5a4a37) instead of the generic greys (3.76 to 4.2:1). */
+html[data-theme] body .gx-tile.is-g .gx-chip.is-quiet,html[data-theme] body .gx-tile.is-k .gx-chip.is-quiet{color:#fff;border-color:rgba(255,255,255,.55)}
+html[data-theme="dark"] body .gx-tile.is-k .gx-chip.is-quiet,html[data-theme] body :is(.gx-tile.is-o,.gx-tile.is-w) .gx-chip.is-quiet{color:#101010;border-color:rgba(16,16,16,.55)}
+html[data-skin="c"][data-theme="light"] :is(.launch-row h3 span,.launch-row p,.proof-address code,.page-heading>p,.panel>p,.setup-note,.muted,.limitations-grid p,.shell .notice,.eyebrow,.build-label,.address-line,.empty-state,.workspace-rewards,.economics-grid p,.network,.check-line,dt):not(.gx-tile *,.gx-onor *,.gx-onor){color:var(--gx-mute)}

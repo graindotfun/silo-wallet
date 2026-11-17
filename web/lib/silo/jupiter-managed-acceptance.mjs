@@ -1,4 +1,5 @@
-import {SILO_TRIAL_ORIGIN,siloPrivateTrialLimitsReady} from './trial-policy.mjs';
+import {siloPrivateTrialLimitsReady} from './trial-policy.mjs';
+import {siloRetiredReviewOrigin} from './retired-review-origin.mjs';
 /** One source-controlled provider/wallet contract, not per-mint AMM admission.
  * Discovery and captured quotes never confer signing or transport authority. */
 export const SILO_MANAGED_RELEASE_ORIGIN='https://silo.trading';
@@ -28,5 +29,5 @@ export const SILO_MANAGED_RECOVERY_ISSUERS=Object.freeze([]);
  * authority additionally requires the independent exact-candidate trial packet.
  * The ordinary/public/native execution policy above remains held. */
 export const SILO_MANAGED_PRIVATE_TRIAL_ACCEPTANCE=Object.freeze({protocol:'managed-v1',trialOnly:true,scope:'sol-usdc-owner-trial-v1',sourceAccepted:true,runtimeAccepted:true,providerPrivacyReviewed:true,signerReviewed:true,transportReviewed:true,recoveryReviewed:true,historicalReceiptReviewed:true});
-export function siloManagedServerPolicy(env){return env?.SILO_ORIGIN===SILO_TRIAL_ORIGIN&&siloPrivateTrialLimitsReady(env)?SILO_MANAGED_PRIVATE_TRIAL_ACCEPTANCE:SILO_MANAGED_EXECUTION_ACCEPTANCE;}
-export function siloManagedBrowserPolicy(origin){return origin===SILO_TRIAL_ORIGIN?SILO_MANAGED_PRIVATE_TRIAL_ACCEPTANCE:SILO_MANAGED_EXECUTION_ACCEPTANCE;}
+export function siloManagedServerPolicy(env){return siloRetiredReviewOrigin(env?.SILO_ORIGIN)&&siloPrivateTrialLimitsReady(env)?SILO_MANAGED_PRIVATE_TRIAL_ACCEPTANCE:SILO_MANAGED_EXECUTION_ACCEPTANCE;}
+export function siloManagedBrowserPolicy(origin){return siloRetiredReviewOrigin(origin)?SILO_MANAGED_PRIVATE_TRIAL_ACCEPTANCE:SILO_MANAGED_EXECUTION_ACCEPTANCE;}

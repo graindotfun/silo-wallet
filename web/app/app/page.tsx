@@ -3,6 +3,7 @@ import type {Metadata,Viewport} from 'next';
 import {env} from 'cloudflare:workers';
 import {SiloWorkspace} from '@/components/silo-workspace';
 import {siloAccountRuntimeAvailable} from '@/lib/silo/sync/account-environment.mjs';
+import {siloRetiredReviewOrigin} from '@/lib/silo/retired-review-origin.mjs';
 import {siloPaymentAuthority} from '@/lib/silo/payment-authority.mjs';
 import {siloAccountSender} from '@/lib/silo/sync/account-email.mjs';
 import {siloConfiguration} from '@/lib/silo/config.mjs';
@@ -17,7 +18,8 @@ import '../scan/exposure.css';
 import './silo.css';
 import './silo-mask.css';
 import './silo-grainy.css';
-export const metadata:Metadata={title:`silo · ${SILO_TAGLINE}`,description:SILO_TAGLINE,robots:{index:false,follow:false},referrer:'no-referrer',icons:{icon:'/brand/silo-symbol.svg',shortcut:'/brand/silo-symbol.svg'}};
+const SILO_SOCIAL_IMAGE='https://silo.trading/brand/silo-social-20261111.png';
+export const metadata:Metadata={title:`silo · ${SILO_TAGLINE}`,description:SILO_TAGLINE,robots:{index:false,follow:false},referrer:'no-referrer',icons:{icon:'/brand/silo-symbol.svg',shortcut:'/brand/silo-symbol.svg'},openGraph:{title:'silo.',description:SILO_TAGLINE,type:'website',url:'https://silo.trading/',siteName:'silo',images:[{url:SILO_SOCIAL_IMAGE,width:1200,height:630,alt:'silo. ape in public. cash out private. silo.trading/app, by grainpad, with Monero, Solana and USDC coins on orange.'}]},twitter:{card:'summary_large_image',title:'silo.',description:SILO_TAGLINE,images:[SILO_SOCIAL_IMAGE]}};
 /* The wallet is a fixed app screen: no pinch or focus zoom (owner, 3 November 2026). */
 export const viewport:Viewport={width:'device-width',initialScale:1,maximumScale:1,userScalable:false,viewportFit:'cover'};
 export const dynamic='force-dynamic';
@@ -28,7 +30,7 @@ export default function SiloPage(){
  // Only whether each EVM chain is configured reaches the page; endpoints and keys stay on the server.
  const accountEnv=env as unknown as Record<string,unknown>;
  const accountEnabled=siloAccountRuntimeAvailable(accountEnv,{sendOTP:siloAccountSender(accountEnv),origin:values.SILO_ORIGIN});
- const accountNewWalletEnabled=accountEnabled&&values.SILO_ACCOUNT_NEW_WALLET_REVIEW_ENABLED==='true'&&values.SILO_ORIGIN==='https://review-retired.invalid';
+ const accountNewWalletEnabled=accountEnabled&&values.SILO_ACCOUNT_NEW_WALLET_REVIEW_ENABLED==='true'&&siloRetiredReviewOrigin(values.SILO_ORIGIN);
  // Who vouches for a mainnet payment (review N1): the account vault when sync is on, this device alone in the closed beta, otherwise nobody.
  const paymentAuthority=siloPaymentAuthority(values,{accountRuntime:accountEnabled});
  // Owner, 29 Oct 2026: a private acceptance deployment must be unmistakable in the UI itself, not only behind the

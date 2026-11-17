@@ -2,6 +2,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {SiloSecretField} from './silo-secret-field';
 import {bindSiloIdleLock} from '@/lib/silo/idle-lock.mjs';
+import {siloRetiredReviewOrigin} from '@/lib/silo/retired-review-origin.mjs';
 import type {SiloProductAccount} from './silo-account-panel';
 /** Uses the Settings-owned account instance. This opens no native wallet and
  * grants no signing or receive permission. Account and wallet secrets differ. */
@@ -21,7 +22,7 @@ export function SiloInlineAccountUnlock({controller,enabled,authenticated,vaultU
  const needed=enabled&&authenticated&&!vaultUnlocked;
  useEffect(()=>bindSiloIdleLock({root:root.current,isActive:()=>typedInput.current||Boolean(pending.current),lock:()=>{if(mounted.current)lockLatest.current();}}),[controller,enabled,authenticated,vaultUnlocked,idleVersion]);
  async function unlock(){
-  const active=controller;if(!needed||!active||busy||accountBusy||reviewedOrigin!=='https://review-retired.invalid'||location.origin!==reviewedOrigin||passphrase.length<12)return;
+  const active=controller;if(!needed||!active||busy||accountBusy||!siloRetiredReviewOrigin(reviewedOrigin)||location.origin!==reviewedOrigin||passphrase.length<12)return;
   const operation=++epoch.current,typed=passphrase;typedInput.current=false;setPassphrase('');setError('');setBusy(true);pending.current={controller:active,epoch:operation};
   try{await active.unlockVault({passphrase:typed});if(!mounted.current||epoch.current!==operation)return;}
   catch{if(mounted.current&&epoch.current===operation)setError('The account vault could not be opened. Check its passphrase or device approval. Your wallet was not opened or changed.');}

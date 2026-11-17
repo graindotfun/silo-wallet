@@ -6,6 +6,7 @@ import {openBrowserSyncClient} from './local-store.mjs';
 import {assertNativeSyncBackup} from './native-wallets.mjs';
 import {restoreSyncedNativeWallet} from './native-wallet-restore.mjs';
 import {createNativeKeyring,restoreNativeKeyring} from '../native-keyring.mjs';
+import {siloRetiredReviewOrigin} from '../retired-review-origin.mjs';
 import {siloPassphraseProblem} from '../passphrase-strength.mjs';
 import {openNativeKeyringStore} from '../native-keyring-store.mjs';
 import {captureLegacyJournals} from './legacy-journals.mjs';
@@ -96,7 +97,7 @@ export function createProductAccountController({binding,legacyStorage,newWalletR
   catch{assert(revision);notify({vaultExistence:'unknown'});}
   return state.vaultExistence;
  }
- function newWalletPermission(){return newWalletReviewEnabled===true&&reviewedOrigin==='https://review-retired.invalid'&&currentOrigin()===reviewedOrigin;}
+ function newWalletPermission(){return newWalletReviewEnabled===true&&siloRetiredReviewOrigin(reviewedOrigin)&&currentOrigin()===reviewedOrigin;}
  async function localEncryptedBackup(chain,revision){
   if(chain!=='solana')throw held();const store=await openStore(chain);temporary.add(store);
   try{assert(revision);const envelope=await store.read();assert(revision);if(!envelope)throw Error('No staged encrypted wallet exists.');return assertNativeSyncBackup({schema:'silo-sync-native-public-v1',wallets:[envelope]},{network:profile.native}).wallets[0];}

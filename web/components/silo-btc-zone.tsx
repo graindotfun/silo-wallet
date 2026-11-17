@@ -137,11 +137,11 @@ export function SiloBtcZone({network,sendEnabled,capSats,mainnetMode=false,getAc
   {network!=='mainnet'&&!(receiveReady&&open)&&<p className="exposure-note" data-btc-moved-slot>{SILO_BTC_COPY.movedSlot}</p>}
   {receiveReady&&open&&<div className="silo-wallet-grid">
    <div className="silo-wallet-col"><div className="silo-inset">
-    {!consented?<><p className="exposure-note">Checking sends this wallet&apos;s public addresses to Grain&apos;s server and a public Bitcoin data provider (mempool.space or blockstream.info). Addresses used together can be linked by anyone reading the chain.</p><button disabled={busy} onClick={()=>void check()}>{busy?'Checking…':'Check balance'}</button></>
+    {!consented?<><p className="exposure-note">Checking sends this wallet&apos;s public addresses to Grain&apos;s server and a public Bitcoin data provider (mempool.space or blockstream.info). Addresses used together can be linked by anyone reading the chain.</p><button disabled={busy} aria-busy={busy||undefined} onClick={()=>void check()}>{busy?'Checking…':'Check balance'}</button></>
      :scan?<>
       <p className="silo-public-balance"><SiloHiddenAmount>{siloBtcFormat(scan.confirmed)} BTC</SiloHiddenAmount></p>
       {scan.pending!==0&&<p className="exposure-note" role="status">Pending: {scan.pending>0?'+':''}{siloBtcFormat(Math.abs(scan.pending))} BTC until confirmed.</p>}
-      <button disabled={busy} onClick={()=>void check()}>{busy?'Checking…':'Refresh'}</button>
+      <button disabled={busy} aria-busy={busy||undefined} onClick={()=>void check()}>{busy?'Checking…':'Refresh'}</button>
       {history&&history.some(row=>row.agree===false)&&<p className="exposure-note" role="status">{SILO_BTC_COPY.historyDisagree}</p>}
       {history&&(history.length?<ul className="silo-tx-list">{history.map(row=><li key={row.txid} className="silo-tx"><span className="silo-tx-main"><strong>{row.netSats>=0?'Received':'Sent'}</strong><span>{row.confirmed?'Confirmed':'Pending'}{row.agree===false?' · providers differ':''} · <code>{row.txid.slice(0,12)}…</code></span></span><SiloHiddenAmount>{row.netSats>=0?'+':'-'}{siloBtcFormat(Math.abs(row.netSats))} BTC</SiloHiddenAmount></li>)}</ul>:<p className="silo-empty">No activity yet.</p>)}
      </>:busy?<p className="exposure-note" role="status">Checking this wallet&apos;s addresses…</p>:null}
@@ -159,7 +159,7 @@ export function SiloBtcZone({network,sendEnabled,capSats,mainnetMode=false,getAc
    {real&&<p className="exposure-note">{siloBtcLimitText(capSats)}</p>}
    {revived.length>0&&<p role="alert" className="exposure-error">A payment you cleared by hand now appears on the network ({revived[0].slice(0,12)}…). It may be real. Check this wallet&apos;s history before sending anything.</p>}
    {unresolved?<><div role="alert" className="silo-btc-unresolved"><AlertTriangle size={18} aria-hidden="true"/><div><p className="exposure-error">{unresolved}</p><p className="exposure-note">{SILO_BTC_COPY.unresolved}</p>{unresolvedId&&unresolvedId!=='unreadable'&&<p className="exposure-note">Transaction id <code>{unresolvedId}</code></p>}</div></div>
-    <button type="button" className="primary-action silo-btc-wide" disabled={busy} onClick={()=>void resolveUnresolved()}>{busy?'Checking…':'Check status or rebroadcast'}</button>
+    <button type="button" className="primary-action silo-btc-wide" disabled={busy} aria-busy={busy||undefined} onClick={()=>void resolveUnresolved()}>{busy?'Checking…':'Check status or rebroadcast'}</button>
     <details className="silo-restore-options"><summary>I checked elsewhere</summary><div className="silo-fields">
      <p className="exposure-note"><strong>Sending again can pay twice.</strong></p>
      <p className="exposure-note">Silo cannot know for you whether this payment will appear. Bitcoin payments do not expire, and a payment that is not visible now can still appear later and be paid. Look up the transaction id above in a block explorer for this network, or in another wallet that shows this wallet&apos;s history. Clear the record only if you are sure it is not there. Until it is cleared or confirmed, this wallet will not send.</p>
@@ -177,7 +177,7 @@ export function SiloBtcZone({network,sendEnabled,capSats,mainnetMode=false,getAc
     </dl>
     <details className="silo-restore-options"><summary>Details</summary><dl className="silo-disclosure silo-btc-review"><dt>Coins used</dt><dd>{review.summary.inputs.length}</dd><dt>Network</dt><dd>{siloBtcNetworkLabel(network)}</dd></dl></details>
     <p className="exposure-note">{SILO_BTC_COPY.review}</p>
-    <div className="silo-btc-actions"><button className="primary-action" disabled={busy} onClick={()=>void approve()}>{busy?'Sending…':'Sign and send'}</button><button type="button" disabled={busy} onClick={()=>setReview(null)}>Cancel</button></div>
+    <div className="silo-btc-actions"><button className="primary-action" disabled={busy} aria-busy={busy||undefined} onClick={()=>void approve()}>{busy?'Sending…':'Sign and send'}</button><button type="button" disabled={busy} aria-busy={busy||undefined} onClick={()=>setReview(null)}>Cancel</button></div>
     <p className="exposure-note">{SILO_BTC_COPY.confirmations}</p>
    </>:<>
     <label>To<input value={dest} onChange={event=>setDest(event.target.value)} autoComplete="off" spellCheck={false} placeholder={real?'bc1…':'tb1…'}/></label>

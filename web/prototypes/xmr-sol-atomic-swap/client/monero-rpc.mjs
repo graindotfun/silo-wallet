@@ -1,4 +1,3 @@
-// grainpad-private-scope: xmr-rewards-vouchers
 // JSON-RPC with HTTP Digest authentication for loopback wallet RPC; no secrets in URLs/logs.
 import { createHash, randomBytes } from 'node:crypto';
 import http from 'node:http';

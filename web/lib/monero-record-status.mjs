@@ -90,7 +90,7 @@ export const MONERO_RECORD_FACTS = [
   'The creator authorizes the record with a Solana (Ed25519) signature. grainpad rejects a record whose signature does not verify.',
   'A repeated record nonce, a repeated Monero transaction, or a second record for the same Solana mint is treated as a duplicate.',
   `grainpad marks a record verified only after ${GRN1.confirmationsRequired} Monero confirmations and a match with the Solana mint, metadata hash and creator on the grainpad receipt. Fewer confirmations stay pending.`,
-  'Indexing is independent and read-only. The format is described on the documentation page; decoder source access currently requires repository permission; grainpad’s own daemon client allows read methods only and cannot sign or send.',
+  'Indexing is independent and read-only. The format is described on the documentation page; the decoder source is in the public repository graindotfun/grainpad; grainpad’s own daemon client allows read methods only and cannot sign or send.',
   'The public receipt shows the Solana launch and its Monero record side by side.',
 ];
 

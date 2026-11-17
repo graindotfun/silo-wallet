@@ -27,3 +27,11 @@ test('ZEC requires consistent heights and never confirms a partial scan',()=>{
 });
 
 test('missing mining facts never become checked rows',()=>{const missing=zec();delete missing.minedHeight;assert.throws(()=>zecHistory([missing],summary));const tx=xmr();tx.getHeight=()=>undefined;assert.throws(()=>xmrHistory([tx],true));const unknown=xmr();unknown.getIsConfirmed=()=>undefined;assert.equal(xmrHistory([unknown],true).rows[0].status,'not checked');});
+test('XMR rows carry the mined block time in seconds, null when absent or invalid',()=>{
+ const withTime=xmr(7);withTime.getBlock().setTimestamp(1762790400);
+ assert.equal(xmrHistory([withTime],true).rows[0].timestamp,1762790400);
+ assert.equal(xmrHistory([xmr(8)],true).rows[0].timestamp,null,'no block time reported');
+ const bad=xmr(9);bad.getBlock().setTimestamp(-5);assert.equal(xmrHistory([bad],true).rows[0].timestamp,null);
+ const unmined=new sdk.MoneroTxWallet({hash:'a'.repeat(64),isConfirmed:false,numConfirmations:0,fee:'1',incomingTransfers:[{amount:'5'}]});
+ assert.equal(xmrHistory([unmined],true).rows[0].timestamp,null);
+});

@@ -6,7 +6,7 @@ import {VersionedTransaction} from '@solana/web3.js';
 import {siloJupiterProviderTerms,siloRequestedSlippage} from './jupiter-provider-v2.mjs';
 import {validateSiloManagedReview} from './jupiter-managed-journal.mjs';
 import {assertSiloManagedExecutionAccepted,assertSiloManagedNativeReleaseAccepted,SILO_MANAGED_RELEASE_ORIGIN} from './jupiter-managed-acceptance.mjs';
-import {SILO_TRIAL_ORIGIN} from './trial-policy.mjs';
+import {siloRetiredReviewOrigin} from './retired-review-origin.mjs';
 import {sessionRpcFetch} from '../browser-rpc-session.mjs';
 import {siloJson} from './bounded-json.mjs';
 import {siloSwapRefused} from './swap-refusal.mjs';
@@ -51,7 +51,7 @@ export function createSiloManagedSameOriginAdapter({wallet,assertCurrent=()=>{},
 
 /** Consumed synchronously inside the native vault. JSON cannot mint this ticket. */
 export function consumeSiloNativeManagedTicket(ticket,info,encoded){
- const origin=typeof location==='undefined'?'':location.origin,cap=nativeTickets.get(ticket);if(!cap||cap.used||origin!==cap.origin||![SILO_TRIAL_ORIGIN,SILO_MANAGED_RELEASE_ORIGIN].includes(origin))throw Error('One-use origin-bound native signing capability required.');cap.used=true;const boundGuard=()=>{if(typeof location==='undefined'||location.origin!==cap.origin)throw Error('Native signing origin changed.');cap.guard();if(location.origin!==cap.origin)throw Error('Native signing origin changed.');};boundGuard();const r=cap.review,c=r.contract;
+ const origin=typeof location==='undefined'?'':location.origin,cap=nativeTickets.get(ticket);if(!cap||cap.used||origin!==cap.origin||!(siloRetiredReviewOrigin(origin)||origin===SILO_MANAGED_RELEASE_ORIGIN))throw Error('One-use origin-bound native signing capability required.');cap.used=true;const boundGuard=()=>{if(typeof location==='undefined'||location.origin!==cap.origin)throw Error('Native signing origin changed.');cap.guard();if(location.origin!==cap.origin)throw Error('Native signing origin changed.');};boundGuard();const r=cap.review,c=r.contract;
  if(JSON.stringify(r)!==cap.snapshot||info?.chain!=='solana'||info.network!=='mainnet'||info.address!==c.owner||encoded!==r.capture.originalTransaction)throw Error('Native signer identity or exact message differs.');
  if(origin===SILO_MANAGED_RELEASE_ORIGIN){assertSiloManagedNativeReleaseAccepted();validateSiloManagedReview(r);const guard=()=>{assertSiloManagedNativeReleaseAccepted();boundGuard();};guard();return guard;}
  const sol='So11111111111111111111111111111111111111112',usdc='EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',forward=c.inputMint===sol&&c.outputMint===usdc,reverse=c.inputMint===usdc&&c.outputMint===sol;
