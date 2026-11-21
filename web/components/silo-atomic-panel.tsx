@@ -13,7 +13,7 @@ import {ATOMIC_DIRECTION_TEXT,atomicChipAmounts,atomicOverCap,atomicQuoteBody} f
  * maker secret lets her recover the XMR. This panel NEVER signs with the user's Solana wallet key: the only transaction is the claim,
  * signed by a throwaway fee-payer key kept inside the (encrypted) swap record. */
 export type SiloAtomicKeys={primaryAddress:string;privateSpendKey:string;privateViewKey:string;restoreHeight:number};
-export type SiloAtomicQuote={quoteId:string;swapId:string;xmrAtomic:string;lamports:number;gasLamports?:number;solPerXmr:number;spreadBps:number;priceSource?:string;expiresAt:number};
+export type SiloAtomicQuote={quoteId:string;swapId:string;xmrAtomic:string;lamports:number;gasLamports?:number;solPerXmr:number;spreadBps:number;siloFeeBps?:number;priceSource?:string;expiresAt:number};
 type SwapRecord={kind:string;swapId:string;status:string;result?:string;quote:SiloAtomicQuote;[key:string]:unknown};
 export type SiloAtomicNativeBridge={network:'mainnet'|'stagenet';available:boolean;records:()=>SwapRecord[];saveRecord:(record:SwapRecord)=>Promise<void>;lockStatus:(query:{address:string;amountAtomic:string})=>Promise<{found:boolean;txid:string|null;confirmations:number|null;height:number|null}>;daemonHeight:()=>Promise<number|null>;prepareLock:(request:{address:string;amountAtomic:string;swapId:string;expiresAt:number})=>Promise<void>;sweepRecovery:(keys:SiloAtomicKeys)=>Promise<string[]>;watchJoint?:(keys:{primaryAddress:string;privateViewKey:string;restoreHeight:number})=>Promise<{atomic:string;confirmations:number}|null>;cancelScan?:(keys:{primaryAddress:string;privateViewKey:string;restoreHeight:number})=>Promise<void>;releaseScan?:(keys:{primaryAddress:string;privateViewKey:string;restoreHeight:number})=>Promise<void>};
 type View={record:SwapRecord;phase:string;confirmations:number|null;notice?:string;recoveryKeys?:SiloAtomicKeys;refundFrom?:number|null;resumedPhase?:string|null};
@@ -216,7 +216,7 @@ export function SiloAtomicPanel({enabled=false,network='mainnet',programId=null,
     <div className="is-key"><dt>Network gas</dt><dd>{gas?`${sol(gas)} SOL`:'0.000005 SOL'}<small>{gas?`The claim costs 0.000005 SOL, paid from the maker’s ${sol(gas)} SOL fee allowance. The rest of the allowance is included in what you get.`:'The claim costs 0.000005 SOL.'}</small></dd></div>
     <div><dt>Market price</dt><dd>1 XMR ≈ {atomicRateText(q.solPerXmr)} SOL{source?`, from ${source}`:''}</dd></div>
     <div><dt>Monero network fee</dt><dd>Shown in your Monero wallet’s review, before you confirm.</dd></div>
-    <div><dt>Service fee</dt><dd>None besides the maker spread.</dd></div>
+    <div><dt>Service fee</dt><dd>{q.siloFeeBps?`${(q.siloFeeBps/100).toFixed(2)}% Silo fee, included in the spread above.`:'None besides the maker spread.'}</dd></div>
    </dl></section>}
     <p>{ATOMIC_DIRECTION_TEXT['xmr-sol'].line}</p>
     <p>Cancelling leaves Silo locked and pauses swap processing. Open your Monero wallet before the claim deadline so Silo can try the SOL claim. After the deadline, getting your XMR back needs the maker to return the SOL lock and reveal its key part; expiry alone does not return your XMR.</p>

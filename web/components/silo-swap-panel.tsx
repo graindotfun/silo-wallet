@@ -91,7 +91,7 @@ export function SiloSwapPanel({publicReport,quotesEnabled,xmrOpened,xmrNetwork,p
     </ol>
     <ul className="silo-swap-facts"><li><Search size={18} aria-hidden="true"/><p><strong>Check the mint.</strong> A creator sets the name and symbol; the full mint identifies the token.</p></li><li><RefreshCw size={18} aria-hidden="true"/><p><strong>Prices move.</strong> Expired reviews need a fresh quote.</p></li></ul>
     <p className="silo-swap-small">Silo fee: 0% actual, not collected. {SILO_SWAP_FEE_LABEL} planned, inactive.</p></section>
-    <section className="silo-swap-soon" data-zone="soon"><span className="silo-zone-chip" data-zone="soon">V1 · under review</span><h3>SOL ↔ native XMR</h3><p>{xmrOpened?`Your native Monero wallet is open on ${xmrNetwork}.`:'Native Monero opens from Home → Monero when it is on in this build.'} Jupiter does not deliver native XMR.</p><p className="silo-swap-small">Conversion uses a separate external provider and belongs in V1. This Jupiter panel remains on Solana; conversion release is under review.</p></section>
+    <section className="silo-swap-soon" data-zone="soon"><span className="silo-zone-chip" data-zone="soon">Native XMR</span><h3>SOL ↔ native XMR</h3><p>{xmrOpened?`Your native Monero wallet is open on ${xmrNetwork}.`:'Native Monero opens from Home → Monero when it is on in this build.'} Jupiter does not deliver native XMR.</p><p className="silo-swap-small">Conversion uses a separate external provider and belongs in V1. This Jupiter panel remains on Solana. Conversion to native XMR is the separate Convert screen.</p></section>
    </aside>
   </div>
  </section>;

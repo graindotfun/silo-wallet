@@ -4,7 +4,7 @@ import {useCallback,useEffect,useRef,useState} from 'react';
 import {ShieldAlert,PauseCircle} from 'lucide-react';
 import {SiloGateHero} from './silo-gate-hero';
 import {SILO_AUTO_READS_NOTICE} from '@/lib/silo/auto-reads.mjs';
-import {SILO_BETA_TERMS} from '@/lib/silo/beta-terms.mjs';
+import {SILO_BETA_TERMS,SILO_BETA_TERMS_CHANGE_NOTE} from '@/lib/silo/beta-terms.mjs';
 import {holdBrandThemeColor} from '@/lib/silo/brand-theme-color.mjs';
 import {initialBetaLiveState,betaLiveAnswered,betaLiveFailed,betaLiveTick,SILO_BETA_POLL_INTERVAL_MS,SILO_BETA_FETCH_TIMEOUT_MS} from '@/lib/silo/beta-live-state.mjs';
 /** The beta guards (invite-only or open) as the browser sees them: no hashes, no secret (lib/silo/beta-guard.mjs, siloBetaPublic). The live
@@ -69,6 +69,7 @@ export function SiloBetaGate({invited,open=false,checkedAt=null,onAccepted,child
    <label className="silo-gate-terms"><input type="checkbox" name="silo-beta-terms" checked={terms} onChange={event=>setTerms(event.target.checked)} disabled={busy}/><span>I am 18 or older and accept the <a href={`/${SILO_BETA_TERMS}`} target="_blank" rel="noopener">beta terms</a>.</span></label>
    <button type="submit" disabled={busy}>{busy?(open?'Opening…':'Checking…'):open?'Enter Silo':'Enter the beta'}</button>
    {error&&<p role="alert" className="silo-gate-error">{error}</p>}
+   <p className="silo-gate-note">{SILO_BETA_TERMS_CHANGE_NOTE}</p>
    <p className="silo-gate-note">Beta, not externally audited. Use small amounts. <a href={`/${SILO_AUTO_READS_NOTICE}`}>Privacy notice</a></p>
   </form>
  </section>;

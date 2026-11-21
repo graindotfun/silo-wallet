@@ -202,3 +202,43 @@ export function conversionLimitState({ source, dest, range, amountText = '', bal
   if (amount !== null && max !== null && amount > max) return { kind: 'above-max', hint, message: `Maximum for ${pair} is about ${range.max} ${unit}.`, maxAmount };
   return { kind: 'ok', hint, message: null, maxAmount };
 }
+
+/** Why the Convert button is off, in plain words, or null when it is on or when another visible message already explains it.
+ * Order matters: the earliest missing prerequisite is the one the person can act on first. Display only; the gates themselves
+ * stay in the panel (ready(), openSheet()) and are not changed by this function. */
+export function conversionButtonReason({ executionEnabled = false, nativeReady = false, hasPublicAddress = false, amountValid = false, limitBlocks = false, solanaLocked = false, quoting = false, hasQuote = false, hasError = false, hasDestination = false, quoteExpired = false, confirming = false } = {}) {
+  if (!executionEnabled) return 'Converting is not switched on in this build.';
+  if (!nativeReady) return 'Open your Monero wallet first: Home, then Monero. Converting needs both wallets.';
+  if (!hasPublicAddress) return 'Load your Solana balance on Home first. Converting needs your Solana wallet to be open and read.';
+  if (solanaLocked) return null; // the unlock line under the button already says so
+  if (!amountValid) return 'Enter an amount to get a rate.';
+  if (limitBlocks) return null; // the limit message below already says so
+  if (quoting) return 'Getting a rate. This takes a moment.';
+  if (!hasQuote) return hasError ? null : 'No rate yet. It appears a moment after you enter an amount.';
+  if (!hasDestination) return 'Preparing your receiving address. If this does not finish, check that your wallet is open.';
+  if (quoteExpired) return 'This rate expired. A new one is loading.';
+  if (confirming) return 'Your confirmation is being processed.';
+  return null;
+}
+
+/** True only when a wallet that was already part of the identity was replaced by a different one. A wallet that merely finished
+ * opening (null becoming an address) is not a change and must not raise the "identity changed" alert (review UX-02). */
+export function conversionIdentityReplaced(previous, next) {
+  try {
+    const before = JSON.parse(previous), after = JSON.parse(next);
+    if (!Array.isArray(before) || !Array.isArray(after)) return true;
+    return before.some((value, index) => value !== null && value !== after[index]);
+  } catch { return true; }
+}
+
+/** Wording for an order still 'waiting' after its own deposit deadline (review UX-08). It never claims that nothing was sent: only
+ * the provider can tell, and a deposit sent shortly before the deadline can still be unseen. It says what is true on each side. */
+export function conversionExpiredWaitingText(orderId) {
+  const id = typeof orderId === 'string' && orderId ? ` Order id ${orderId}.` : '';
+  return `This order expired. If you did not approve a payment in your wallet, no money has left it and your funds are still there. If you did send funds, they stay tracked here: check the order to see where they are.${id}`;
+}
+
+/** Heading for the saved-conversion card. An order that is still 'waiting' after its deadline says it expired instead of "In progress". */
+export function conversionCardHeading({ nothingSent = false, resolved = false, expiredWaiting = false } = {}) {
+  return nothingSent ? 'Expired' : resolved ? 'Finished' : expiredWaiting ? 'Time to send has ended' : 'In progress';
+}

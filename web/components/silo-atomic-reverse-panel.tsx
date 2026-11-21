@@ -20,7 +20,7 @@ import type {SiloAtomicKeys} from './silo-atomic-panel';
  * that address and Silo moves the XMR into the user's own wallet. If the maker never delivers, Silo takes the SOL back. The user's
  * wallet signs only the swap's own lock, ready and refund, each checked again inside the keyring (signReviewedAtomic).
  * Threat model: docs/research/xmr-sol-atomic-swap/SOL_TO_XMR_THREAT_MODEL.md. Same v3 design language as the XMR -> SOL panel. */
-export type SiloReverseQuote={direction:'sol-xmr';quoteId:string;swapId:string;xmrAtomic:string;lamports:number;solPerXmr:number;spreadBps:number;priceSource?:string;A:string;proofA:{R:string;s:string};claimer:string;expiresAt:number};
+export type SiloReverseQuote={direction:'sol-xmr';quoteId:string;swapId:string;xmrAtomic:string;lamports:number;solPerXmr:number;spreadBps:number;siloFeeBps?:number;priceSource?:string;A:string;proofA:{R:string;s:string};claimer:string;expiresAt:number};
 type Rec={kind:string;swapId:string;status:string;result?:string;quote:SiloReverseQuote;t0?:number;t1?:number;lockAttemptAt?:number;[key:string]:unknown};
 export type SiloReverseBridge={available:boolean;records:()=>Rec[];saveRecord:(record:Rec)=>Promise<void>;daemonHeight:()=>Promise<number|null>;watchJoint:(keys:{primaryAddress:string;privateViewKey:string;restoreHeight:number})=>Promise<{atomic:string;confirmations:number}|null>;cancelScan?:(keys:{primaryAddress:string;privateViewKey:string;restoreHeight:number})=>Promise<void>;releaseScan?:(keys:{primaryAddress:string;privateViewKey:string;restoreHeight:number})=>Promise<void>;sweepRecovery:(keys:SiloAtomicKeys)=>Promise<string[]>};
 type View={record:Rec;phase:string;scanFailed?:boolean;confirmations?:number|null;notice?:string;refundFrom?:number|null};
@@ -179,7 +179,7 @@ export function SiloAtomicReversePanel({enabled=false,recoveryOnly=false,network
     <div><dt>Maker spread</dt><dd>{spread}%. Already included in what you pay.</dd></div>
     <div><dt>Solana network fees</dt><dd>About {sol(TX_FEE*2)} SOL for the lock and the release, from your Silo Solana wallet. The {sol(RENT_LAMPORTS)} SOL account deposit comes back when the swap ends.</dd></div>
     <div><dt>Monero network fee</dt><dd>One fee for moving the XMR into your wallet, taken from the XMR you get.</dd></div>
-    <div><dt>Service fee</dt><dd>None besides the maker spread.</dd></div>
+    <div><dt>Service fee</dt><dd>{q.siloFeeBps?`${(q.siloFeeBps/100).toFixed(2)}% Silo fee, included in the spread above.`:'None besides the maker spread.'}</dd></div>
    </dl></section>}
     <p>{ATOMIC_DIRECTION_TEXT['sol-xmr'].line}</p>
     <p><b>You can close this page</b> once your SOL shows as locked. Open Silo again, usually after about 40 minutes, to confirm your XMR.</p>
