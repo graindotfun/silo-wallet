@@ -1,20 +1,38 @@
 'use client';
 import {useEffect,useState} from 'react';
 import {SiloWaitBar,SiloWaitStatus} from './silo-wait';
+import {SILO_OWN_NODE_URL,ownNodeRedirect,siloOwnNodeRequest} from '@/lib/silo/own-node-flag.mjs';
 import {SILO_OWN_NODE_COPY as COPY,chooseXmrNode,loadOwnNode,nodeInUseLine,saveOwnNode,clearOwnNode,testOwnNode,siloOwnNodeEnabled,normalizeOwnNode} from '@/lib/silo/own-node.mjs';
 
 type Line={ok:boolean;text:string};
 /** The saved choice for this device, read in an effect after mount (never during render, so server and client first paint match). Nothing here leaves the device. */
 export function useSiloOwnNode(configured:string,zone:string){
- const enabled=siloOwnNodeEnabled()&&zone==='xmr';
- const [own,setOwn]=useState<string|null>(null);
- useEffect(()=>{if(enabled)setOwn(loadOwnNode());},[enabled]);
+ const available=siloOwnNodeEnabled()&&zone==='xmr';
+ // Whether this page is the opt-in own-node page is read after mount (never during render, so server and client first paint match).
+ const [onPage,setOnPage]=useState(false),[own,setOwn]=useState<string|null>(null);
+ useEffect(()=>{
+  if(!available)return;
+  const here=siloOwnNodeRequest(location.pathname);
+  setOnPage(here);
+  const saved=loadOwnNode();
+  setOwn(here?saved:null);
+  // A saved own node must never be quietly replaced by Silo's node: the standard page cannot reach it (its policy is stricter), so go to the page that can.
+  const to=ownNodeRedirect(location.pathname,location.hash,saved);
+  if(to)location.replace(to);
+ },[available]);
+ const enabled=available&&onPage;
  const [useSiloNow,setUseSiloNow]=useState(false),[failed,setFailed]=useState(false);
  const choice=chooseXmrNode({configured,own,enabled,useSiloForNow:useSiloNow});
- return {enabled,own,choice,failed,setFailed,
+ return {enabled,available,own,choice,failed,setFailed,
   save:(address:string)=>{const uri=saveOwnNode(address);setOwn(uri);setUseSiloNow(false);setFailed(false);return uri;},
   remove:()=>{clearOwnNode();setOwn(null);setUseSiloNow(false);setFailed(false);},
   useSiloForNow:()=>{setUseSiloNow(true);setFailed(false);}};
+}
+
+/** Shown on the standard wallet page: the way into the opt-in page. Plain link, no script. */
+export function SiloOwnNodeLink({state}:{state:ReturnType<typeof useSiloOwnNode>}){
+ if(!state.available||state.enabled)return null;
+ return <p className="silo-hint" data-silo-own-node-link=""><a className="silo-textlink" href={SILO_OWN_NODE_URL}>{COPY.linkLabel}</a> {COPY.linkNote}</p>;
 }
 
 /** Monero node settings: which node is in use is always shown; an own node needs a passing test before Save; a failing own node
@@ -40,6 +58,11 @@ export function SiloOwnNodePanel({state,network,silo,busy}:{state:ReturnType<typ
    {testing&&<p className="silo-hint" role="status"><SiloWaitBar/><SiloWaitStatus>Testing your node</SiloWaitStatus>Testing your node...</p>}
    {lines&&<ul className="silo-node-checks" aria-label="Node test">{lines.map((line,index)=><li key={index}><span aria-hidden="true">{line.ok?'✓':'✗'}</span> <span className="silo-wait-vh">{line.ok?'Passed: ':'Failed: '}</span>{line.text}</li>)}</ul>}
   </div>}
+  <p className="silo-hint" data-silo-own-node-page="">{COPY.pageNote}</p>
+  <p className="silo-hint">{COPY.trustOnlyOwn}</p>
+  {state.own
+   ?<button type="button" className="silo-textlink" disabled={busy} onClick={()=>{state.remove();location.assign('/app');}}>{COPY.stop}</button>
+   :<a className="silo-textlink" href="/app">{COPY.back}</a>}
   <button type="button" className="silo-textlink" aria-expanded={how} onClick={()=>setHow(!how)}>{COPY.howTitle}</button>
   {how&&<div className="silo-review"><ol>{COPY.how.map(step=><li key={step}>{step}</li>)}</ol>
    <button type="button" onClick={()=>{void navigator.clipboard?.writeText('--rpc-access-control-origins https://silo.trading').then(()=>setCopied(true)).catch(()=>{});}}>{copied?'Copied':'Copy the origin flag'}</button></div>}

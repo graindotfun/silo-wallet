@@ -85,6 +85,12 @@ export const SILO_OWN_NODE_COPY = Object.freeze({
   own: 'Your node. Only you see your requests and the transactions you send through it, if you run it yourself. The test step also asks Silo\'s node for its block height to compare.',
   failure: "We could not use your node. No payment was sent. Fix it, or choose Silo's node for now.",
   useSilo: "Use Silo's node for now",
+  linkLabel: 'Use my own Monero node',
+  linkNote: 'Opens the wallet on a separate page where it may call a node address you type.',
+  pageNote: 'This page lets the wallet contact any https address you type, which the standard page does not. Its script rules are the same, and the node address you type is never sent to Silo. Silo\'s node is still the default here, and the Test step asks it for its block height.',
+  trustOnlyOwn: 'Only use a node you run yourself. A node someone else gives you can see your IP address and your transactions, and can show a wrong balance.',
+  stop: 'Stop using my node and go back to the standard wallet',
+  back: 'Back to the standard wallet',
   howTitle: 'How to set up your node',
   how: Object.freeze([
     'Allow the Silo page to call your node: start monerod with --rpc-access-control-origins https://silo.trading',
