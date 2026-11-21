@@ -13,7 +13,7 @@ test('the entry proof carries the accepted terms version; other or missing versi
  const token=await siloInviteProof(secret,open,null),[expires,label,nonce,terms]=token.split('.');
  assert.equal(terms,SILO_BETA_TERMS.replace('silo-beta-terms-',''));assert.equal(await siloInviteValid(secret,open,cookie(token)),true);
  const sign=payload=>`${payload}.${createHmac('sha256',secret).update(payload).digest('hex')}`;
- const legacy=sign(`${expires}.${label}.${nonce}`),other=sign(`${expires}.${label}.${nonce}.v0`),future=sign(`${expires}.${label}.${nonce}.v2`);
+ const legacy=sign(`${expires}.${label}.${nonce}`),other=sign(`${expires}.${label}.${nonce}.v0`),future=sign(`${expires}.${label}.${nonce}.v3`);
  assert.equal(await siloInviteValid(secret,open,cookie(legacy)),false,'a proof from before the terms (no version) no longer admits');
  assert.equal(await siloInviteValid(secret,open,cookie(other)),false,'a proof under another terms version no longer admits');
  assert.equal(await siloInviteValid(secret,open,cookie(future)),false);

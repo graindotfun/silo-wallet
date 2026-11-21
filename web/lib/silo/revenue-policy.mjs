@@ -20,6 +20,9 @@ export const SILO_REVENUE_POLICY = Object.freeze({
  // A provider absent here does not pay Silo this way. Confirmed in ChangeNOW's own account correspondence (19 Oct 2026;
  // [redacted for publication: the correspondent's name and the quoted text]). Owner-approved, 28 Oct 2026, for the beta.
  partnerCommissionBpsByProvider: Object.freeze({changenow: 40}),
+ // No user-visible fee option exists on any provider (20 Nov 2026 redesign): a fee as an extra output of the user's deposit would
+ // fingerprint Silo users on chain and a Silo-held intermediate would be custody. Revenue reaches GRAIN through the provider commission above.
+ swapFeeOptionsByProvider: Object.freeze({}),
  buybackAllocationBps: 3000, cardRevenueEnabled: false,
 });
 /** Legacy planning range retained for existing historical scenarios. Live provider policy uses the explicit getter below. */
@@ -43,7 +46,16 @@ export function siloPartnerCommissionBps(provider) {
  * (an intent's own `provider` field identifies the underlying exchange a cross-chain platform routed through,
  * not the Silo adapter -- that match is `assertCrosschainAvailable`'s job, via `config.provider`). */
 export function siloApprovedSwapFeeBps(bps) {
- return Object.values(SILO_REVENUE_POLICY.swapFeesByProvider).includes(bps);
+ return Object.values(SILO_REVENUE_POLICY.swapFeesByProvider).includes(bps)
+  || Object.values(SILO_REVENUE_POLICY.swapFeeOptionsByProvider).some(list => list.includes(bps));
+}
+/** The fee in force for `provider`: the variable (a string of digits) when it is one of the provider's listed options,
+ * otherwise the registry value. A malformed or unlisted value never raises the fee, it falls back to the registry. */
+export function siloEffectiveSwapFeeBps(provider, raw) {
+ const base = siloProviderSwapFeeBps(provider);
+ if (typeof raw !== 'string' || !/^(0|[1-9]\d{0,2})$/.test(raw)) return base;
+ const options = SILO_REVENUE_POLICY.swapFeeOptionsByProvider[provider] ?? [];
+ return options.includes(Number(raw)) ? Number(raw) : base;
 }
 export function siloRevenueStatus() {
  return Object.freeze({policy: SILO_REVENUE_POLICY, collectionEnabled: false,

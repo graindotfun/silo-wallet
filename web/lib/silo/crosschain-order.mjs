@@ -1,5 +1,5 @@
 import { siloNewReceiveAddress } from './new-receive.mjs';
-import { siloProviderSwapFeeBps, siloApprovedSwapFeeBps } from './revenue-policy.mjs';
+import { siloProviderSwapFeeBps, siloApprovedSwapFeeBps, SILO_REVENUE_POLICY } from './revenue-policy.mjs';
 
 /** This is the local execution/recovery contract, not proof of live provider support. */
 export const SILO_CROSSCHAIN_ROUTES = Object.freeze([
@@ -62,7 +62,7 @@ export function assertCrosschainAvailable(config = {}) {
   // siloProviderSwapFeeBps's own error -- a caller should only ever see one refusal shape here.
   let approvedFee; try { approvedFee = siloProviderSwapFeeBps(config.provider); } catch { approvedFee = null; }
   if (config.enabled !== true || config.apiAccessVerified !== true || config.routesVerified !== true
-    || config.feeContractVerified !== true || config.feeBps !== approvedFee || config.walletExecutionVerified !== true || config.commissionAccrualAuthorized !== true) {
+    || config.feeContractVerified !== true || approvedFee === null || config.feeBps !== approvedFee || config.walletExecutionVerified !== true || config.commissionAccrualAuthorized !== true) {
     throw Error('crosschain-not-configured');
   }
 }

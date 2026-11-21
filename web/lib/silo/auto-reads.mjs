@@ -3,7 +3,7 @@
  * choice never counts. The choice is kept per Solana network with the notice version it was made under, and turning it
  * off stops later automatic reads. Nothing here sends anything. */
 export const SILO_AUTO_READS_KEY='grain-silo-auto-reads-v1';
-export const SILO_AUTO_READS_NOTICE='silo-beta-privacy-v4';
+export const SILO_AUTO_READS_NOTICE='silo-beta-privacy-v5';
 const networks=['mainnet-beta','devnet'];
 function readAll(storage){try{const value=JSON.parse(storage.getItem(SILO_AUTO_READS_KEY)??'{}');return value&&typeof value==='object'&&!Array.isArray(value)?value:{};}catch{return {};}}
 /** true, false, or null when this browser has not chosen for this network under the current notice. */
