@@ -1,6 +1,6 @@
 'use client';
 import {createContext,useContext,useEffect,useMemo,useRef,useState,type ReactNode} from 'react';
-import {packSiloUnifiedBackup,siloBackupFileName,SILO_BACKUP_ZONES} from '@/lib/silo/unified-backup.mjs';
+import {packSiloUnifiedBackup,siloBackupFileName,siloBackupHasContacts,SILO_BACKUP_ZONES} from '@/lib/silo/unified-backup.mjs';
 
 /** One backup file for the whole wallet. Each open zone registers how to produce its own sealed envelope; an export from any
  * zone collects every registered part into one file (owner decision, 20 October 2026). Collection runs one export at a time,
@@ -100,7 +100,7 @@ export function startSiloBackupDownload(download:SiloBackupDownload):SiloBackupD
 export function describeSiloBackupExport(exported:SiloBackupExport){
  const names:Record<SiloBackupZone,string>={solana:'Solana',evm:'Ethereum, Base and BNB',btc:'Bitcoin',xmr:'Monero'};
  const left=exported.excluded.filter(zone=>!exported.zones.includes(zone));
- return `${exported.zones.length>1?'Combined backup':'Backup'} exported: ${exported.zones.map(zone=>names[zone]).join(' + ')} · file id ${exported.exportId}.${left.length?` Not included: ${left.map(zone=>names[zone]).join(', ')} (locked in this browser). Unlock it and export again for one file with both.`:''}`;
+ return `${exported.zones.length>1?'Combined backup':'Backup'} exported: ${exported.zones.map(zone=>names[zone]).join(' + ')} · file id ${exported.exportId}.${siloBackupHasContacts(exported.file)?' Contacts included.':''}${left.length?` Not included: ${left.map(zone=>names[zone]).join(', ')} (locked in this browser). Unlock it and export again for one file with both.`:''}`;
 }
 /** The export status and the link that saves the prepared file: the only way to save when no download started, and a way
  * to save a copy again after one did. */

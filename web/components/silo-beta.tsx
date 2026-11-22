@@ -6,11 +6,12 @@ import {SiloGateHero} from './silo-gate-hero';
 import {SILO_AUTO_READS_NOTICE} from '@/lib/silo/auto-reads.mjs';
 import {SILO_BETA_TERMS,SILO_BETA_TERMS_CHANGE_NOTE} from '@/lib/silo/beta-terms.mjs';
 import {holdBrandThemeColor} from '@/lib/silo/brand-theme-color.mjs';
+import {rememberBetaEntry,betaEntryRemembered,betaGateOpen} from '@/lib/silo/beta-entry-memory.mjs';
 import {initialBetaLiveState,betaLiveAnswered,betaLiveFailed,betaLiveTick,SILO_BETA_POLL_INTERVAL_MS,SILO_BETA_FETCH_TIMEOUT_MS} from '@/lib/silo/beta-live-state.mjs';
 /** The beta guards (invite-only or open) as the browser sees them: no hashes, no secret (lib/silo/beta-guard.mjs, siloBetaPublic). The live
  * copy carries when it was observed and until when it is good for; every payment boundary checks that against the clock
  * (lib/silo/beta-live-state.mjs, siloBetaFreshness). */
-export type SiloBeta={closed:boolean;open?:boolean;paused:boolean;caps:{sol:string;xmr:string;solLamports:string;xmrAtomic:string};auditDeferred:boolean;notice:string;stale?:boolean;observedAt?:number;validUntil?:number};
+export type SiloBeta={closed:boolean;open?:boolean;paused:boolean;caps:{sol:string;xmr:string;solLamports:string;xmrAtomic:string};auditDeferred:boolean;notice:string;stale?:boolean;frozen?:boolean;observedAt?:number;validUntil?:number};
 export type SiloBetaLive={beta:SiloBeta|null;invited:boolean|null;checkedAt:number|null;refresh:()=>Promise<void>};
 
 /** Polls the server every minute so a flipped kill switch reaches open pages without a reload. Each request has a timeout; an
@@ -48,16 +49,28 @@ export function SiloBetaBanner({beta}:{beta:SiloBeta|null}){
 }
 
 /** Closed beta: the wallet opens for invitees only. The code is sent once; the server keeps a proof cookie, never the code.
- * A local acceptance lasts only until the next live status says this browser is not invited (review N4). */
+ * A local acceptance lasts only until the next live status says this browser is not invited (review N4).
+ * Once the server accepted an entry, this device remembers it (lib/silo/beta-entry-memory.mjs), so the wallet still opens when
+ * the server cannot be reached; whenever a live answer refuses this device, the gate shows. */
 export function SiloBetaGate({invited,open=false,checkedAt=null,onAccepted,children}:{invited:boolean|null;open?:boolean;checkedAt?:number|null;onAccepted?:()=>Promise<void>|void;children:React.ReactNode}){
- const [code,setCode]=useState(''),[terms,setTerms]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[acceptedAt,setAcceptedAt]=useState<number|null>(null);
+ const [code,setCode]=useState(''),[terms,setTerms]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState(''),[acceptedAt,setAcceptedAt]=useState<number|null>(null),[remembered,setRemembered]=useState(false);
+ // Read after mount, never during render, so the first paint is the same with and without a stored record.
+ // eslint-disable-next-line react-hooks/set-state-in-effect -- device storage is only readable after mount
+ useEffect(()=>{setRemembered(betaEntryRemembered(SILO_BETA_TERMS));},[]);
+ // A live answer that lets this device in is remembered as well (its proof carries the current terms), so devices that entered
+ // before this memory existed get it, and a slow older poll cannot erase a fresh entry for good.
+ // eslint-disable-next-line react-hooks/set-state-in-effect -- mirrors the stored record
+ useEffect(()=>{if(invited===true&&checkedAt!==null&&rememberBetaEntry(SILO_BETA_TERMS))setRemembered(true);},[invited,checkedAt]);
+ // A live refusal shows the gate for as long as it stands (betaGateOpen), but the record is kept: the server's entry proof
+ // is short-lived by design, so a refusal is the normal state of every later visit, and erasing the record there would
+ // leave nothing for the day the server cannot be reached.
  // eslint-disable-next-line react-hooks/set-state-in-effect -- a later poll that denies this browser closes the gate again
  useEffect(()=>{if(acceptedAt!==null&&invited===false&&checkedAt!==null&&checkedAt>acceptedAt)setAcceptedAt(null);},[invited,checkedAt,acceptedAt]);
- const gateShown=!(invited===true||acceptedAt!==null);
+ const opened=betaGateOpen({invited,accepted:acceptedAt!==null,remembered}),gateShown=!opened;
  // The top bar matches the orange gate while it is on screen.
  useEffect(()=>{if(!gateShown)return;return holdBrandThemeColor();},[gateShown]);
- if(invited===true||acceptedAt!==null)return <>{acceptedAt!==null&&<SiloOpening/>}{children}</>;
- async function redeem(){setBusy(true);setError('');try{const response=await fetch('/api/silo/invite',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(open?{enter:true,terms:SILO_BETA_TERMS}:{code,terms:SILO_BETA_TERMS})});if(!response.ok){const refusal=await response.json().then(body=>(body as {refusal?:string}|null)?.refusal,()=>null);setError(refusal==='daily-cap'?'Today\'s places in the beta are taken. Please come back tomorrow.':response.status===429?'Too many attempts. Try again in a minute.':open?'Silo could not be opened. Try again.':'This invite code was not accepted.');return;}setAcceptedAt(Date.now());await onAccepted?.();}catch{setError('The invitation could not be checked. Try again.');}finally{setBusy(false);}}
+ if(opened)return <>{acceptedAt!==null&&<SiloOpening/>}{children}</>;
+ async function redeem(){setBusy(true);setError('');try{const response=await fetch('/api/silo/invite',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(open?{enter:true,terms:SILO_BETA_TERMS}:{code,terms:SILO_BETA_TERMS})});if(!response.ok){const refusal=await response.json().then(body=>(body as {refusal?:string}|null)?.refusal,()=>null);setError(refusal==='daily-cap'?'Today\'s places in the beta are taken. Please come back tomorrow.':response.status===429?'Too many attempts. Try again in a minute.':open?'Silo could not be opened. Try again.':'This invite code was not accepted.');return;}rememberBetaEntry(SILO_BETA_TERMS);setRemembered(true);setAcceptedAt(Date.now());await onAccepted?.();}catch{setError('The invitation could not be checked. Try again.');}finally{setBusy(false);}}
  // The signup page's look: the field works from the first frame; the logo assembles around it in under a second.
  return <section className="silo-gate" aria-label="Beta invitation">
   <header className="silo-gate-top"><span>silo by grain</span><span>{open?'open beta':'closed beta'}</span></header>

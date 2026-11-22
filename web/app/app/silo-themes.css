@@ -456,3 +456,20 @@ html[data-skin] .silo-app .silo-asset-card .silo-window[data-zone]{background:no
 .silo-app .silo-moment-actions button{min-height:56px;font-size:16px;font-weight:600}
 .silo-app .silo-moment-ghost{border:1px solid var(--silo-control-line);background:transparent;color:var(--silo-text);border-radius:var(--silo-radius-sm)}
 .silo-app #silo-conversion .silo-convert-rate{margin:0;padding:0;list-style:none;display:grid;gap:2px;font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+
+/* Address book (contacts). 44px taps, 16px inputs, bottom sheet for the picker, the orange dot for waiting. */
+.silo-contact-assist{display:flex;flex-direction:column;align-items:flex-start;gap:8px;margin:8px 0 16px}
+.silo-contact-assist button,.silo-contacts button{min-height:44px}
+.silo-contact-assist input,.silo-contacts input:not([type=radio]):not([type=file]),.silo-contacts select{font-size:16px;min-height:44px}
+.silo-contact-open,.silo-contact-save{display:inline-flex;align-items:center;gap:8px}
+.silo-contact-known{display:flex;align-items:center;gap:8px;margin:0}
+.silo-contact-warning{border:2px solid currentColor;border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:8px;width:100%}
+.silo-contact-warning p{margin:0}
+.silo-contact-form{display:flex;flex-direction:column;gap:16px;width:100%}
+.silo-contact-actions{display:flex;flex-wrap:wrap;gap:8px}
+.silo-contact-row{display:flex;flex-direction:column;align-items:flex-start;gap:8px;width:100%;min-height:60px;padding:16px;border:0;background:none;color:inherit;font:inherit;text-align:left}
+.silo-contact-row+.silo-contact-row{border-top:1px solid #3a2b20}
+.silo-contact-list{list-style:none;margin:16px 0;padding:0;display:flex;flex-direction:column;gap:16px}
+.silo-contact-list li{display:flex;flex-direction:column;gap:8px;padding:16px;border:1px solid var(--silo-line-strong);border-radius:8px}
+.silo-contact-mode{display:flex;flex-direction:column;gap:8px}
+.silo-contacts{display:flex;flex-direction:column;gap:16px}

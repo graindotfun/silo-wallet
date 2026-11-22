@@ -38,6 +38,8 @@ export function siloBackupEnvelopeZone(envelope){
  return null;
 }
 export const isSiloUnifiedBackup=value=>Boolean(value&&typeof value==='object'&&!Array.isArray(value)&&(value.format===SILO_UNIFIED_BACKUP_FORMAT||value.format===SILO_UNIFIED_BACKUP_FORMAT_V2||value.format===SILO_UNIFIED_BACKUP_FORMAT_V3));
+/** True when a unified file carries a sealed address-book envelope under its top-level `contacts` key (header only, no secret read). */
+export const siloBackupHasContacts=file=>Boolean(isSiloUnifiedBackup(file)&&file.contacts&&typeof file.contacts==='object'&&file.contacts.zone==='contacts'&&file.contacts.network==='local');
 /** The format must agree with the parts: an EVM part exists exactly when the format is v2. */
 const siloBackupFormatFor=parts=>parts.btc?SILO_UNIFIED_BACKUP_FORMAT_V3:parts.evm?SILO_UNIFIED_BACKUP_FORMAT_V2:SILO_UNIFIED_BACKUP_FORMAT;
 function formatMatchesParts(value){const present=zone=>value.parts?.[zone]!==undefined&&value.parts?.[zone]!==null;return value.format===siloBackupFormatFor({btc:present('btc'),evm:present('evm')});}

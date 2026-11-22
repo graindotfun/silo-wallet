@@ -1,5 +1,6 @@
 'use client';
 import {useCallback,useEffect,useRef,useState} from 'react';
+import {SiloContactAssist} from './silo-contacts';
 import {AlertTriangle} from 'lucide-react';
 import {SiloAssetIcon} from './silo-asset-icon';
 import {SiloReceiveAddress} from './silo-receive-address';
@@ -181,6 +182,7 @@ export function SiloBtcZone({network,sendEnabled,capSats,mainnetMode=false,getAc
     <p className="exposure-note">{SILO_BTC_COPY.confirmations}</p>
    </>:<>
     <label>To<input value={dest} onChange={event=>setDest(event.target.value)} autoComplete="off" spellCheck={false} placeholder={real?'bc1…':'tb1…'}/></label>
+    <SiloContactAssist chain="btc" value={dest} onPick={address=>setDest(address)}/>
     <label>Amount (BTC)<input value={amount} disabled={all} inputMode="decimal" onChange={event=>setAmount(event.target.value)} autoComplete="off" placeholder="0.00010000"/></label>
     <label className="silo-check"><input type="checkbox" checked={all} onChange={event=>setAll(event.target.checked)}/> Send everything (the fee comes out of the amount)</label>
     <label>Fee<select value={tier} onChange={event=>setTier(event.target.value)}>{Object.keys(FEE_LABEL).map(key=><option key={key} value={key}>{FEE_LABEL[key]}{fees?` · ${fees[key]} sat/vB`:''}</option>)}</select></label>

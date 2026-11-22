@@ -10,7 +10,12 @@ export const SILO_BETA_POLL_INTERVAL_MS=60000,SILO_BETA_FETCH_TIMEOUT_MS=15000,S
 /** @param {{beta:any,intervalMs?:number,now?:number}} options */
 export function initialBetaLiveState({beta,intervalMs=SILO_BETA_POLL_INTERVAL_MS,now=Date.now()}){
  // The server-rendered copy counts as an observation made at page load; the first poll replaces it.
- return Object.freeze({beta:beta?{...beta,stale:false,observedAt:now,validUntil:now+SILO_BETA_STALE_INTERVALS*intervalMs}:null,invited:beta?.closed?null:true,checkedAt:null,observedAt:beta?now:null,validUntil:beta?now+SILO_BETA_STALE_INTERVALS*intervalMs:null,sequence:0,failures:0,intervalMs});
+ // A copy marked `frozen` was not rendered by the server for this load: it was captured when an app bundle was built (the
+ // Android app). It may be days old, so it is never fresh: it starts stale and its window is already closed, and every
+ // payment boundary waits for the first live answer. Without this, a wallet opened with the server unreachable could
+ // send Monero under a bundled "not paused" for about a minute.
+ const frozen=beta?.frozen===true,validUntil=beta?(frozen?now-1:now+SILO_BETA_STALE_INTERVALS*intervalMs):null;
+ return Object.freeze({beta:beta?{...beta,stale:frozen,observedAt:now,validUntil}:null,invited:beta?.closed?null:true,checkedAt:null,observedAt:beta?now:null,validUntil,sequence:0,failures:0,intervalMs});
 }
 /** A poll answered (`sequence` is the number the hook gave that request when it started). Older answers are ignored. */
 export function betaLiveAnswered(state,{sequence,body,now=Date.now()}){
