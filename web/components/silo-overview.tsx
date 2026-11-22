@@ -21,6 +21,7 @@ import {SiloBetaBadge,type SiloBeta} from './silo-beta';
 import {useSiloKeyboardFit} from './silo-keyboard-fit';
 import {SiloAmountPad} from './silo-amount-pad';
 import {SiloSendScreen} from './silo-send-screen';
+import {SiloAddressBook} from './silo-contacts';
 import {SiloAssetCard,SiloNetworkRow} from './silo-asset-card';
 import {SILO_FALLBACK_LOOK,siloAssetLook,siloChainLook} from '@/lib/silo/asset-look.mjs';
 import {SILO_TAGLINE} from '@/lib/silo-brand';
@@ -34,16 +35,16 @@ type Holdings={network?:'mainnet-beta'|'devnet';lamports:string|null;holdings:{m
 export type SiloXmrHistoryRow={id:string;height:number|null;incoming:string|null;outgoing:string|null;selfTransfer?:boolean;balanceDelta:string|null;fee:string|null;confirmations:number|null;status:string;timestamp?:number|null};
 type View='overview'|'wallets'|'send'|'swap'|'activity'|'settings'|'move';
 type Task='swap'|'cashout'|'atomic';
-type Page='index'|'backup'|'devices'|'display'|'fees'|'build'|'about';
+type Page='index'|'backup'|'contacts'|'devices'|'display'|'fees'|'build'|'about';
 type Reason={key:string;text:string;next?:{label:string;go:()=>void}};
 // Wallets are reached from Home rows, so Home is the current place while a wallet is open.
 const views=[{id:'overview' as View,label:'Home',icon:House},{id:'swap' as View,label:'Swap',icon:ArrowLeftRight},{id:'activity' as View,label:'Activity',icon:History},{id:'settings' as View,label:'Settings',icon:Settings2}];
-const pages:Page[]=['index','backup','devices','display','fees','build','about'];
+const pages:Page[]=['index','backup','contacts','devices','display','fees','build','about'];
 const networks=['xmr','sol','zec','evm'];
 const subscribeNavigation=(changed:()=>void)=>{window.addEventListener('hashchange',changed);return()=>window.removeEventListener('hashchange',changed);};
-const navigationSnapshot=()=>/^#settings\/(xmr|sol|zec|evm)$/.test(location.hash)?'#settings/devices':/^#(overview|wallets|send|swap|activity|settings)\/(xmr|sol|zec|evm|index|backup|devices|display|fees|build|about|cashout)$/.test(location.hash)||location.hash==='#swap/atomic'||location.hash===SILO_MOVE_HASH?location.hash:'#overview/xmr';
-const pageTitle:Record<Page,string>={index:'settings',backup:'backup',devices:'devices',display:'display',fees:'fees and privacy',build:'this build',about:'about'};
-const pageLine:Record<Page,string>={index:'Backup, devices, display, fees and what this build can do.',backup:'Your encrypted wallet is kept in this browser.',devices:'Sign in on another device, then unlock and approve it separately.',display:'How the wallet looks and what it shows on screen.',fees:'What stays public, what costs money and what this wallet cannot promise.',build:'What works in this build and what is held.',about:'Beta, not externally audited. Use small amounts.'};
+const navigationSnapshot=()=>/^#settings\/(xmr|sol|zec|evm)$/.test(location.hash)?'#settings/devices':/^#(overview|wallets|send|swap|activity|settings)\/(xmr|sol|zec|evm|index|backup|contacts|devices|display|fees|build|about|cashout)$/.test(location.hash)||location.hash==='#swap/atomic'||location.hash===SILO_MOVE_HASH?location.hash:'#overview/xmr';
+const pageTitle:Record<Page,string>={index:'settings',backup:'backup',contacts:'contacts',devices:'devices',display:'display',fees:'fees and privacy',build:'this build',about:'about'};
+const pageLine:Record<Page,string>={index:'Backup, devices, display, fees and what this build can do.',backup:'Your encrypted wallet is kept in this browser.',contacts:'Names for addresses you pay often. Kept only in this browser.',devices:'Sign in on another device, then unlock and approve it separately.',display:'How the wallet looks and what it shows on screen.',fees:'What stays public, what costs money and what this wallet cannot promise.',build:'What works in this build and what is held.',about:'Beta, not externally audited. Use small amounts.'};
 function dayLabel(time:number|null){if(time===null)return 'Time not recorded';const day=new Date(time),today=new Date(),start=(date:Date)=>Date.UTC(date.getUTCFullYear(),date.getUTCMonth(),date.getUTCDate());const delta=Math.round((start(today)-start(day))/86400000);return delta===0?'Today':delta===1?'Yesterday':day.toISOString().slice(0,10);}
 type Activity={id:string;when:number|null;title:string;detail:string;value:string|null;state:'ok'|'held'|'danger'|'idle';word:string;network:'sol'|'xmr'};
 function solanaActivity(page:SiloActivityPage|null):Activity[]{
@@ -256,7 +257,7 @@ export function SiloOverview({moveEnabled=false,atomicEnabled=false,solanaOpen=f
 
  const group=(name:string,rows:{id:Page;title:string;sub:string}[])=><section className="silo-group" aria-labelledby={`silo-group-${name.replace(/\W+/g,'-')}`}><div className="silo-section-head"><h2 id={`silo-group-${name.replace(/\W+/g,'-')}`}><span className="silo-label">{name}</span></h2></div>{rows.map(row=><button key={row.id} type="button" className="silo-link-row" onClick={()=>navigate('settings',row.id)}><span>{row.title}<small>{row.sub}</small></span><ChevronRight size={18} aria-hidden="true"/></button>)}</section>;
  const settingsIndex=<div className="silo-settings-groups">
-  {group('Wallet',[{id:'backup',title:'Back up and recover',sub:'Your encrypted wallet is kept in this browser.'},{id:'devices',title:'Account and devices',sub:'Sign in, unlock a synced vault and approve another device.'}])}
+  {group('Wallet',[{id:'backup',title:'Back up and recover',sub:'Your encrypted wallet is kept in this browser.'},{id:'contacts',title:'Contacts',sub:'Names for addresses you pay often. Kept only in this browser.'},{id:'devices',title:'Account and devices',sub:'Sign in, unlock a synced vault and approve another device.'}])}
   <section className="silo-group" aria-label="Other networks"><button type="button" className="silo-link-row" onClick={()=>openNetwork('evm')}><span>Other networks<small>Ethereum, Base, BNB Chain and Robinhood Chain: view and receive; send where enabled.</small></span><ChevronRight size={18} aria-hidden="true"/></button></section>
    {group('Display',[{id:'display',title:'Appearance and hidden amounts',sub:'Dark, light or your device setting. Hide balances on every screen.'}])}
   {group('About Silo',[{id:'fees',title:'Fees, privacy and limits',sub:'What is public, what costs money and what is not promised.'},{id:'build',title:'What this build can do',sub:'Available, preview only and held.'},{id:'about',title:'About',sub:'Beta, not externally audited. Build and links.'}])}
@@ -297,6 +298,7 @@ export function SiloOverview({moveEnabled=false,atomicEnabled=false,solanaOpen=f
    {view==='activity'&&pendingSwap}
    {view==='activity'&&<SiloActivityFeed activityPage={activityPage} xmrHistory={xmrHistory} owner={solanaOwner} solanaStatus={solanaActivityStatus} onRefresh={onRefreshSolana} onRefreshXmr={onRefreshXmr??undefined} onLoadOlder={onLoadOlder} onOpenSwap={atomicEnabled?()=>setTask('atomic'):undefined} swapsPaused={swapsPaused} concealed={concealed} dayLabel={dayLabel}/>}
    {view==='settings'&&page==='index'&&settingsIndex}
+   {view==='settings'&&page==='contacts'&&<SiloAddressBook/>}
    {view==='settings'&&page==='about'&&aboutPage}
    {view==='settings'&&page==='build'&&<div className="silo-settings-groups">{capabilities}</div>}
    <div className="silo-wallet-controls">{view==='settings'&&<>

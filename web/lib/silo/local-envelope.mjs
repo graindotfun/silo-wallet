@@ -20,7 +20,7 @@ async function key(passphrase,salt){
  const material=await crypto.subtle.importKey('raw',encoder.encode(passphrase),'PBKDF2',false,['deriveKey']);
  return crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:SILO_KDF_ITERATIONS,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
 }
-export function assertSiloNetwork(zone,network){if(!((zone==='xmr'&&['stagenet','mainnet'].includes(network))||(zone==='zec'&&['testnet','mainnet'].includes(network))))throw Error('Unsupported wallet network.');}
+export function assertSiloNetwork(zone,network){if(!((zone==='xmr'&&['stagenet','mainnet'].includes(network))||(zone==='zec'&&['testnet','mainnet'].includes(network))||(zone==='contacts'&&network==='local')))throw Error('Unsupported wallet network.');}
 export async function sealSilo(zone,network,payload,typed){
  const passphrase=nfc(typed);
  assertSiloNetwork(zone,network);const plain=encoder.encode(JSON.stringify(payload));if(plain.length>MAX_BYTES){try{return await sealChunks(zone,network,plain,passphrase);}finally{plain.fill(0);}}

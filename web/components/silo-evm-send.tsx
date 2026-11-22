@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
+import {SiloContactAssist} from './silo-contacts';
 import {keccak256} from 'viem';
 import type {SiloNativeSession} from './silo-native-public-wallet';
 import {sessionRpcFetch} from '@/lib/browser-rpc-session.mjs';
@@ -145,6 +146,7 @@ export function SiloEvmSend({session,chain,sending=true}:{session:SiloNativeSess
   {!sending&&!attempt&&!corrupt&&step==='form'&&<p className="exposure-note" role="status">Sending is paused. Nothing new can be sent right now.</p>}
   {sending&&(step==='form'||step==='checking')&&<>
    <label>To<input value={to} onChange={event=>setTo(event.target.value.trim())} placeholder="0x…" autoComplete="off" spellCheck={false} disabled={step==='checking'}/></label>
+   <SiloContactAssist chain="evm" value={to} disabled={step==='checking'} onPick={address=>setTo(address)}/>
    <label>Amount ({chain.symbol})<input value={amount} onChange={event=>setAmount(event.target.value.trim())} inputMode="decimal" placeholder="0.0" autoComplete="off" disabled={step==='checking'}/></label>
    <p className="exposure-note">Only send to a normal wallet address on {chain.name}. Sends to smart contracts are not supported. Beta: small amounts only.</p>
    <button className="silo-primary" disabled={step==='checking'||!to||!amount} aria-busy={step==='checking'||undefined} onClick={()=>void review()}>{step==='checking'?'Checking…':'Review'}</button>
